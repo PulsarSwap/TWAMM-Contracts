@@ -1,0 +1,15 @@
+coverage
+coverage.json
+typechain
+.vscode
+
+node_modules
+
+#Hardhat files
+cache
+artifacts
+
+# environment
+.env
+
+.eslintcache
