@@ -22,14 +22,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/PulsarSwap/Pulsar-TWAMM-Contracts.git"
+    "url": "git+https://github.com/PulsarSwap/TWAMM-Contracts.git"
   },
   "author": "pulsar",
   "license": "GPL-3.0-or-later",
   "bugs": {
-    "url": "https://github.com/PulsarSwap/Pulsar-TWAMM-Contracts/issues"
+    "url": "https://github.com/PulsarSwap/TWAMM-Contracts/issues"
   },
-  "homepage": "https://github.com/PulsarSwap/Pulsar-TWAMM-Contracts#readme",
+  "homepage": "https://github.com/PulsarSwap/TWAMM-Contracts#readme",
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-etherscan": "^2.1.7",
