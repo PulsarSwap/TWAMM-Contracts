@@ -68,13 +68,7 @@ module.exports = {
       ...mainnetArgs,
     },
 
-    hardhat: {
-      forking: {
-        url: `https://ropsten.infura.io/v3/${INFURA_API_KEY}`,
-        blockNumber: 12115900,
-      },
-      ...ropstenArgs,
-    },
+    
 
     mainnet: {
       url: `https://mainnet.infura.io/v3/${INFURA_API_KEY}`,
