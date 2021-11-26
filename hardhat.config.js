@@ -61,14 +61,12 @@ module.exports = {
     },
 
     hardhat: {
-      allowUnlimitedContractSize: true,
-      mining: {
-        auto: false,
+      forking: {
+        url: `https://ropsten.infura.io/v3/${INFURA_API_KEY}`,
+        blockNumber: 12115900,
       },
-      ...mainnetArgs,
+      ...ropstenArgs,
     },
-
-    
 
     mainnet: {
       url: `https://mainnet.infura.io/v3/${INFURA_API_KEY}`,
