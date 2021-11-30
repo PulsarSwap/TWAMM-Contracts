@@ -34,10 +34,28 @@ describe("TWAMM", function () {
             tokenB.address,
             blockInterval);
 
-        tokenA.approve(twamm.address, ERC20Supply);
-        tokenB.approve(twamm.address, ERC20Supply);
+
+        console.log('owner', owner.address, 'twamm',twamm.address);
+        console.log((await tokenA.balanceOf(owner.address)).toString());
+        console.log((await tokenA.balanceOf(twamm.address)).toString());
+        console.log((await tokenB.balanceOf(owner.address)).toString());
+        console.log((await tokenB.balanceOf(twamm.address)).toString());
+
+        //owner calls the approve to approve twamm address to be able to spend ERC20Supply amount of tokens
+        //// then twamm address's provideInitialLiuidity calls token's transferFrom function to transfer "initialLiquidityProvided" amount token A 
+        // and token B to twamm address. Note that this time the transferFrom is triggered by twamm address not the owner address. 
+        // this is why we need to firstly approve twamm onbehave of owner to spend owner's tokens
+        await tokenA.approve(twamm.address, ERC20Supply); //owner calls it
+        await tokenB.approve(twamm.address, ERC20Supply); 
+        
+        // tokenA.approve(owner, ERC20Supply);
+        // tokenA.approve(owner, ERC20Supply);
 
         await twamm.provideInitialLiquidity(initialLiquidityProvided,initialLiquidityProvided);
+
+        // tokenA.approve(twamm.address, ERC20Supply);
+        // tokenB.approve(twamm.address, ERC20Supply);
+        // await twamm.provideInitialLiquidity(initialLiquidityProvided,initialLiquidityProvided);
     });
 
     describe("Basic AMM", function () {
@@ -147,6 +165,7 @@ describe("TWAMM", function () {
 
                 expect(actualOutput).to.eq(expectedOutput);
             
+           
             });
         });
     });

@@ -4,7 +4,6 @@ pragma solidity ^0.8.9;
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./libraries/LongTermOrders.sol";
-
 ///@notice TWAMM -- https://www.paradigm.xyz/2021/07/twamm/
 contract TWAMM is ERC20 {
     using LongTermOrdersLib for LongTermOrdersLib.LongTermOrders;
@@ -13,7 +12,6 @@ contract TWAMM is ERC20 {
     /// ---------------------------
     /// ------ AMM Parameters -----
     /// ---------------------------
-
     ///@notice tokens that can be traded in the AMM
     address public tokenA;
     address public tokenB;
@@ -98,6 +96,18 @@ contract TWAMM is ERC20 {
         );
     }
 
+    // ///@notice provide  temporary approve function for user (msg.sender) to approve amount TokenA & B to this contract
+    // function approveTokenAB(uint256 amountA, uint256 amountB)
+    //     external
+    // {
+    //     ERC20(tokenA).approve(address(this), amountA); // this is self-approval, useless cause it's address(this) sending out this transaction
+    //     ERC20(tokenB).approve(address(this), amountB); // the msg.sender approves address(this) to spend tokenB
+        
+
+
+
+    // }
+
     ///@notice provide initial liquidity to the amm. This sets the relative price between tokens
     function provideInitialLiquidity(uint256 amountA, uint256 amountB)
         external
@@ -106,6 +116,7 @@ contract TWAMM is ERC20 {
             totalSupply() == 0,
             "liquidity has already been provided, need to call provideLiquidity"
         );
+
 
         ERC20(tokenA).transferFrom(msg.sender, address(this), amountA);
         ERC20(tokenB).transferFrom(msg.sender, address(this), amountB);
@@ -159,7 +170,6 @@ contract TWAMM is ERC20 {
             lpTokenAmount <= totalSupply(),
             "not enough lp tokens available"
         );
-
         //execute virtual orders
         longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
 
@@ -185,7 +195,6 @@ contract TWAMM is ERC20 {
         uint256 amountBOut = performSwap(tokenA, tokenB, amountAIn);
         emit SwapAToB(msg.sender, amountAIn, amountBOut);
     }
-
     ///@notice create a long term order to swap from tokenA
     ///@param amountAIn total amount of token A to swap
     ///@param numberOfBlockIntervals number of block intervals over which to execute long term order
