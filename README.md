@@ -1,4 +1,4 @@
-# Pulsar - TWAMM
+# Pulsar TWAMM
 
 ## Introduction
 
