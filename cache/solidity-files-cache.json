@@ -440,7 +440,7 @@
       ]
     },
     "/Users/luffy/Code/Pulsar/TWAMM-Contracts/contracts/TWAMM.sol": {
-      "lastModificationDate": 1638838956317,
+      "lastModificationDate": 1638840999632,
       "contentHash": "61392accc897b8562ff58a886c2e45cc",
       "sourceName": "contracts/TWAMM.sol",
       "solcConfig": {
@@ -527,6 +527,262 @@
       ],
       "artifacts": [
         "ERC20Mock"
+      ]
+    },
+    "/Users/luffy/Code/Pulsar/TWAMM-Contracts/contracts/interfaces/IERC20.sol": {
+      "lastModificationDate": 1638840999632,
+      "contentHash": "e36fe0a839212b5f1943f82f36fadd10",
+      "sourceName": "contracts/interfaces/IERC20.sol",
+      "solcConfig": {
+        "version": "0.8.9",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.9"
+      ],
+      "artifacts": [
+        "IERC20"
+      ]
+    },
+    "/Users/luffy/Code/Pulsar/TWAMM-Contracts/contracts/interfaces/IPulsarERC20.sol": {
+      "lastModificationDate": 1638840999632,
+      "contentHash": "095d2d3b8840cc5df64cf5259b55f09f",
+      "sourceName": "contracts/interfaces/IPulsarERC20.sol",
+      "solcConfig": {
+        "version": "0.8.9",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "./IERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.9"
+      ],
+      "artifacts": [
+        "IPulsarERC20"
+      ]
+    },
+    "/Users/luffy/Code/Pulsar/TWAMM-Contracts/contracts/interfaces/IPulsarPair.sol": {
+      "lastModificationDate": 1638840999633,
+      "contentHash": "a61d87f0c10ba6d8a7e9f6bea11abf7d",
+      "sourceName": "contracts/interfaces/IPulsarPair.sol",
+      "solcConfig": {
+        "version": "0.8.9",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "./IPulsarERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.9"
+      ],
+      "artifacts": [
+        "IPulsarPair"
+      ]
+    },
+    "/Users/luffy/Code/Pulsar/TWAMM-Contracts/contracts/interfaces/IPulsarCallee.sol": {
+      "lastModificationDate": 1638840999632,
+      "contentHash": "28008c3fac33cc55d27d726493e61faf",
+      "sourceName": "contracts/interfaces/IPulsarCallee.sol",
+      "solcConfig": {
+        "version": "0.8.9",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.9"
+      ],
+      "artifacts": [
+        "IPulsarCallee"
+      ]
+    },
+    "/Users/luffy/Code/Pulsar/TWAMM-Contracts/contracts/interfaces/IPulsarFactory.sol": {
+      "lastModificationDate": 1638840999632,
+      "contentHash": "673945ff365ff5fadeed916bf664bbf0",
+      "sourceName": "contracts/interfaces/IPulsarFactory.sol",
+      "solcConfig": {
+        "version": "0.8.9",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.9"
+      ],
+      "artifacts": [
+        "IPulsarFactory"
+      ]
+    },
+    "/Users/luffy/Code/Pulsar/TWAMM-Contracts/contracts/interfaces/IWETH.sol": {
+      "lastModificationDate": 1638840999633,
+      "contentHash": "bc0e440d33bae5c1349f6d0e9aa62a5a",
+      "sourceName": "contracts/interfaces/IWETH.sol",
+      "solcConfig": {
+        "version": "0.8.9",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.9"
+      ],
+      "artifacts": [
+        "IWETH"
       ]
     }
   }
