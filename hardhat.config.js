@@ -63,7 +63,7 @@ module.exports = {
     hardhat: {
       forking: {
         url: `https://ropsten.infura.io/v3/${INFURA_API_KEY}`,
-        blockNumber: 12115900,
+        blockNumber: 11526493,
       },
       ...ropstenArgs,
     },
