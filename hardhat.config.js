@@ -68,7 +68,6 @@ module.exports = {
       ...ropstenArgs,
     },
 */
-
     hardhat: {
       allowUnlimitedContractSize: true,
       mining: {
