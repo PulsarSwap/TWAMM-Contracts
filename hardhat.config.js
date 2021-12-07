@@ -59,11 +59,19 @@ module.exports = {
     localhost: {
       url: "http://127.0.0.1:8545",
     },
-
+/*
     hardhat: {
       forking: {
         url: `https://ropsten.infura.io/v3/${INFURA_API_KEY}`,
         blockNumber: 11526493,
+      },
+      ...ropstenArgs,
+    },
+*/
+    hardhat: {
+      allowUnlimitedContractSize: true,
+      mining: {
+        auto: false,
       },
       ...ropstenArgs,
     },
