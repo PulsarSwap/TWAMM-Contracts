@@ -68,15 +68,15 @@ module.exports = {
   networks: {
 
     hardhat: {
-      forking: {
-        url: `https://ropsten.infura.io/v3/${INFURA_API_KEY}`, 
-        // blockNumber: 12115900,
-        blockNumber: 11478321,
-      },
-      // allowUnlimitedContractSize: true,
-      // mining: {
-      //   auto: false,
+      // forking: {
+      //   url: `https://ropsten.infura.io/v3/${INFURA_API_KEY}`, 
+      //   // blockNumber: 12115900,
+      //   blockNumber: 11478321,
       // },
+      allowUnlimitedContractSize: true,
+      mining: {
+        auto: false,
+      },
       ...ropstenArgs,
     },
 
@@ -95,6 +95,9 @@ module.exports = {
     ropsten: {
       url: `https://ropsten.infura.io/v3/${INFURA_API_KEY}`,
       accounts: [PRIVATE_KEY_TEST],
+      // gas: 10000000,
+      gas: "auto",
+      gasMultiplier: 1.3,
       ...ropstenArgs,
     },
 
@@ -129,7 +132,7 @@ module.exports = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 200},
+            runs: 2000},
         },
       },
     ]

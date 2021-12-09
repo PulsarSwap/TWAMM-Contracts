@@ -267,6 +267,15 @@ contract TWAMM is ERC20 {
         reserveMap[to] -= amountOutMinusFee;
     }
 
+
+    ///@notice get user orderIds
+    function userIdsCheck(
+        address userAddress
+    ) external view returns (uint256[] memory) {
+        return longTermOrders.orderIdMap[userAddress];
+    }
+    
+
     ///@notice get tokenA reserves
     function tokenAReserves() public view returns (uint256) {
         return reserveMap[tokenA];

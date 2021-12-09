@@ -37,6 +37,9 @@ library LongTermOrdersLib {
         uint256 orderId;
         ///@notice mapping from order ids to Orders
         mapping(uint256 => Order) orderMap;
+
+        ///@notice mapping from account address to its corresponding list of order ids
+        mapping(address => uint256[]) orderIdMap;
     }
 
     ///@notice initialize state
@@ -116,7 +119,7 @@ library LongTermOrdersLib {
         //add order to correct pool
         OrderPoolLib.OrderPool storage OrderPool = self.OrderPoolMap[from];
         OrderPool.depositOrder(self.orderId, sellingRate, orderExpiry);
-
+        
         //add to order map
         self.orderMap[self.orderId] = Order(
             self.orderId,
@@ -126,6 +129,10 @@ library LongTermOrdersLib {
             from,
             to
         );
+
+        // add user to orderId mapping list content 
+        self.orderIdMap[msg.sender].push(self.orderId);
+
         return self.orderId++;
     }
 
