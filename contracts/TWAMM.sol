@@ -54,7 +54,7 @@ contract TWAMM is ITWAMM {
         IPair(pair).removeLiquidity(msg.sender, lpTokenAmount);
     }
 
-    function swap(
+    function instantSwap(
         address token0,
         address token1,
         uint256 amountIn
