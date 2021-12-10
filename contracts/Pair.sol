@@ -10,7 +10,6 @@ import "prb-math/contracts/PRBMathUD60x18.sol";
 import "hardhat/console.sol";
 
 contract Pair is IPair, ERC20 {
-    
     using LongTermOrdersLib for LongTermOrdersLib.LongTermOrders;
     using PRBMathUD60x18 for uint256;
 
@@ -30,10 +29,9 @@ contract Pair is IPair, ERC20 {
     ///@notice data structure to handle long term orders
     LongTermOrdersLib.LongTermOrders internal longTermOrders;
 
-    constructor(
-        string memory _name,
-        string memory _symbol
-    ) ERC20(_name, _symbol) {
+    constructor(string memory _name, string memory _symbol)
+        ERC20(_name, _symbol)
+    {
         factory = msg.sender;
         longTermOrders.initialize(
             tokenA,
@@ -42,12 +40,13 @@ contract Pair is IPair, ERC20 {
             orderBlockInterval
         );
     }
+
     // called once by the factory at time of deployment
     function initialize(address _tokenA, address _tokenB) external override {
         require(msg.sender == factory, "PAIR: FORBIDDEN"); // sufficient check
         tokenA = _tokenA;
         tokenB = _tokenB;
-    } 
+    }
 
     ///@notice get tokenA reserves
     function tokenAReserves() public view returns (uint256) {
@@ -60,7 +59,11 @@ contract Pair is IPair, ERC20 {
     }
 
     ///@notice provide initial liquidity to the amm. This sets the relative price between tokens
-    function provideInitialLiquidity(address to, uint256 amountA, uint256 amountB) external override {
+    function provideInitialLiquidity(
+        address to,
+        uint256 amountA,
+        uint256 amountB
+    ) external override {
         require(
             totalSupply() == 0,
             "liquidity has already been provided, need to call provideLiquidity"
@@ -85,7 +88,10 @@ contract Pair is IPair, ERC20 {
 
     ///@notice provide liquidity to the AMM
     ///@param lpTokenAmount number of lp tokens to mint with new liquidity
-    function provideLiquidity(address to, uint256 lpTokenAmount) external override {
+    function provideLiquidity(address to, uint256 lpTokenAmount)
+        external
+        override
+    {
         require(
             totalSupply() != 0,
             "no liquidity has been provided yet, need to call provideInitialLiquidity"
@@ -113,7 +119,10 @@ contract Pair is IPair, ERC20 {
 
     ///@notice remove liquidity to the AMM
     ///@param lpTokenAmount number of lp tokens to burn
-    function removeLiquidity(address to, uint256 lpTokenAmount) external override {
+    function removeLiquidity(address to, uint256 lpTokenAmount)
+        external
+        override
+    {
         require(
             lpTokenAmount <= totalSupply(),
             "not enough lp tokens available"
@@ -140,8 +149,8 @@ contract Pair is IPair, ERC20 {
     }
 
     ///@notice swap a given amount of tokenA against embedded amm
-    function swapFromAToB(address sender,uint256 amountAIn) external override {
-        uint256 amountBOut = performSwap(sender,tokenA, tokenB, amountAIn);
+    function swapFromAToB(address sender, uint256 amountAIn) external override {
+        uint256 amountBOut = performSwap(sender, tokenA, tokenB, amountAIn);
         emit SwapAToB(sender, amountAIn, amountBOut);
     }
 
@@ -164,7 +173,7 @@ contract Pair is IPair, ERC20 {
 
     ///@notice swap a given amount of tokenB against embedded amm
     function swapFromBToA(address sender, uint256 amountBIn) external override {
-        uint256 amountAOut = performSwap(sender,tokenB, tokenA, amountBIn);
+        uint256 amountAOut = performSwap(sender, tokenB, tokenA, amountBIn);
         emit SwapBToA(sender, amountBIn, amountAOut);
     }
 
@@ -186,14 +195,24 @@ contract Pair is IPair, ERC20 {
     }
 
     ///@notice stop the execution of a long term order
-    function cancelLongTermSwap(address sender,uint256 orderId) external override {
+    function cancelLongTermSwap(address sender, uint256 orderId)
+        external
+        override
+    {
         longTermOrders.cancelLongTermSwap(sender, orderId, reserveMap);
         emit CancelLongTermOrder(sender, orderId);
     }
 
     ///@notice withdraw proceeds from a long term swap
-    function withdrawProceedsFromLongTermSwap(address sender, uint256 orderId) external override {
-        longTermOrders.withdrawProceedsFromLongTermSwap(sender, orderId, reserveMap);
+    function withdrawProceedsFromLongTermSwap(address sender, uint256 orderId)
+        external
+        override
+    {
+        longTermOrders.withdrawProceedsFromLongTermSwap(
+            sender,
+            orderId,
+            reserveMap
+        );
         emit WithdrawProceedsFromLongTermOrder(sender, orderId);
     }
 

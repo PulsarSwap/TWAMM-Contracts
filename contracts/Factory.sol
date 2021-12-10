@@ -6,7 +6,6 @@ import "./interfaces/IFactory.sol";
 import "./Pair.sol";
 
 contract Factory is IFactory {
-
     mapping(address => mapping(address => address)) public override getPair;
     address[] public override allPairs;
 

@@ -3,10 +3,9 @@
 pragma solidity ^0.8.9;
 
 import "../interfaces/IPair.sol";
-import "./SafeMath.sol"; 
+import "./SafeMath.sol";
 
 library Library {
-
     using SafeMath for uint256;
 
     // returns sorted token addresses, used to handle return values from pairs sorted in this order
@@ -50,12 +49,10 @@ library Library {
         address token1
     ) internal view returns (uint256 reserve0, uint256 reserve1) {
         (address tokenA, address tokenB) = sortTokens(token0, token1);
-        uint256 reserveA = IPair(
-            pairFor(factory, token0, token1)
-        ).tokenAReserves();
-        uint256 reserveB = IPair(
-            pairFor(factory, token0, token1)
-        ).tokenBReserves();
+        uint256 reserveA = IPair(pairFor(factory, token0, token1))
+            .tokenAReserves();
+        uint256 reserveB = IPair(pairFor(factory, token0, token1))
+            .tokenBReserves();
         (reserve0, reserve1) = token0 == tokenA
             ? (reserveA, reserveB)
             : (reserveB, reserveA);

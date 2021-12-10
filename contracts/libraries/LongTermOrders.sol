@@ -123,7 +123,7 @@ library LongTermOrdersLib {
         //add order to correct pool
         OrderPoolLib.OrderPool storage OrderPool = self.OrderPoolMap[from];
         OrderPool.depositOrder(self.orderId, sellingRate, orderExpiry);
-        
+
         //add to order map
         self.orderMap[self.orderId] = Order(
             self.orderId,
@@ -134,7 +134,7 @@ library LongTermOrdersLib {
             to
         );
 
-        // add user to orderId mapping list content 
+        // add user to orderId mapping list content
         self.orderIdMap[sender].push(self.orderId);
 
         return self.orderId++;
