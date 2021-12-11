@@ -24,7 +24,7 @@ contract Pair is IPair, ERC20 {
     uint256 public constant orderBlockInterval = 10;
 
     ///@notice map token addresses to current amm reserves
-    mapping(address => uint256) reserveMap;
+    mapping(address => uint256) public override reserveMap;
 
     ///@notice data structure to handle long term orders
     LongTermOrdersLib.LongTermOrders internal longTermOrders;

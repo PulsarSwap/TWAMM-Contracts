@@ -11,43 +11,95 @@ interface ITWAMM {
         address token0,
         address token1,
         uint256 amount0,
-        uint256 amount1
+        uint256 amount1,
+        uint256 deadline
     ) external;
+
+    function _provideInitialLiquidityETH(
+        address token,
+        uint256 amountToken,
+        uint256 amountETH,
+        uint256 deadline
+    ) external payable;
 
     function _provideLiquidity(
         address token0,
         address token1,
-        uint256 lpTokenAmount
+        uint256 lpTokenAmount,
+        uint256 deadline
     ) external;
+
+    function _provideLiquidityETH(
+        address token,
+        uint256 lpTokenAmount,
+        uint256 deadline
+    ) external payable;
 
     function _removeLiquidity(
         address token0,
         address token1,
-        uint256 lpTokenAmount
+        uint256 lpTokenAmount,
+        uint256 deadline
     ) external;
 
-    function instantSwap(
-        address token0,
-        address token1,
-        uint256 amountIn
+    function _removeLiquidityETH(
+        address token,
+        uint256 lpTokenAmount,
+        uint256 deadline
     ) external;
 
-    function termSwap(
+    function instantSwapTokenToToken(
         address token0,
         address token1,
         uint256 amountIn,
-        uint256 numberOfBlockIntervals
+        uint256 deadline
     ) external;
+
+    function instantSwapTokenToETH(
+        address token,
+        uint256 amountTokenIn,
+        uint256 deadline
+    ) external;
+
+    function instantSwapETHToToken(
+        address token,
+        uint256 amountETHIn,
+        uint256 deadline
+    ) external payable;
+
+    function termSwapTokenToToken(
+        address token0,
+        address token1,
+        uint256 amountIn,
+        uint256 numberOfBlockIntervals,
+        uint256 deadline
+    ) external;
+
+    function termSwapTokenToETH(
+        address token,
+        uint256 amountTokenIn,
+        uint256 numberOfBlockIntervals,
+        uint256 deadline
+    ) external;
+
+    function termSwapETHToToken(
+        address token,
+        uint256 amountETHIn,
+        uint256 numberOfBlockIntervals,
+        uint256 deadline
+    ) external payable;
 
     function _cancelLongTermSwap(
         address token0,
         address token1,
-        uint256 orderId
+        uint256 orderId,
+        uint256 deadline
     ) external;
 
     function _withdrawProceedsFromLongTermSwap(
         address token0,
         address token1,
-        uint256 orderId
+        uint256 orderId,
+        uint256 deadline
     ) external;
 }
