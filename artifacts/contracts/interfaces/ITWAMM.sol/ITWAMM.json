@@ -30,34 +30,6 @@
         },
         {
           "internalType": "uint256",
-          "name": "orderId",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "deadline",
-          "type": "uint256"
-        }
-      ],
-      "name": "_cancelLongTermSwap",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "token0",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "token1",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
           "name": "amount0",
           "type": "uint256"
         },
@@ -72,7 +44,7 @@
           "type": "uint256"
         }
       ],
-      "name": "_provideInitialLiquidity",
+      "name": "addInitialLiquidity",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -100,7 +72,7 @@
           "type": "uint256"
         }
       ],
-      "name": "_provideInitialLiquidityETH",
+      "name": "addInitialLiquidityETH",
       "outputs": [],
       "stateMutability": "payable",
       "type": "function"
@@ -128,7 +100,7 @@
           "type": "uint256"
         }
       ],
-      "name": "_provideLiquidity",
+      "name": "addLiquidity",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -151,60 +123,9 @@
           "type": "uint256"
         }
       ],
-      "name": "_provideLiquidityETH",
+      "name": "addLiquidityETH",
       "outputs": [],
       "stateMutability": "payable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "token0",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "token1",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "lpTokenAmount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "deadline",
-          "type": "uint256"
-        }
-      ],
-      "name": "_removeLiquidity",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "token",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "lpTokenAmount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "deadline",
-          "type": "uint256"
-        }
-      ],
-      "name": "_removeLiquidityETH",
-      "outputs": [],
-      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -230,7 +151,7 @@
           "type": "uint256"
         }
       ],
-      "name": "_withdrawProceedsFromLongTermSwap",
+      "name": "cancelTermSwap",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -407,6 +328,85 @@
         }
       ],
       "name": "termSwapTokenToToken",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token0",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "token1",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "lpTokenAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "deadline",
+          "type": "uint256"
+        }
+      ],
+      "name": "withdrawLiquidity",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "lpTokenAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "deadline",
+          "type": "uint256"
+        }
+      ],
+      "name": "withdrawLiquidityETH",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token0",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "token1",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "orderId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "deadline",
+          "type": "uint256"
+        }
+      ],
+      "name": "withdrawProceedsFromTermSwap",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

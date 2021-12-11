@@ -663,8 +663,8 @@
       ]
     },
     "/Users/luffy/Code/Pulsar/TWAMM-Contracts/contracts/TWAMM.sol": {
-      "lastModificationDate": 1639255643960,
-      "contentHash": "9624583268b1e968287f34d5f024a3dd",
+      "lastModificationDate": 1639256131850,
+      "contentHash": "319b8eee04fa4934ae0f3ea9bc194d24",
       "sourceName": "contracts/TWAMM.sol",
       "solcConfig": {
         "version": "0.8.9",
@@ -713,8 +713,8 @@
       ]
     },
     "/Users/luffy/Code/Pulsar/TWAMM-Contracts/contracts/interfaces/ITWAMM.sol": {
-      "lastModificationDate": 1639255651926,
-      "contentHash": "c1f5025c75ddae18b1dbcc095548c48b",
+      "lastModificationDate": 1639256132867,
+      "contentHash": "0d7dc884e4ef499aae9e2ecb0a5bf269",
       "sourceName": "contracts/interfaces/ITWAMM.sol",
       "solcConfig": {
         "version": "0.8.9",

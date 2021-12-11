@@ -7,7 +7,7 @@ interface ITWAMM {
 
     function WETH() external view returns (address);
 
-    function _provideInitialLiquidity(
+    function addInitialLiquidity(
         address token0,
         address token1,
         uint256 amount0,
@@ -15,34 +15,34 @@ interface ITWAMM {
         uint256 deadline
     ) external;
 
-    function _provideInitialLiquidityETH(
+    function addInitialLiquidityETH(
         address token,
         uint256 amountToken,
         uint256 amountETH,
         uint256 deadline
     ) external payable;
 
-    function _provideLiquidity(
+    function addLiquidity(
         address token0,
         address token1,
         uint256 lpTokenAmount,
         uint256 deadline
     ) external;
 
-    function _provideLiquidityETH(
+    function addLiquidityETH(
         address token,
         uint256 lpTokenAmount,
         uint256 deadline
     ) external payable;
 
-    function _removeLiquidity(
+    function withdrawLiquidity(
         address token0,
         address token1,
         uint256 lpTokenAmount,
         uint256 deadline
     ) external;
 
-    function _removeLiquidityETH(
+    function withdrawLiquidityETH(
         address token,
         uint256 lpTokenAmount,
         uint256 deadline
@@ -89,14 +89,14 @@ interface ITWAMM {
         uint256 deadline
     ) external payable;
 
-    function _cancelLongTermSwap(
+    function cancelTermSwap(
         address token0,
         address token1,
         uint256 orderId,
         uint256 deadline
     ) external;
 
-    function _withdrawProceedsFromLongTermSwap(
+    function withdrawProceedsFromTermSwap(
         address token0,
         address token1,
         uint256 orderId,

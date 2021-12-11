@@ -28,7 +28,7 @@ contract TWAMM is ITWAMM {
         assert(msg.sender == WETH); // only accept ETH via fallback from the WETH contract
     }
 
-    function _provideInitialLiquidity(
+    function addInitialLiquidity(
         address token0,
         address token1,
         uint256 amount0,
@@ -43,7 +43,7 @@ contract TWAMM is ITWAMM {
         IPair(pair).provideInitialLiquidity(msg.sender, amountA, amountB);
     }
 
-    function _provideInitialLiquidityETH(
+    function addInitialLiquidityETH(
         address token,
         uint256 amountToken,
         uint256 amountETH,
@@ -61,7 +61,7 @@ contract TWAMM is ITWAMM {
             TransferHelper.safeTransferETH(msg.sender, msg.value - amountETH);
     }
 
-    function _provideLiquidity(
+    function addLiquidity(
         address token0,
         address token1,
         uint256 lpTokenAmount,
@@ -71,7 +71,7 @@ contract TWAMM is ITWAMM {
         IPair(pair).provideLiquidity(msg.sender, lpTokenAmount);
     }
 
-    function _provideLiquidityETH(
+    function addLiquidityETH(
         address token,
         uint256 lpTokenAmount,
         uint256 deadline
@@ -87,7 +87,7 @@ contract TWAMM is ITWAMM {
             TransferHelper.safeTransferETH(msg.sender, msg.value - amountETH);
     }
 
-    function _removeLiquidity(
+    function withdrawLiquidity(
         address token0,
         address token1,
         uint256 lpTokenAmount,
@@ -97,7 +97,7 @@ contract TWAMM is ITWAMM {
         IPair(pair).removeLiquidity(msg.sender, lpTokenAmount);
     }
 
-    function _removeLiquidityETH(
+    function withdrawLiquidityETH(
         address token,
         uint256 lpTokenAmount,
         uint256 deadline
@@ -248,7 +248,7 @@ contract TWAMM is ITWAMM {
             TransferHelper.safeTransferETH(msg.sender, msg.value - amountETHIn);
     }
 
-    function _cancelLongTermSwap(
+    function cancelTermSwap(
         address token0,
         address token1,
         uint256 orderId,
@@ -258,7 +258,7 @@ contract TWAMM is ITWAMM {
         IPair(pair).cancelLongTermSwap(msg.sender, orderId);
     }
 
-    function _withdrawProceedsFromLongTermSwap(
+    function withdrawProceedsFromTermSwap(
         address token0,
         address token1,
         uint256 orderId,
