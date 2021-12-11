@@ -4,7 +4,7 @@ const ethers = hre.ethers;
 async function main() {
     if (hre.network.name === 'mainnet') {
         console.log(
-            'Deploying TWAMM to mainnet. Hit ctrl + c to abort',
+            'Deploying Factory to mainnet. Hit ctrl + c to abort',
         );
     };
 
@@ -16,15 +16,12 @@ async function main() {
 
     console.log("Account balance:", (await deployer.getBalance()).toString());
 
-    const TWAMM = await ethers.getContractFactory("TWAMM");
-    const twamm = await TWAMM.deploy(
-        hre.network.config.Factory, 
-        hre.network.config.WETH,    
-    );
+    const Factory = await ethers.getContractFactory("Factory");
+    const factory = await Factory.deploy();
     
-    await twamm.deployed();
+    await factory.deployed();
 
-    console.log("TWAMM address:", twamm.address);
+    console.log("Factory address:", factory.address);
 }
 
 main()

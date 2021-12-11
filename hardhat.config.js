@@ -18,32 +18,20 @@ if (!INFURA_API_KEY) {
   process.exit(0);
 }
 
-const name = "Pulsar-LP";
-const symbol = "PUL-LP";
-const blockInterval = "10";
-
 const mainnetArgs = {
-  Name: name,
-  Symbol: symbol,
+  Factory: "",
   WETH: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-  USDT: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-  BlockInterval: blockInterval,
 };
 
 const ropstenArgs = {
-  Name: name,
-  Symbol: symbol,
+  Factory: "", 
   WETH: "0x9F1a50ab076944F94602E25109441E0691774D0D",
-  USDT: "0x5B1fcacD33DeD1BED708F67f895bD9479AA21f5f", 
-  BlockInterval: blockInterval,
 };
 
-const kovanArgs = {
-  Name: name,
-  Symbol: symbol,
+const kovanArgs = { 
+  Factory: "", 
   WETH: "0x19642AcD1544bB95e0F7c916f065F8C811fd14B8",
-  USDT: "0x7702d7eD5A5C53e6699cc2a135bD5318bD01777e", 
-  BlockInterval: blockInterval,
+  
 };
 
 module.exports = {
@@ -59,7 +47,7 @@ module.exports = {
     localhost: {
       url: "http://127.0.0.1:8545",
     },
-/*
+
     hardhat: {
       forking: {
         url: `https://ropsten.infura.io/v3/${INFURA_API_KEY}`,
@@ -67,7 +55,7 @@ module.exports = {
       },
       ...ropstenArgs,
     },
-*/
+/*
     hardhat: {
       allowUnlimitedContractSize: true,
       mining: {
@@ -75,7 +63,7 @@ module.exports = {
       },
       ...ropstenArgs,
     },
-
+*/
     mainnet: {
       url: `https://mainnet.infura.io/v3/${INFURA_API_KEY}`,
       accounts: [PRIVATE_KEY_MAINNET],
