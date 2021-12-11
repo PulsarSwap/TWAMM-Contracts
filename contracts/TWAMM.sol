@@ -28,7 +28,7 @@ contract TWAMM is ITWAMM {
         uint256 amount0,
         uint256 amount1
     ) external override {
-        (address tokenA, address tokenB) = Library.sortTokens(token0, token1);
+        (address tokenA, ) = Library.sortTokens(token0, token1);
         (uint256 amountA, uint256 amountB) = tokenA == token1
             ? (amount0, amount1)
             : (amount1, amount0);
@@ -60,7 +60,7 @@ contract TWAMM is ITWAMM {
         uint256 amountIn
     ) external override {
         address pair = Library.pairFor(factory, token0, token1);
-        (address tokenA, address tokenB) = Library.sortTokens(token0, token1);
+        (address tokenA, ) = Library.sortTokens(token0, token1);
 
         if (tokenA == token0) {
             IPair(pair).swapFromAToB(msg.sender, amountIn);
@@ -76,7 +76,7 @@ contract TWAMM is ITWAMM {
         uint256 numberOfBlockIntervals
     ) external override {
         address pair = Library.pairFor(factory, token0, token1);
-        (address tokenA, address tokenB) = Library.sortTokens(token0, token1);
+        (address tokenA, ) = Library.sortTokens(token0, token1);
 
         if (tokenA == token0) {
             IPair(pair).longTermSwapFromAToB(

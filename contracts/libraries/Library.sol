@@ -29,13 +29,15 @@ library Library {
     ) internal pure returns (address pair) {
         (address tokenA, address tokenB) = sortTokens(token0, token1);
         pair = address(
-            uint256(
-                keccak256(
-                    abi.encodePacked(
-                        hex"ff",
-                        factory,
-                        keccak256(abi.encodePacked(tokenA, tokenB)),
-                        hex"96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f" // init code hash, need to modify
+            uint160(
+                uint256(
+                    keccak256(
+                        abi.encodePacked(
+                            hex"ff",
+                            factory,
+                            keccak256(abi.encodePacked(tokenA, tokenB)),
+                            hex"96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f" // init code hash, need to modify
+                        )
                     )
                 )
             )
@@ -48,7 +50,7 @@ library Library {
         address token0,
         address token1
     ) internal view returns (uint256 reserve0, uint256 reserve1) {
-        (address tokenA, address tokenB) = sortTokens(token0, token1);
+        (address tokenA, ) = sortTokens(token0, token1);
         uint256 reserveA = IPair(pairFor(factory, token0, token1))
             .tokenAReserves();
         uint256 reserveB = IPair(pairFor(factory, token0, token1))

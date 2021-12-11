@@ -29,9 +29,7 @@ contract Pair is IPair, ERC20 {
     ///@notice data structure to handle long term orders
     LongTermOrdersLib.LongTermOrders internal longTermOrders;
 
-    constructor(string memory _name, string memory _symbol)
-        ERC20(_name, _symbol)
-    {
+    constructor() ERC20("Pulsar-LP", "PUL-LP") {
         factory = msg.sender;
         longTermOrders.initialize(
             tokenA,
