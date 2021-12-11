@@ -76,4 +76,9 @@ interface IPair {
 
     function withdrawProceedsFromLongTermSwap(address sender, uint256 orderId)
         external;
+
+    function userIdsCheck(address userAddress)
+        external
+        view
+        returns (uint256[] memory);
 }

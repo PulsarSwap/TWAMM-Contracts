@@ -239,6 +239,16 @@ contract Pair is IPair, ERC20 {
         reserveMap[to] -= amountOutMinusFee;
     }
 
+    ///@notice get user orderIds
+    function userIdsCheck(address userAddress)
+        external
+        view
+        override
+        returns (uint256[] memory)
+    {
+        return longTermOrders.orderIdMap[userAddress];
+    }
+
     ///@notice convenience function to execute virtual orders. Note that this already happens
     ///before most interactions with the AMM
     function executeVirtualOrders() public {
