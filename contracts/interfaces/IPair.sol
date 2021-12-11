@@ -72,6 +72,5 @@ interface IPair {
 
     function cancelLongTermSwap(address sender, uint256 orderId) external;
 
-    function withdrawProceedsFromLongTermSwap(address sender, uint256 orderId)
-        external;
+    function withdrawProceedsFromLongTermSwap(address sender, uint256 orderId) external;
 }

@@ -21,7 +21,7 @@ The main abstraction for implementing long term orders is the `Order Pool`. The 
 
 The distribution of rewards is done through a modified version of algorithm from [Scalable Reward Distribution on the Ethereum Blockchain](https://uploads-ssl.webflow.com/5ad71ffeb79acc67c8bcdaba/5ad8d1193a40977462982470_scalable-reward-distribution-paper.pdf). Since order expiries are decopuled from reward distribution in the TWAMM model, the modified algorithm needs to keep track of additional parameters to compute rewards correctly. 
 
-### Long Term Orders
+### LongTerm Orders
 
 In addition to the order pools, the `LongTermOrders` struct keep the state of the virtual order execution. Most importantly, it keep track of the last block where virtual orders were executed. Before every interaction with the embedded AMM, the state of virtual order execution is brought forward to the present block. We can do this efficiently because only certain blocks are eligible for virtual order expiry. Thus, we can advance the state by a full block interval in a single computation. Crucially, advancing the state of long term order execution is linear only in the number of block intervals since the last interaction with TWAMM, not linear in the number of orders. 
 
@@ -38,10 +38,16 @@ npm install
 # test contracts with hardhat
 npx hardhat test
 ```
-## TWAMM Contract Address
+## Contract Address
 
-**Mainnet:** 
+**Factory**
 
-**Ropsten:** [0xe1D631533F91F1e0738bba6181a8Ed684f7CAa35](https://ropsten.etherscan.io/address/0xe1D631533F91F1e0738bba6181a8Ed684f7CAa35)
+`Mainnet:`
 
-**Kovan:** [0x6DDFEb84c9e9E9681f2B9AbbD0726d834f0305c6](https://kovan.etherscan.io/address/0x6DDFEb84c9e9E9681f2B9AbbD0726d834f0305c6)
+`Ropsten:`
+
+**TWAMM**
+
+`Mainnet:`
+
+`Ropsten:`
