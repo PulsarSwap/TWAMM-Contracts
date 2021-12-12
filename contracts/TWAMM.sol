@@ -35,6 +35,10 @@ contract TWAMM is ITWAMM {
         uint256 amount1,
         uint256 deadline
     ) external virtual override ensure(deadline) {
+        // create the pair if it doesn't exist yet
+        if (IFactory(factory).getPair(token0, token1) == address(0)) {
+            IFactory(factory).createPair(token0, token1);
+        }
         address pair = Library.pairFor(factory, token0, token1);
         (address tokenA, ) = Library.sortTokens(token0, token1);
         (uint256 amountA, uint256 amountB) = tokenA == token1
@@ -49,6 +53,9 @@ contract TWAMM is ITWAMM {
         uint256 amountETH,
         uint256 deadline
     ) external payable virtual override ensure(deadline) {
+        if (IFactory(factory).getPair(token, WETH) == address(0)) {
+            IFactory(factory).createPair(token, WETH);
+        }
         address pair = Library.pairFor(factory, token, WETH);
         (address tokenA, ) = Library.sortTokens(token, WETH);
         (uint256 amountA, uint256 amountB) = tokenA == WETH
