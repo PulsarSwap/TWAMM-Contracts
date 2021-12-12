@@ -6,6 +6,14 @@ require("hardhat-gas-reporter");
 require('hardhat-deploy');
 require('dotenv').config();
 
+task("accounts", "Prints the list of accounts", async () => {
+  const accounts = await ethers.getSigners();
+
+  for (const account of accounts) {
+    console.log(account.address);
+  }
+});
+
 const INFURA_API_KEY = process.env.INFURA_API_KEY;
 const PRIVATE_KEY_TEST = process.env.PRIVATE_KEY_TEST;
 const PRIVATE_KEY_MAINNET = process.env.PRIVATE_KEY_MAINNET;
@@ -18,6 +26,11 @@ if (!INFURA_API_KEY) {
   process.exit(0);
 }
 
+const localArgs = {
+  Factory: "",
+  WETH: "",
+};
+
 const mainnetArgs = {
   Factory: "",
   WETH: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
@@ -25,12 +38,12 @@ const mainnetArgs = {
 
 const ropstenArgs = {
   Factory: "", 
-  WETH: "0x9F1a50ab076944F94602E25109441E0691774D0D",
+  WETH: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
 };
 
 const kovanArgs = { 
   Factory: "", 
-  WETH: "0x19642AcD1544bB95e0F7c916f065F8C811fd14B8",
+  WETH: "0xd0A1E359811322d97991E03f863a0C30C2cF029C",
   
 };
 
@@ -47,38 +60,43 @@ module.exports = {
     localhost: {
       url: "http://127.0.0.1:8545",
     },
-
+/*
     hardhat: {
       forking: {
         url: `https://ropsten.infura.io/v3/${INFURA_API_KEY}`,
         blockNumber: 11526493,
       },
+      hardfork: "berlin",
       ...ropstenArgs,
     },
-/*
+*/
     hardhat: {
       allowUnlimitedContractSize: true,
       mining: {
         auto: false,
+        interval: 5000,
       },
-      ...ropstenArgs,
+      ...localArgs,
     },
-*/
+
     mainnet: {
       url: `https://mainnet.infura.io/v3/${INFURA_API_KEY}`,
       accounts: [PRIVATE_KEY_MAINNET],
+      hardfork: "berlin",
       ...mainnetArgs,
     },
 
     ropsten: {
       url: `https://ropsten.infura.io/v3/${INFURA_API_KEY}`,
       accounts: [PRIVATE_KEY_TEST],
+      hardfork: "berlin",
       ...ropstenArgs,
     },
 
     kovan: {
       url: `https://kovan.infura.io/v3/${INFURA_API_KEY}`,
       accounts: [PRIVATE_KEY_TEST],
+      hardfork: "berlin",
       ...kovanArgs,
     },
   },

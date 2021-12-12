@@ -2,6 +2,7 @@ const hre = require("hardhat");
 const ethers = hre.ethers;
 
 async function main() {
+
     if (hre.network.name === 'mainnet') {
         console.log(
             'Deploying TWAMM to mainnet. Hit ctrl + c to abort',
