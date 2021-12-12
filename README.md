@@ -45,10 +45,10 @@ npx hardhat test
 
 `Mainnet:`
 
-`Ropsten:`
+`Ropsten:`[0x2D45D0a167107E69969AE2E92c8e247CCA08EA41](https://ropsten.etherscan.io/address/0x2D45D0a167107E69969AE2E92c8e247CCA08EA41#readContract)
 
 **TWAMM**
 
 `Mainnet:`
 
-`Ropsten:`
+`Ropsten:`[0xDd2955eaAa19f3F7B0d5aA53b9D9193733144186](https://ropsten.etherscan.io/address/0xDd2955eaAa19f3F7B0d5aA53b9D9193733144186)
