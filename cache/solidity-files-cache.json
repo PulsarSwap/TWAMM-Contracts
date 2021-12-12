@@ -925,10 +925,10 @@
         "SafeMath"
       ]
     },
-    "/Users/luffy/Code/Pulsar/TWAMM-Contracts/contracts/InitCodeHash.sol": {
-      "lastModificationDate": 1639305692283,
-      "contentHash": "d05786f38aa0f03a4c80d8a8a97488ca",
-      "sourceName": "contracts/InitCodeHash.sol",
+    "/Users/luffy/Code/Pulsar/TWAMM-Contracts/contracts/initcode/CallHash.sol": {
+      "lastModificationDate": 1639305936880,
+      "contentHash": "e64eedc542bc357982fd6ae0dc77c312",
+      "sourceName": "contracts/initcode/CallHash.sol",
       "solcConfig": {
         "version": "0.8.9",
         "settings": {
@@ -960,13 +960,13 @@
         }
       },
       "imports": [
-        "./Pair.sol"
+        "../Pair.sol"
       ],
       "versionPragmas": [
         "=0.8.9"
       ],
       "artifacts": [
-        "InitCodeHash"
+        "CallHash"
       ]
     }
   }
