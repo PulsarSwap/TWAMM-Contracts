@@ -663,8 +663,8 @@
       ]
     },
     "/Users/luffy/Code/Pulsar/TWAMM-Contracts/contracts/TWAMM.sol": {
-      "lastModificationDate": 1639293099525,
-      "contentHash": "1808b4328aa2d8d27eb012f5f6b95e6c",
+      "lastModificationDate": 1639304177903,
+      "contentHash": "4ea73979b5dfdebeec977c38dea1afed",
       "sourceName": "contracts/TWAMM.sol",
       "solcConfig": {
         "version": "0.8.9",
@@ -755,8 +755,8 @@
       ]
     },
     "/Users/luffy/Code/Pulsar/TWAMM-Contracts/contracts/libraries/Library.sol": {
-      "lastModificationDate": 1639243423940,
-      "contentHash": "114a8c0c6fda55f6e31280312fb0d942",
+      "lastModificationDate": 1639295263844,
+      "contentHash": "dce91cabab022a5603f389985aa79bc2",
       "sourceName": "contracts/libraries/Library.sol",
       "solcConfig": {
         "version": "0.8.9",
@@ -923,6 +923,50 @@
       ],
       "artifacts": [
         "SafeMath"
+      ]
+    },
+    "/Users/luffy/Code/Pulsar/TWAMM-Contracts/contracts/InitCodeHash.sol": {
+      "lastModificationDate": 1639305692283,
+      "contentHash": "d05786f38aa0f03a4c80d8a8a97488ca",
+      "sourceName": "contracts/InitCodeHash.sol",
+      "solcConfig": {
+        "version": "0.8.9",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "./Pair.sol"
+      ],
+      "versionPragmas": [
+        "=0.8.9"
+      ],
+      "artifacts": [
+        "InitCodeHash"
       ]
     }
   }

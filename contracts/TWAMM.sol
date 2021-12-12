@@ -41,7 +41,7 @@ contract TWAMM is ITWAMM {
         }
         address pair = Library.pairFor(factory, token0, token1);
         (address tokenA, ) = Library.sortTokens(token0, token1);
-        (uint256 amountA, uint256 amountB) = tokenA == token1
+        (uint256 amountA, uint256 amountB) = tokenA == token0
             ? (amount0, amount1)
             : (amount1, amount0);
         IPair(pair).provideInitialLiquidity(msg.sender, amountA, amountB);
@@ -58,7 +58,7 @@ contract TWAMM is ITWAMM {
         }
         address pair = Library.pairFor(factory, token, WETH);
         (address tokenA, ) = Library.sortTokens(token, WETH);
-        (uint256 amountA, uint256 amountB) = tokenA == WETH
+        (uint256 amountA, uint256 amountB) = tokenA == token
             ? (amountToken, amountETH)
             : (amountETH, amountToken);
         IWETH(WETH).deposit{value: amountETH}();
@@ -111,9 +111,9 @@ contract TWAMM is ITWAMM {
     ) external virtual override ensure(deadline) {
         address pair = Library.pairFor(factory, token, WETH);
         IPair(pair).removeLiquidity(msg.sender, lpTokenAmount);
-        (uint256 reserveToken, ) = Library.getReserves(factory, token, WETH);
+        (, uint256 reserveETH) = Library.getReserves(factory, token, WETH);
         uint256 totalSupplyLP = IERC20(pair).totalSupply();
-        uint256 amountETH = (reserveToken * lpTokenAmount) / totalSupplyLP;
+        uint256 amountETH = (reserveETH * lpTokenAmount) / totalSupplyLP;
         IWETH(WETH).withdraw(amountETH);
     }
 
@@ -155,7 +155,7 @@ contract TWAMM is ITWAMM {
         uint256 amountETHOut = (reserveETH * amountTokenIn) /
             (reserveToken + amountTokenIn);
         //charge LP fee
-        uint256 amountETHOutMinusFee = (amountETHOut * 970) / 10000;
+        uint256 amountETHOutMinusFee = (amountETHOut * 997) / 1000;
         IWETH(WETH).withdraw(amountETHOutMinusFee);
     }
 
