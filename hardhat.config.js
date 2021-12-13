@@ -60,7 +60,7 @@ module.exports = {
     localhost: {
       url: "http://127.0.0.1:8545",
     },
-
+/*
     hardhat: {
       forking: {
         url: `https://ropsten.infura.io/v3/${INFURA_API_KEY}`,
@@ -69,7 +69,7 @@ module.exports = {
       hardfork: "berlin",
       ...ropstenArgs,
     },
-/*
+*/
     hardhat: {
       allowUnlimitedContractSize: true,
       mining: {
@@ -78,7 +78,7 @@ module.exports = {
       },
       ...localArgs,
     },
-*/
+
     mainnet: {
       url: `https://mainnet.infura.io/v3/${INFURA_API_KEY}`,
       accounts: [PRIVATE_KEY_MAINNET],
