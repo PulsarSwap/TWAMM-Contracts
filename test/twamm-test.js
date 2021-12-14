@@ -28,15 +28,15 @@ describe("TWAMM", function () {
         const TWAMMFactory = await ethers.getContractFactory("TWAMM", { gasLimit: "1000000000" })
         await ethers.provider.getBlockNumber().then((blockNumber) => {
             console.log("Current block number: " + blockNumber);
-         })
+        })
 
-         await ethers.provider.getBlock().then((block) => {
+        await ethers.provider.getBlock().then((block) => {
             console.log("Current block gasLimit: " + block.gasLimit);
-         })
+        })
 
-         await ethers.provider.getBlock().then((block) => {
+        await ethers.provider.getBlock().then((block) => {
             console.log("Current block gasused: " + block.gasUsed);
-         })
+        })
         twamm = await TWAMMFactory.deploy(
             "Pulsar-LP", 
             "PUL-LP", 
@@ -183,7 +183,7 @@ describe("TWAMM", function () {
 
                 expect(actualOutput).to.eq(expectedOutput);
             
-           
+        
             });
         });
     });
