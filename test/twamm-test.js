@@ -25,8 +25,18 @@ describe("TWAMM", function () {
         tokenA = await ERC20Factory.deploy("TokenA", "TokenA", ERC20Supply);
         tokenB = await ERC20Factory.deploy("TokenB", "TokenB", ERC20Supply);
 
-        const TWAMMFactory = await ethers.getContractFactory("TWAMM")
+        const TWAMMFactory = await ethers.getContractFactory("TWAMM", { gasLimit: "1000000000" })
+        await ethers.provider.getBlockNumber().then((blockNumber) => {
+            console.log("Current block number: " + blockNumber);
+         })
 
+         await ethers.provider.getBlock().then((block) => {
+            console.log("Current block gasLimit: " + block.gasLimit);
+         })
+
+         await ethers.provider.getBlock().then((block) => {
+            console.log("Current block gasused: " + block.gasUsed);
+         })
         twamm = await TWAMMFactory.deploy(
             "Pulsar-LP", 
             "PUL-LP", 
@@ -34,12 +44,13 @@ describe("TWAMM", function () {
             tokenB.address,
             blockInterval);
 
-
-        console.log('owner', owner.address, 'twamm',twamm.address);
-        console.log((await tokenA.balanceOf(owner.address)).toString());
-        console.log((await tokenA.balanceOf(twamm.address)).toString());
-        console.log((await tokenB.balanceOf(owner.address)).toString());
-        console.log((await tokenB.balanceOf(twamm.address)).toString());
+        
+        
+        // console.log('owner', owner.address, 'twamm',twamm.address);
+        // console.log((await tokenA.balanceOf(owner.address)).toString());
+        // console.log((await tokenA.balanceOf(twamm.address)).toString());
+        // console.log((await tokenB.balanceOf(owner.address)).toString());
+        // console.log((await tokenB.balanceOf(twamm.address)).toString());
 
         //owner calls the approve to approve twamm address to be able to spend ERC20Supply amount of tokens
         //// then twamm address's provideInitialLiuidity calls token's transferFrom function to transfer "initialLiquidityProvided" amount token A 
@@ -47,6 +58,11 @@ describe("TWAMM", function () {
         // this is why we need to firstly approve twamm onbehave of owner to spend owner's tokens
         await tokenA.approve(twamm.address, ERC20Supply); //owner calls it
         await tokenB.approve(twamm.address, ERC20Supply); 
+
+        
+        // await tokenB.connect(addr2).approve(twamm.address, 10000);
+        // const ttt = await twamm.estimateGas.longTermSwapFromBToA(10000/2, 3)
+        // console.log(ttt)
         
         // tokenA.approve(owner, ERC20Supply);
         // tokenA.approve(owner, ERC20Supply);
@@ -100,6 +116,8 @@ describe("TWAMM", function () {
 
                 expect(finalTokenAPerLP).to.eq(initialTokenAPerLP);
                 expect(finalTokenBPerLP).to.eq(initialTokenBPerLP);
+
+                
             });
         });
 
@@ -219,10 +237,16 @@ describe("TWAMM", function () {
                 //trigger long term orders
                 await twamm.connect(addr1).longTermSwapFromAToB(amountIn, 2);
                 await twamm.connect(addr2).longTermSwapFromBToA(amountIn, 2);
+                
 
+                
                 //move blocks forward, and execute virtual orders
                 await mineBlocks(3 * blockInterval)
                 await twamm.executeVirtualOrders();
+                
+                
+                // await twamm.userIdsCheck(addr2)
+                
 
                 //withdraw proceeds 
                 await twamm.connect(addr1).withdrawProceedsFromLongTermSwap(0);
@@ -305,7 +329,17 @@ describe("TWAMM", function () {
                 await tokenB.connect(addr2).approve(twamm.address, amountIn);
 
                 //trigger long term orders
-                await twamm.connect(addr1).longTermSwapFromAToB(amountIn/2, 2);
+                await twamm.connect(addr1).longTermSwapFromAToB(amountIn/2, 2);//, { 
+                    // value: "1000000000000000000", // 1 eth
+                    // gasLimit: "40000000" // 100 gwei
+                //   });
+
+                const ttt = await twamm.estimateGas.longTermSwapFromBToA(amountIn/2, 3)
+                console.log(ttt)
+                // .then((estimatedGas) => {
+                //     console.log("Current gas estimated: " + estimatedGas);
+                //  })       
+
                 await twamm.connect(addr2).longTermSwapFromBToA(amountIn/2, 3);
                 await twamm.connect(addr1).longTermSwapFromAToB(amountIn/2, 4);
                 await twamm.connect(addr2).longTermSwapFromBToA(amountIn/2, 5);

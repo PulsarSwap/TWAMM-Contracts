@@ -40,6 +40,10 @@ library LongTermOrdersLib {
 
         ///@notice mapping from account address to its corresponding list of order ids
         mapping(address => uint256[]) orderIdMap;
+
+        ///@notice mapping from order id to its status (false for nonactive true for active)
+        mapping(uint256 => bool) orderIdStatusMap;
+
     }
 
     ///@notice initialize state
@@ -133,8 +137,38 @@ library LongTermOrdersLib {
         // add user to orderId mapping list content 
         self.orderIdMap[msg.sender].push(self.orderId);
 
+        self.orderIdStatusMap[self.orderId] = true;
+
         return self.orderId++;
     }
+    
+    // ///@notice remove orderId from user orderIdMap after the order is physically cancelled
+    // function removeOrderId(
+    //     LongTermOrders storage self,
+    //     uint256 orderId,
+    //     address account
+    // ) internal view {
+    //     uint256[] memory orderIdList = self.orderIdMap[account];
+    //     require(orderIdList.length > 0, "this sender doesn't have long term swap orders");
+        // if (orderIdList.length == 1) {
+        //     delete orderIdList[0];
+        // }
+        // uint l = 0;
+        // uint r = orderIdList.length - 1;
+        // uint m ;
+        // while (l < r) {
+        //    m = uint(l + r / 2);
+        //    if ( orderIdList[m] < orderId) {
+        //         l = m + 1;
+        //    } else if ( orderIdList[m] > orderId) {
+        //        r = m - 1;
+        //    } else {
+        //        delete orderIdList[m];
+        //    }
+        // }
+
+
+    // }
 
     ///@notice cancel long term swap, pay out unsold tokens and well as purchased tokens
     function cancelLongTermSwap(
@@ -162,6 +196,11 @@ library LongTermOrdersLib {
         //transfer to owner
         ERC20(order.buyTokenId).transfer(msg.sender, purchasedAmount);
         ERC20(order.sellTokenId).transfer(msg.sender, unsoldAmount);
+
+
+        // delete orderId from account list
+        // removeOrderId(self, orderId, msg.sender);
+        self.orderIdStatusMap[orderId] = false;
     }
 
     ///@notice withdraw proceeds from a long term swap (can be expired or ongoing)
@@ -184,6 +223,10 @@ library LongTermOrdersLib {
         require(proceeds > 0, "no proceeds to withdraw");
         //transfer to owner
         ERC20(order.buyTokenId).transfer(msg.sender, proceeds);
+
+        // delete orderId from account list
+        // removeOrderId(self, orderId, msg.sender);
+        self.orderIdStatusMap[orderId] = false;
     }
 
     ///@notice executes all virtual orders between current lastVirtualOrderBlock and blockNumber

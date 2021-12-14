@@ -77,12 +77,19 @@ module.exports = {
       mining: {
         auto: false,
       },
+      // gas: "auto",
+      gas: 20000000,
+      // gasMultiplier: 1.3,
       ...ropstenArgs,
     },
 
-    // localhost: {
-    //   url: "http://127.0.0.1:8545",
-    // },
+    localhost: {
+      url: "http://127.0.0.1:8545",
+      allowUnlimitedContractSize: true,
+      mining: {
+        auto: false,
+      },
+    },
 
     // hardhat: {
     //   // allowUnlimitedContractSize: true,
@@ -96,8 +103,8 @@ module.exports = {
       url: `https://ropsten.infura.io/v3/${INFURA_API_KEY}`,
       accounts: [PRIVATE_KEY_TEST],
       // gas: 10000000,
-      gas: "auto",
-      gasMultiplier: 1.3,
+      // gas: "auto",
+      // gasMultiplier: 1.3,
       ...ropstenArgs,
     },
 
