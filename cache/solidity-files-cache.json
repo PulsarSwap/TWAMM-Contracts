@@ -2,7 +2,7 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/Users/luffy/Code/Pulsar/TWAMM-Contracts/contracts/Factory.sol": {
-      "lastModificationDate": 1639393484189,
+      "lastModificationDate": 1639564908125,
       "contentHash": "15fab4b2dddb50da29644a381051d131",
       "sourceName": "contracts/Factory.sol",
       "solcConfig": {
@@ -10,7 +10,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 2000
           },
           "outputSelection": {
             "*": {
@@ -47,7 +47,7 @@
       ]
     },
     "/Users/luffy/Code/Pulsar/TWAMM-Contracts/contracts/interfaces/IFactory.sol": {
-      "lastModificationDate": 1639393484189,
+      "lastModificationDate": 1639564908126,
       "contentHash": "ce9ca688aa05432815bbb2c9043dce6a",
       "sourceName": "contracts/interfaces/IFactory.sol",
       "solcConfig": {
@@ -55,7 +55,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 2000
           },
           "outputSelection": {
             "*": {
@@ -89,15 +89,15 @@
       ]
     },
     "/Users/luffy/Code/Pulsar/TWAMM-Contracts/contracts/Pair.sol": {
-      "lastModificationDate": 1639393484189,
-      "contentHash": "62b143d8d6646887af5cc6809086bb9e",
+      "lastModificationDate": 1639565595177,
+      "contentHash": "cbe48f299adad8f4514b874ed99a523c",
       "sourceName": "contracts/Pair.sol",
       "solcConfig": {
         "version": "0.8.9",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 2000
           },
           "outputSelection": {
             "*": {
@@ -138,15 +138,15 @@
       ]
     },
     "/Users/luffy/Code/Pulsar/TWAMM-Contracts/contracts/interfaces/IPair.sol": {
-      "lastModificationDate": 1639393484189,
-      "contentHash": "a51282912f96107eaf120beed2647169",
+      "lastModificationDate": 1639565594917,
+      "contentHash": "3035851fcb64f22ee027aa7af652dd71",
       "sourceName": "contracts/interfaces/IPair.sol",
       "solcConfig": {
         "version": "0.8.9",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 2000
           },
           "outputSelection": {
             "*": {
@@ -180,15 +180,15 @@
       ]
     },
     "/Users/luffy/Code/Pulsar/TWAMM-Contracts/contracts/libraries/LongTermOrders.sol": {
-      "lastModificationDate": 1639393484190,
-      "contentHash": "e526a53cd0f5c1d2e503527ab55267db",
+      "lastModificationDate": 1639565129816,
+      "contentHash": "312b73c49b95bf6f687ac2025b66761d",
       "sourceName": "contracts/libraries/LongTermOrders.sol",
       "solcConfig": {
         "version": "0.8.9",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 2000
           },
           "outputSelection": {
             "*": {
@@ -235,7 +235,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 2000
           },
           "outputSelection": {
             "*": {
@@ -281,7 +281,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 2000
           },
           "outputSelection": {
             "*": {
@@ -323,7 +323,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 2000
           },
           "outputSelection": {
             "*": {
@@ -367,7 +367,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 2000
           },
           "outputSelection": {
             "*": {
@@ -409,7 +409,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 2000
           },
           "outputSelection": {
             "*": {
@@ -453,7 +453,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 2000
           },
           "outputSelection": {
             "*": {
@@ -498,7 +498,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 2000
           },
           "outputSelection": {
             "*": {
@@ -540,7 +540,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 2000
           },
           "outputSelection": {
             "*": {
@@ -584,7 +584,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 2000
           },
           "outputSelection": {
             "*": {
@@ -618,7 +618,7 @@
       ]
     },
     "/Users/luffy/Code/Pulsar/TWAMM-Contracts/contracts/TWAMM.sol": {
-      "lastModificationDate": 1639415103384,
+      "lastModificationDate": 1639564908125,
       "contentHash": "4ea73979b5dfdebeec977c38dea1afed",
       "sourceName": "contracts/TWAMM.sol",
       "solcConfig": {
@@ -626,7 +626,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 2000
           },
           "outputSelection": {
             "*": {
@@ -668,7 +668,7 @@
       ]
     },
     "/Users/luffy/Code/Pulsar/TWAMM-Contracts/contracts/interfaces/ITWAMM.sol": {
-      "lastModificationDate": 1639415103384,
+      "lastModificationDate": 1639564908126,
       "contentHash": "0d7dc884e4ef499aae9e2ecb0a5bf269",
       "sourceName": "contracts/interfaces/ITWAMM.sol",
       "solcConfig": {
@@ -676,7 +676,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 2000
           },
           "outputSelection": {
             "*": {
@@ -710,7 +710,7 @@
       ]
     },
     "/Users/luffy/Code/Pulsar/TWAMM-Contracts/contracts/libraries/Library.sol": {
-      "lastModificationDate": 1639393484190,
+      "lastModificationDate": 1639564908126,
       "contentHash": "936a845193620def0f674f80d06582b5",
       "sourceName": "contracts/libraries/Library.sol",
       "solcConfig": {
@@ -718,7 +718,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 2000
           },
           "outputSelection": {
             "*": {
@@ -755,7 +755,7 @@
       ]
     },
     "/Users/luffy/Code/Pulsar/TWAMM-Contracts/contracts/libraries/TransferHelper.sol": {
-      "lastModificationDate": 1639393484190,
+      "lastModificationDate": 1639564908127,
       "contentHash": "5e49b73e6ae6ed27d813abf1779d8699",
       "sourceName": "contracts/libraries/TransferHelper.sol",
       "solcConfig": {
@@ -763,7 +763,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 2000
           },
           "outputSelection": {
             "*": {
@@ -797,7 +797,7 @@
       ]
     },
     "/Users/luffy/Code/Pulsar/TWAMM-Contracts/contracts/interfaces/IWETH.sol": {
-      "lastModificationDate": 1639393484190,
+      "lastModificationDate": 1639564908126,
       "contentHash": "bc0e440d33bae5c1349f6d0e9aa62a5a",
       "sourceName": "contracts/interfaces/IWETH.sol",
       "solcConfig": {
@@ -805,7 +805,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 2000
           },
           "outputSelection": {
             "*": {
@@ -839,7 +839,7 @@
       ]
     },
     "/Users/luffy/Code/Pulsar/TWAMM-Contracts/contracts/libraries/SafeMath.sol": {
-      "lastModificationDate": 1639393484190,
+      "lastModificationDate": 1639564908127,
       "contentHash": "d160d1a53ef4dcb81bac12116d2abf78",
       "sourceName": "contracts/libraries/SafeMath.sol",
       "solcConfig": {
@@ -847,7 +847,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 2000
           },
           "outputSelection": {
             "*": {
@@ -881,7 +881,7 @@
       ]
     },
     "/Users/luffy/Code/Pulsar/TWAMM-Contracts/contracts/initcode/CallHash.sol": {
-      "lastModificationDate": 1639393484189,
+      "lastModificationDate": 1639564908125,
       "contentHash": "e64eedc542bc357982fd6ae0dc77c312",
       "sourceName": "contracts/initcode/CallHash.sol",
       "solcConfig": {
@@ -889,7 +889,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 2000
           },
           "outputSelection": {
             "*": {
@@ -925,8 +925,8 @@
       ]
     },
     "/Users/luffy/Code/Pulsar/TWAMM-Contracts/contracts/mock/WETH9.sol": {
-      "lastModificationDate": 1639393484190,
-      "contentHash": "07bbd0d44aff6830239e73daf8077422",
+      "lastModificationDate": 1639565595136,
+      "contentHash": "2e9130b531a1a40c2c2793cb4d0ddef3",
       "sourceName": "contracts/mock/WETH9.sol",
       "solcConfig": {
         "version": "0.4.19",
@@ -967,7 +967,7 @@
       ]
     },
     "/Users/luffy/Code/Pulsar/TWAMM-Contracts/contracts/mock/ERC20Mock.sol": {
-      "lastModificationDate": 1639393484190,
+      "lastModificationDate": 1639564908128,
       "contentHash": "32fba8610826e7d84d57f8645fb78589",
       "sourceName": "contracts/mock/ERC20Mock.sol",
       "solcConfig": {
@@ -975,7 +975,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 2000
           },
           "outputSelection": {
             "*": {

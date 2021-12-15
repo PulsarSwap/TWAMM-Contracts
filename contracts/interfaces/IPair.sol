@@ -81,4 +81,6 @@ interface IPair {
         external
         view
         returns (uint256[] memory);
+
+    function orderIdStatusCheck(uint256 orderId) external view returns (bool);
 }

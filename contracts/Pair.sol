@@ -249,6 +249,11 @@ contract Pair is IPair, ERC20 {
         return longTermOrders.orderIdMap[userAddress];
     }
 
+    ///@notice get user orderIds
+    function orderIdStatusCheck(uint256 orderId) external view returns (bool) {
+        return longTermOrders.orderIdStatusMap[orderId];
+    }
+
     ///@notice convenience function to execute virtual orders. Note that this already happens
     ///before most interactions with the AMM
     function executeVirtualOrders() public {

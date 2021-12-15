@@ -39,6 +39,8 @@ library LongTermOrdersLib {
         mapping(uint256 => Order) orderMap;
         ///@notice mapping from account address to its corresponding list of order ids
         mapping(address => uint256[]) orderIdMap;
+        ///@notice mapping from order id to its status (false for nonactive true for active)
+        mapping(uint256 => bool) orderIdStatusMap;
     }
 
     ///@notice initialize state
@@ -136,6 +138,7 @@ library LongTermOrdersLib {
 
         // add user to orderId mapping list content
         self.orderIdMap[sender].push(self.orderId);
+        self.orderIdStatusMap[self.orderId] = true;
 
         return self.orderId++;
     }
@@ -167,6 +170,9 @@ library LongTermOrdersLib {
         //transfer to owner
         IERC20(order.buyTokenId).transfer(sender, purchasedAmount);
         IERC20(order.sellTokenId).transfer(sender, unsoldAmount);
+        // delete orderId from account list
+        // removeOrderId(self, orderId, sender);
+        self.orderIdStatusMap[orderId] = false;
     }
 
     ///@notice withdraw proceeds from a long term swap (can be expired or ongoing)
@@ -190,6 +196,9 @@ library LongTermOrdersLib {
         require(proceeds > 0, "no proceeds to withdraw");
         //transfer to owner
         IERC20(order.buyTokenId).transfer(sender, proceeds);
+        // delete orderId from account list
+        // removeOrderId(self, orderId, sender);
+        self.orderIdStatusMap[orderId] = false;
     }
 
     ///@notice executes all virtual orders between current lastVirtualOrderBlock and blockNumber
