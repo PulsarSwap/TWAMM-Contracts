@@ -36,7 +36,7 @@ library Library {
                             hex"ff",
                             factory,
                             keccak256(abi.encodePacked(tokenA, tokenB)),
-                            hex"63c299addfdc4454a364c5f10cb76dbddbf9521d9270c432917d79ca11e10373" // init code hash
+                            hex"57f900fec4f9ef5dbff745cf1cbc43e5812bb34ebb13d0e8c948c689ba0ba59b" // init code hash
                         )
                     )
                 )
