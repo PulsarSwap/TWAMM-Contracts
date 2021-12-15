@@ -37,7 +37,7 @@ const mainnetArgs = {
 };
 
 const ropstenArgs = {
-  Factory: "0x2D45D0a167107E69969AE2E92c8e247CCA08EA41", 
+  Factory: "0x6bd436Ef48A96dBeD455553E991ce29f5c586A48", 
   WETH: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
 };
 
