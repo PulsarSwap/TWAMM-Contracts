@@ -1,6 +1,6 @@
 const hre = require("hardhat");
 const ethers = hre.ethers;
-const initialLiquidityProvided = 10;
+const initialLiquidityProvided = ethers.utils.parseUnits("50"); 
 const ERC20Supply = ethers.utils.parseUnits("100"); 
 
 async function main() {
@@ -21,8 +21,8 @@ async function main() {
 
     const ERC20Factory =  await ethers.getContractFactory("ERC20Mock");
     console.log('Supplied amount for both tokens: %s', ERC20Supply);
-    const tokenA = await ERC20Factory.deploy("USDT", "USDT", ERC20Supply);
-    const tokenB = await ERC20Factory.deploy("WETH", "WETH", ERC20Supply);
+    const tokenA = await ERC20Factory.deploy("USDTA", "USDTA", ERC20Supply);
+    const tokenB = await ERC20Factory.deploy("WETHA", "WETHA", ERC20Supply);
 
     await tokenA.deployed();
     await tokenB.deployed();

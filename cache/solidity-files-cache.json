@@ -440,8 +440,8 @@
       ]
     },
     "/Users/henryshen/Documents/GitHub/TWAMM-Contracts/contracts/TWAMM.sol": {
-      "lastModificationDate": 1639448072627,
-      "contentHash": "2fe00d008278f558357b713d4651091d",
+      "lastModificationDate": 1639471104811,
+      "contentHash": "50e6776348a822b451da71612f4df372",
       "sourceName": "contracts/TWAMM.sol",
       "solcConfig": {
         "version": "0.8.9",
@@ -486,7 +486,7 @@
       ]
     },
     "/Users/henryshen/Documents/GitHub/TWAMM-Contracts/contracts/WETH.sol": {
-      "lastModificationDate": 1638322208518,
+      "lastModificationDate": 1639550724267,
       "contentHash": "6f842c9ba1ad961729fcf664ecbd0572",
       "sourceName": "contracts/WETH.sol",
       "solcConfig": {
@@ -531,7 +531,7 @@
       ]
     },
     "/Users/henryshen/Documents/GitHub/TWAMM-Contracts/contracts/USDT.sol": {
-      "lastModificationDate": 1638322208518,
+      "lastModificationDate": 1639550721387,
       "contentHash": "742cc6b4d5837a9b4503fac41868d041",
       "sourceName": "contracts/USDT.sol",
       "solcConfig": {
