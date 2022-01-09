@@ -1,5 +1,5 @@
 {
-  "name": "pulsar-twamm",
+  "name": "twamm-contracts",
   "description": "pulsar time weighted automated market making",
   "version": "1.0.0",
   "main": "index.js",
