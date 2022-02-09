@@ -6,10 +6,11 @@ import "./interfaces/IPair.sol";
 import "./libraries/LongTermOrders.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@rari-capital/solmate/src/utils/ReentrancyGuard.sol";
 import "prb-math/contracts/PRBMathUD60x18.sol";
 import "hardhat/console.sol";
 
-contract Pair is IPair, ERC20 {
+contract Pair is IPair, ERC20, ReentrancyGuard {
     using LongTermOrdersLib for LongTermOrdersLib.LongTermOrders;
     using PRBMathUD60x18 for uint256;
 
@@ -29,6 +30,21 @@ contract Pair is IPair, ERC20 {
     ///@notice data structure to handle long term orders
     LongTermOrdersLib.LongTermOrders internal longTermOrders;
 
+    /// ---------------------------
+    /// --------- Modifiers ----------
+    /// ---------------------------
+    ///@notice reentrancy guard initialized to state
+    uint256 private unlocked = 1;
+
+    ///@notice reentrancy guard
+    modifier lock() {
+        require(unlocked == 1, "locked");
+
+        unlocked = 2; // lock, save gas by not setting to zero
+        _;
+        unlocked = 1; // unlock
+    }
+
     constructor() ERC20("Pulsar-LP", "PUL-LP") {
         factory = msg.sender;
         longTermOrders.initialize(
@@ -40,7 +56,12 @@ contract Pair is IPair, ERC20 {
     }
 
     // called once by the factory at time of deployment
-    function initialize(address _tokenA, address _tokenB) external override {
+    function initialize(address _tokenA, address _tokenB)
+        external
+        override
+        lock
+        nonReentrant
+    {
         require(msg.sender == factory, "PAIR: FORBIDDEN"); // sufficient check
         tokenA = _tokenA;
         tokenB = _tokenB;
@@ -61,14 +82,11 @@ contract Pair is IPair, ERC20 {
         address to,
         uint256 amountA,
         uint256 amountB
-    ) external override {
+    ) external override lock nonReentrant {
         require(
             totalSupply() == 0,
             "liquidity has already been provided, need to call provideLiquidity"
         );
-
-        IERC20(tokenA).transferFrom(to, address(this), amountA);
-        IERC20(tokenB).transferFrom(to, address(this), amountB);
 
         reserveMap[tokenA] = amountA;
         reserveMap[tokenB] = amountB;
@@ -81,6 +99,9 @@ contract Pair is IPair, ERC20 {
             .toUint();
         _mint(to, lpAmount);
 
+        IERC20(tokenA).transferFrom(to, address(this), amountA);
+        IERC20(tokenB).transferFrom(to, address(this), amountB);
+
         emit InitialLiquidityProvided(to, amountA, amountB);
     }
 
@@ -89,6 +110,8 @@ contract Pair is IPair, ERC20 {
     function provideLiquidity(address to, uint256 lpTokenAmount)
         external
         override
+        lock
+        nonReentrant
     {
         require(
             totalSupply() != 0,
@@ -104,13 +127,13 @@ contract Pair is IPair, ERC20 {
         uint256 amountBIn = (lpTokenAmount * reserveMap[tokenB]) /
             totalSupply();
 
-        IERC20(tokenA).transferFrom(to, address(this), amountAIn);
-        IERC20(tokenB).transferFrom(to, address(this), amountBIn);
-
         reserveMap[tokenA] += amountAIn;
         reserveMap[tokenB] += amountBIn;
 
         _mint(to, lpTokenAmount);
+
+        IERC20(tokenA).transferFrom(to, address(this), amountAIn);
+        IERC20(tokenB).transferFrom(to, address(this), amountBIn);
 
         emit LiquidityProvided(to, lpTokenAmount);
     }
@@ -120,6 +143,8 @@ contract Pair is IPair, ERC20 {
     function removeLiquidity(address to, uint256 lpTokenAmount)
         external
         override
+        lock
+        nonReentrant
     {
         require(
             lpTokenAmount <= totalSupply(),
@@ -135,19 +160,24 @@ contract Pair is IPair, ERC20 {
         uint256 amountBOut = (reserveMap[tokenB] * lpTokenAmount) /
             totalSupply();
 
-        IERC20(tokenA).transfer(to, amountAOut);
-        IERC20(tokenB).transfer(to, amountBOut);
-
         reserveMap[tokenA] -= amountAOut;
         reserveMap[tokenB] -= amountBOut;
 
         _burn(to, lpTokenAmount);
 
+        IERC20(tokenA).transfer(to, amountAOut);
+        IERC20(tokenB).transfer(to, amountBOut);
+
         emit LiquidityRemoved(to, lpTokenAmount);
     }
 
     ///@notice swap a given amount of tokenA against embedded amm
-    function swapFromAToB(address sender, uint256 amountAIn) external override {
+    function swapFromAToB(address sender, uint256 amountAIn)
+        external
+        override
+        lock
+        nonReentrant
+    {
         uint256 amountBOut = performSwap(sender, tokenA, tokenB, amountAIn);
         emit SwapAToB(sender, amountAIn, amountBOut);
     }
@@ -159,7 +189,7 @@ contract Pair is IPair, ERC20 {
         address sender,
         uint256 amountAIn,
         uint256 numberOfBlockIntervals
-    ) external override {
+    ) external override lock nonReentrant {
         uint256 orderId = longTermOrders.longTermSwapFromAToB(
             sender,
             amountAIn,
@@ -170,7 +200,12 @@ contract Pair is IPair, ERC20 {
     }
 
     ///@notice swap a given amount of tokenB against embedded amm
-    function swapFromBToA(address sender, uint256 amountBIn) external override {
+    function swapFromBToA(address sender, uint256 amountBIn)
+        external
+        override
+        lock
+        nonReentrant
+    {
         uint256 amountAOut = performSwap(sender, tokenB, tokenA, amountBIn);
         emit SwapBToA(sender, amountBIn, amountAOut);
     }
@@ -182,7 +217,7 @@ contract Pair is IPair, ERC20 {
         address sender,
         uint256 amountBIn,
         uint256 numberOfBlockIntervals
-    ) external override {
+    ) external override lock nonReentrant {
         uint256 orderId = longTermOrders.longTermSwapFromBToA(
             sender,
             amountBIn,
@@ -196,6 +231,8 @@ contract Pair is IPair, ERC20 {
     function cancelLongTermSwap(address sender, uint256 orderId)
         external
         override
+        lock
+        nonReentrant
     {
         longTermOrders.cancelLongTermSwap(sender, orderId, reserveMap);
         emit CancelLongTermOrder(sender, orderId);
@@ -205,6 +242,8 @@ contract Pair is IPair, ERC20 {
     function withdrawProceedsFromLongTermSwap(address sender, uint256 orderId)
         external
         override
+        lock
+        nonReentrant
     {
         longTermOrders.withdrawProceedsFromLongTermSwap(
             sender,
@@ -232,11 +271,11 @@ contract Pair is IPair, ERC20 {
         //charge LP fee
         amountOutMinusFee = (amountOut * (10000 - LP_FEE)) / 10000;
 
-        IERC20(from).transferFrom(sender, address(this), amountIn);
-        IERC20(to).transfer(sender, amountOutMinusFee);
-
         reserveMap[from] += amountIn;
         reserveMap[to] -= amountOutMinusFee;
+
+        IERC20(from).transferFrom(sender, address(this), amountIn);
+        IERC20(to).transfer(sender, amountOutMinusFee);
     }
 
     ///@notice get user orderIds
