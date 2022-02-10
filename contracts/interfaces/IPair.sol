@@ -9,6 +9,12 @@ interface IPair {
 
     function tokenB() external view returns (address);
 
+    function priceACumulativeLast() external view returns (uint256);
+
+    function priceBCumulativeLast() external view returns (uint256);
+
+    function MINIMUM_LIQUIDITY() external pure returns (uint256);
+
     function LP_FEE() external pure returns (uint256);
 
     function orderBlockInterval() external pure returns (uint256);
@@ -21,6 +27,7 @@ interface IPair {
 
     function tokenBReserves() external view returns (uint256);
 
+    event Sync(uint256 balanceA, uint256 balanceB);
     event InitialLiquidityProvided(
         address indexed addr,
         uint256 amountA,
@@ -45,6 +52,10 @@ interface IPair {
         address indexed addr,
         uint256 orderId
     );
+
+    function skim(address to) external;
+
+    function sync() external;
 
     function provideInitialLiquidity(
         address to,
