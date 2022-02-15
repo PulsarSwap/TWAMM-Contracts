@@ -102,9 +102,9 @@ module.exports = {
     ropsten: {
       url: `https://ropsten.infura.io/v3/${INFURA_API_KEY}`,
       accounts: [PRIVATE_KEY_TEST],
-      // gas: 10000000,
-      gas: "auto",
-      // gasMultiplier: 1.3,
+      gas: 8000000,
+      // gas: "auto",
+      // gasMultiplier: 1.5,
       ...ropstenArgs,
     },
 

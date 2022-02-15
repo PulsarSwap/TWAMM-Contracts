@@ -21,8 +21,8 @@ async function main() {
 
     const ERC20Factory =  await ethers.getContractFactory("ERC20Mock");
     console.log('Supplied amount for both tokens: %s', ERC20Supply);
-    const tokenA = await ERC20Factory.deploy("USDT", "USDT", ERC20Supply);
-    const tokenB = await ERC20Factory.deploy("WETH", "WETH", ERC20Supply);
+    const tokenA = await ERC20Factory.deploy("USDTB", "USDTB", ERC20Supply);
+    const tokenB = await ERC20Factory.deploy("WETHB", "WETHB", ERC20Supply);
 
     await tokenA.deployed();
     await tokenB.deployed();
