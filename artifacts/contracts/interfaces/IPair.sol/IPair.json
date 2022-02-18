@@ -191,17 +191,17 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "balanceA",
+          "name": "reserveA",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "balanceB",
+          "name": "reserveB",
           "type": "uint256"
         }
       ],
-      "name": "Sync",
+      "name": "UpdatePrice",
       "type": "event"
     },
     {
@@ -484,19 +484,6 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "to",
-          "type": "address"
-        }
-      ],
-      "name": "skim",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
           "name": "sender",
           "type": "address"
         },
@@ -525,13 +512,6 @@
         }
       ],
       "name": "swapFromBToA",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "sync",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

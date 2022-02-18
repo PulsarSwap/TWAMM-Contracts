@@ -27,7 +27,7 @@ interface IPair {
 
     function tokenBReserves() external view returns (uint256);
 
-    event Sync(uint256 balanceA, uint256 balanceB);
+    event UpdatePrice(uint256 reserveA, uint256 reserveB);
     event InitialLiquidityProvided(
         address indexed addr,
         uint256 amountA,
@@ -52,10 +52,6 @@ interface IPair {
         address indexed addr,
         uint256 orderId
     );
-
-    function skim(address to) external;
-
-    function sync() external;
 
     function provideInitialLiquidity(
         address to,
