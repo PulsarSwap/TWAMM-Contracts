@@ -35,8 +35,16 @@ interface IPair {
     );
     event LiquidityProvided(address indexed addr, uint256 lpTokens);
     event LiquidityRemoved(address indexed addr, uint256 lpTokens);
-    event SwapAToB(address indexed addr, uint256 amountAIn, uint256 amountBOut);
-    event SwapBToA(address indexed addr, uint256 amountBIn, uint256 amountAOut);
+    event InstantSwapAToB(
+        address indexed addr,
+        uint256 amountAIn,
+        uint256 amountBOut
+    );
+    event InstantSwapBToA(
+        address indexed addr,
+        uint256 amountBIn,
+        uint256 amountAOut
+    );
     event LongTermSwapAToB(
         address indexed addr,
         uint256 amountAIn,
@@ -63,7 +71,7 @@ interface IPair {
 
     function removeLiquidity(address to, uint256 lptokenAmount) external;
 
-    function swapFromAToB(address sender, uint256 amountAIn) external;
+    function instantSwapFromAToB(address sender, uint256 amountAIn) external;
 
     function longTermSwapFromAToB(
         address sender,
@@ -71,7 +79,7 @@ interface IPair {
         uint256 numberOfBlockIntervals
     ) external;
 
-    function swapFromBToA(address sender, uint256 amountBIn) external;
+    function instantSwapFromBToA(address sender, uint256 amountBIn) external;
 
     function longTermSwapFromBToA(
         address sender,

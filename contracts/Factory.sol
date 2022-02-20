@@ -21,12 +21,12 @@ contract Factory is IFactory {
         override
         returns (address pair)
     {
-        require(token0 != token1, "FACTORY: IDENTICAL_ADDRESSES");
+        require(token0 != token1, "Factory: Identical_Addresses");
         (address tokenA, address tokenB) = token0 < token1
             ? (token0, token1)
             : (token1, token0);
-        require(tokenA != address(0), "FACTORY: ZERO_ADDRESS");
-        require(getPair[tokenA][tokenB] == address(0), "FACTORY: PAIR_EXISTS"); // single check is sufficient
+        require(tokenA != address(0), "Factory: Zero_Address");
+        require(getPair[tokenA][tokenB] == address(0), "Factory: Pair_Exists"); // single check is sufficient
         bytes memory bytecode = type(Pair).creationCode;
         bytes32 salt = keccak256(abi.encodePacked(tokenA, tokenB));
         assembly {

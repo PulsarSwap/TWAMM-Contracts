@@ -57,7 +57,7 @@ library LongTermOrdersLib {
         self.orderBlockInterval = orderBlockInterval;
     }
 
-    ///@notice swap token A for token B. Amount represents total amount being sold, numberOfBlockIntervals determines when order expires
+    ///@notice long term swap token A for token B. Amount represents total amount being sold, numberOfBlockIntervals determines when order expires
     function longTermSwapFromAToB(
         LongTermOrders storage self,
         address sender,
@@ -77,7 +77,7 @@ library LongTermOrdersLib {
             );
     }
 
-    ///@notice swap token B for token A. Amount represents total amount being sold, numberOfBlockIntervals determines when order expires
+    ///@notice long term swap token B for token A. Amount represents total amount being sold, numberOfBlockIntervals determines when order expires
     function longTermSwapFromBToA(
         LongTermOrders storage self,
         address sender,
@@ -154,7 +154,7 @@ library LongTermOrdersLib {
         executeVirtualOrdersUntilCurrentBlock(self, reserveMap);
 
         Order storage order = self.orderMap[orderId];
-        require(order.owner == sender, "sender must be order owner");
+        require(order.owner == sender, "Sender Must Be Order Owner");
 
         OrderPoolLib.OrderPool storage OrderPool = self.OrderPoolMap[
             order.sellTokenId
@@ -165,7 +165,7 @@ library LongTermOrdersLib {
 
         require(
             unsoldAmount > 0 || purchasedAmount > 0,
-            "no proceeds to withdraw"
+            "No Proceeds To Withdraw"
         );
         //transfer to owner
         IERC20(order.buyTokenId).transfer(sender, purchasedAmount);
@@ -186,14 +186,14 @@ library LongTermOrdersLib {
         executeVirtualOrdersUntilCurrentBlock(self, reserveMap);
 
         Order storage order = self.orderMap[orderId];
-        require(order.owner == sender, "sender must be order owner");
+        require(order.owner == sender, "Sender Must Be Order Owner");
 
         OrderPoolLib.OrderPool storage OrderPool = self.OrderPoolMap[
             order.sellTokenId
         ];
         uint256 proceeds = OrderPool.withdrawProceeds(orderId);
 
-        require(proceeds > 0, "no proceeds to withdraw");
+        require(proceeds > 0, "No Proceeds To Withdraw");
         //transfer to owner
         IERC20(order.buyTokenId).transfer(sender, proceeds);
         // delete orderId from account list

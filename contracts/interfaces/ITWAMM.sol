@@ -67,7 +67,7 @@ interface ITWAMM {
         uint256 deadline
     ) external payable;
 
-    function termSwapTokenToToken(
+    function longTermSwapTokenToToken(
         address token0,
         address token1,
         uint256 amountIn,
@@ -75,14 +75,14 @@ interface ITWAMM {
         uint256 deadline
     ) external;
 
-    function termSwapTokenToETH(
+    function longTermSwapTokenToETH(
         address token,
         uint256 amountTokenIn,
         uint256 numberOfBlockIntervals,
         uint256 deadline
     ) external;
 
-    function termSwapETHToToken(
+    function longTermSwapETHToToken(
         address token,
         uint256 amountETHIn,
         uint256 numberOfBlockIntervals,

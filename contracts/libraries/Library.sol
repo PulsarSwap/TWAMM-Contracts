@@ -14,11 +14,11 @@ library Library {
         pure
         returns (address tokenA, address tokenB)
     {
-        require(token0 != token1, "LIBRARY: IDENTICAL_ADDRESSES");
+        require(token0 != token1, "Library: Identical_Addresses");
         (tokenA, tokenB) = token0 < token1
             ? (token0, token1)
             : (token1, token0);
-        require(tokenA != address(0), "LIBRARY: ZERO_ADDRESS");
+        require(tokenA != address(0), "Library: Zero_Address");
     }
 
     // calculates the CREATE2 address for a pair without making any external calls
@@ -66,10 +66,10 @@ library Library {
         uint256 reserve0,
         uint256 reserve1
     ) internal pure returns (uint256 amount1) {
-        require(amount0 > 0, "LIBRARY: INSUFFICIENT_AMOUNT");
+        require(amount0 > 0, "Library: Insufficient_Amount");
         require(
             reserve0 > 0 && reserve1 > 0,
-            "LIBRARY: INSUFFICIENT_LIQUIDITY"
+            "Library: Insufficient_Liquidity"
         );
         amount1 = amount0.mul(reserve1) / reserve0;
     }

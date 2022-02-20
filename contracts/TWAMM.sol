@@ -15,7 +15,7 @@ contract TWAMM is ITWAMM {
     address public immutable override WETH;
 
     modifier ensure(uint256 deadline) {
-        require(deadline >= block.timestamp, "TWAMM: EXPIRED");
+        require(deadline >= block.timestamp, "TWAMM: Expired");
         _;
     }
 
@@ -127,9 +127,9 @@ contract TWAMM is ITWAMM {
         (address tokenA, ) = Library.sortTokens(token0, token1);
 
         if (tokenA == token0) {
-            IPair(pair).swapFromAToB(msg.sender, amountIn);
+            IPair(pair).instantSwapFromAToB(msg.sender, amountIn);
         } else {
-            IPair(pair).swapFromBToA(msg.sender, amountIn);
+            IPair(pair).instantSwapFromBToA(msg.sender, amountIn);
         }
     }
 
@@ -142,9 +142,9 @@ contract TWAMM is ITWAMM {
         (address tokenA, ) = Library.sortTokens(token, WETH);
 
         if (tokenA == token) {
-            IPair(pair).swapFromAToB(msg.sender, amountTokenIn);
+            IPair(pair).instantSwapFromAToB(msg.sender, amountTokenIn);
         } else {
-            IPair(pair).swapFromBToA(msg.sender, amountTokenIn);
+            IPair(pair).instantSwapFromBToA(msg.sender, amountTokenIn);
         }
 
         (uint256 reserveToken, uint256 reserveETH) = Library.getReserves(
@@ -169,16 +169,16 @@ contract TWAMM is ITWAMM {
         IWETH(WETH).deposit{value: amountETHIn}();
 
         if (tokenA == WETH) {
-            IPair(pair).swapFromAToB(msg.sender, amountETHIn);
+            IPair(pair).instantSwapFromAToB(msg.sender, amountETHIn);
         } else {
-            IPair(pair).swapFromBToA(msg.sender, amountETHIn);
+            IPair(pair).instantSwapFromBToA(msg.sender, amountETHIn);
         }
         // refund dust eth, if any
         if (msg.value > amountETHIn)
             TransferHelper.safeTransferETH(msg.sender, msg.value - amountETHIn);
     }
 
-    function termSwapTokenToToken(
+    function longTermSwapTokenToToken(
         address token0,
         address token1,
         uint256 amountIn,
@@ -203,7 +203,7 @@ contract TWAMM is ITWAMM {
         }
     }
 
-    function termSwapTokenToETH(
+    function longTermSwapTokenToETH(
         address token,
         uint256 amountTokenIn,
         uint256 numberOfBlockIntervals,
@@ -227,7 +227,7 @@ contract TWAMM is ITWAMM {
         }
     }
 
-    function termSwapETHToToken(
+    function longTermSwapETHToToken(
         address token,
         uint256 amountETHIn,
         uint256 numberOfBlockIntervals,

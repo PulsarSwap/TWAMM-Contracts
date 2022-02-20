@@ -19,10 +19,10 @@ async function main() {
 
     const TWAMM = await ethers.getContractFactory("TWAMM");
     const twamm = await TWAMM.deploy(
-        hre.network.config.Factory, 
-        hre.network.config.WETH,    
+        hre.network.config.Factory,
+        hre.network.config.WETH,
     );
-    
+
     await twamm.deployed();
 
     console.log("TWAMM address:", twamm.address);

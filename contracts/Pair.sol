@@ -46,7 +46,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
 
     ///@notice reentrancy guard
     modifier lock() {
-        require(unlocked == 1, "locked");
+        require(unlocked == 1, "Locked");
 
         unlocked = 0; // lock
         _;
@@ -70,7 +70,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         lock
         nonReentrant
     {
-        require(msg.sender == factory, "PAIR: FORBIDDEN"); // sufficient check
+        require(msg.sender == factory, "Pair: Forbidden"); // sufficient check
         tokenA = _tokenA;
         tokenB = _tokenB;
     }
@@ -114,7 +114,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     ) external override lock nonReentrant {
         require(
             totalSupply() == 0,
-            "liquidity has already been provided, need to call provideLiquidity"
+            "Liquidity Has Already Been Provided, Need To Call provideLiquidity"
         );
 
         reserveMap[tokenA] = amountA;
@@ -145,7 +145,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     {
         require(
             totalSupply() != 0,
-            "no liquidity has been provided yet, need to call provideInitialLiquidity"
+            "No Liquidity Has Been Provided Yet, Need To Call provideInitialLiquidity"
         );
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
 
@@ -179,7 +179,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     {
         require(
             lpTokenAmount <= totalSupply(),
-            "not enough lp tokens available"
+            "Not Enough Lp Tokens Available"
         );
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
 
@@ -203,8 +203,8 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         emit LiquidityRemoved(to, lpTokenAmount);
     }
 
-    ///@notice swap a given amount of tokenA against embedded amm
-    function swapFromAToB(address sender, uint256 amountAIn)
+    ///@notice instant swap a given amount of tokenA against embedded amm
+    function instantSwapFromAToB(address sender, uint256 amountAIn)
         external
         override
         lock
@@ -212,9 +212,14 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     {
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
 
-        uint256 amountBOut = performSwap(sender, tokenA, tokenB, amountAIn);
+        uint256 amountBOut = performInstantSwap(
+            sender,
+            tokenA,
+            tokenB,
+            amountAIn
+        );
 
-        emit SwapAToB(sender, amountAIn, amountBOut);
+        emit InstantSwapAToB(sender, amountAIn, amountBOut);
     }
 
     ///@notice create a long term order to swap from tokenA
@@ -237,8 +242,8 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         emit LongTermSwapAToB(sender, amountAIn, orderId);
     }
 
-    ///@notice swap a given amount of tokenB against embedded amm
-    function swapFromBToA(address sender, uint256 amountBIn)
+    ///@notice instant swap a given amount of tokenB against embedded amm
+    function instantSwapFromBToA(address sender, uint256 amountBIn)
         external
         override
         lock
@@ -246,9 +251,14 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     {
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
 
-        uint256 amountAOut = performSwap(sender, tokenB, tokenA, amountBIn);
+        uint256 amountAOut = performInstantSwap(
+            sender,
+            tokenB,
+            tokenA,
+            amountBIn
+        );
 
-        emit SwapBToA(sender, amountBIn, amountAOut);
+        emit InstantSwapBToA(sender, amountBIn, amountAOut);
     }
 
     ///@notice create a long term order to swap from tokenB
@@ -303,14 +313,14 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         emit WithdrawProceedsFromLongTermOrder(sender, orderId);
     }
 
-    ///@notice private function which implements swap logic
-    function performSwap(
+    ///@notice private function which implements instant swap logic
+    function performInstantSwap(
         address sender,
         address from,
         address to,
         uint256 amountIn
     ) private returns (uint256 amountOutMinusFee) {
-        require(amountIn > 0, "swap amount must be positive");
+        require(amountIn > 0, "Swap Amount Must Be Positive");
 
         //execute virtual orders
         longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);

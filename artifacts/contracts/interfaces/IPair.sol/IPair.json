@@ -59,6 +59,56 @@
         {
           "indexed": false,
           "internalType": "uint256",
+          "name": "amountAIn",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amountBOut",
+          "type": "uint256"
+        }
+      ],
+      "name": "InstantSwapAToB",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "addr",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amountBIn",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amountAOut",
+          "type": "uint256"
+        }
+      ],
+      "name": "InstantSwapBToA",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "addr",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
           "name": "lpTokens",
           "type": "uint256"
         }
@@ -133,56 +183,6 @@
         }
       ],
       "name": "LongTermSwapBToA",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "addr",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amountAIn",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amountBOut",
-          "type": "uint256"
-        }
-      ],
-      "name": "SwapAToB",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "addr",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amountBIn",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amountAOut",
-          "type": "uint256"
-        }
-      ],
-      "name": "SwapBToA",
       "type": "event"
     },
     {
@@ -294,6 +294,42 @@
         }
       ],
       "name": "initialize",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amountAIn",
+          "type": "uint256"
+        }
+      ],
+      "name": "instantSwapFromAToB",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amountBIn",
+          "type": "uint256"
+        }
+      ],
+      "name": "instantSwapFromBToA",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -478,42 +514,6 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "sender",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amountAIn",
-          "type": "uint256"
-        }
-      ],
-      "name": "swapFromAToB",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "sender",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amountBIn",
-          "type": "uint256"
-        }
-      ],
-      "name": "swapFromBToA",
-      "outputs": [],
-      "stateMutability": "nonpayable",
       "type": "function"
     },
     {

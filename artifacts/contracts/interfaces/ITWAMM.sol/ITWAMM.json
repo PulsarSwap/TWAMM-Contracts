@@ -266,7 +266,7 @@
           "type": "uint256"
         }
       ],
-      "name": "termSwapETHToToken",
+      "name": "longTermSwapETHToToken",
       "outputs": [],
       "stateMutability": "payable",
       "type": "function"
@@ -294,7 +294,7 @@
           "type": "uint256"
         }
       ],
-      "name": "termSwapTokenToETH",
+      "name": "longTermSwapTokenToETH",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -327,7 +327,7 @@
           "type": "uint256"
         }
       ],
-      "name": "termSwapTokenToToken",
+      "name": "longTermSwapTokenToToken",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
