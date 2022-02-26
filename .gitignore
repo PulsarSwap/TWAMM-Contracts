@@ -5,7 +5,7 @@ typechain
 
 node_modules
 
-# Hardhat files
+# hardhat files
 cache
 artifacts
 

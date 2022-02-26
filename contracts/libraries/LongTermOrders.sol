@@ -37,13 +37,10 @@ library LongTermOrdersLib {
         uint256 orderId;
         ///@notice mapping from order ids to Orders
         mapping(uint256 => Order) orderMap;
-
         ///@notice mapping from account address to its corresponding list of order ids
         mapping(address => uint256[]) orderIdMap;
-
         ///@notice mapping from order id to its status (false for nonactive true for active)
         mapping(uint256 => bool) orderIdStatusMap;
-
     }
 
     ///@notice initialize state
@@ -123,7 +120,7 @@ library LongTermOrdersLib {
         //add order to correct pool
         OrderPoolLib.OrderPool storage OrderPool = self.OrderPoolMap[from];
         OrderPool.depositOrder(self.orderId, sellingRate, orderExpiry);
-        
+
         //add to order map
         self.orderMap[self.orderId] = Order(
             self.orderId,
@@ -134,14 +131,14 @@ library LongTermOrdersLib {
             to
         );
 
-        // add user to orderId mapping list content 
+        // add user to orderId mapping list content
         self.orderIdMap[msg.sender].push(self.orderId);
 
         self.orderIdStatusMap[self.orderId] = true;
 
         return self.orderId++;
     }
-    
+
     // ///@notice remove orderId from user orderIdMap after the order is physically cancelled
     // function removeOrderId(
     //     LongTermOrders storage self,
@@ -150,23 +147,22 @@ library LongTermOrdersLib {
     // ) internal view {
     //     uint256[] memory orderIdList = self.orderIdMap[account];
     //     require(orderIdList.length > 0, "this sender doesn't have long term swap orders");
-        // if (orderIdList.length == 1) {
-        //     delete orderIdList[0];
-        // }
-        // uint l = 0;
-        // uint r = orderIdList.length - 1;
-        // uint m ;
-        // while (l < r) {
-        //    m = uint(l + r / 2);
-        //    if ( orderIdList[m] < orderId) {
-        //         l = m + 1;
-        //    } else if ( orderIdList[m] > orderId) {
-        //        r = m - 1;
-        //    } else {
-        //        delete orderIdList[m];
-        //    }
-        // }
-
+    // if (orderIdList.length == 1) {
+    //     delete orderIdList[0];
+    // }
+    // uint l = 0;
+    // uint r = orderIdList.length - 1;
+    // uint m ;
+    // while (l < r) {
+    //    m = uint(l + r / 2);
+    //    if ( orderIdList[m] < orderId) {
+    //         l = m + 1;
+    //    } else if ( orderIdList[m] > orderId) {
+    //        r = m - 1;
+    //    } else {
+    //        delete orderIdList[m];
+    //    }
+    // }
 
     // }
 
@@ -196,7 +192,6 @@ library LongTermOrdersLib {
         //transfer to owner
         ERC20(order.buyTokenId).transfer(msg.sender, purchasedAmount);
         ERC20(order.sellTokenId).transfer(msg.sender, unsoldAmount);
-
 
         // delete orderId from account list
         // removeOrderId(self, orderId, msg.sender);

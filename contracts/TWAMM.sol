@@ -4,6 +4,7 @@ pragma solidity ^0.8.9;
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./libraries/LongTermOrders.sol";
+
 ///@notice TWAMM -- https://www.paradigm.xyz/2021/07/twamm/
 contract TWAMM is ERC20 {
     using LongTermOrdersLib for LongTermOrdersLib.LongTermOrders;
@@ -102,9 +103,6 @@ contract TWAMM is ERC20 {
     // {
     //     ERC20(tokenA).approve(address(this), amountA); // this is self-approval, useless cause it's address(this) sending out this transaction
     //     ERC20(tokenB).approve(address(this), amountB); // the msg.sender approves address(this) to spend tokenB
-        
-
-
 
     // }
 
@@ -116,7 +114,6 @@ contract TWAMM is ERC20 {
             totalSupply() == 0,
             "liquidity has already been provided, need to call provideLiquidity"
         );
-
 
         ERC20(tokenA).transferFrom(msg.sender, address(this), amountA);
         ERC20(tokenB).transferFrom(msg.sender, address(this), amountB);
@@ -195,6 +192,7 @@ contract TWAMM is ERC20 {
         uint256 amountBOut = performSwap(tokenA, tokenB, amountAIn);
         emit SwapAToB(msg.sender, amountAIn, amountBOut);
     }
+
     ///@notice create a long term order to swap from tokenA
     ///@param amountAIn total amount of token A to swap
     ///@param numberOfBlockIntervals number of block intervals over which to execute long term order
@@ -267,29 +265,28 @@ contract TWAMM is ERC20 {
         reserveMap[to] -= amountOutMinusFee;
     }
 
-
     ///@notice get user orderIds
-    function userIdsCheck(
-        address userAddress
-    ) external view returns (uint256[] memory) {
+    function userIdsCheck(address userAddress)
+        external
+        view
+        returns (uint256[] memory)
+    {
         return longTermOrders.orderIdMap[userAddress];
     }
 
-
     ///@notice get user order Id status
-    function orderIdStatusCheck(
-        uint256 orderId
-    ) external view returns (bool) {
+    function orderIdStatusCheck(uint256 orderId) external view returns (bool) {
         return longTermOrders.orderIdStatusMap[orderId];
     }
 
     ///@notice get user order details
-    function getOrderDetails(
-        uint256 orderId
-    ) external view returns (LongTermOrdersLib.Order memory) {
+    function getOrderDetails(uint256 orderId)
+        external
+        view
+        returns (LongTermOrdersLib.Order memory)
+    {
         return longTermOrders.orderMap[orderId];
     }
-    
 
     ///@notice get tokenA reserves
     function tokenAReserves() public view returns (uint256) {

@@ -27,7 +27,7 @@ In addition to the order pools, the `LongTermOrders` struct keep the state of th
 
 ### Fixed Point Math
 
-This implementation uses the [PBRMath Library](https://github.com/hifi-finance/prb-math) for fixed point arithmetic, in order to implement the closed form solution to settling long term trades. Efforts were made to make the computation numerically stable, but there's remaining work to be done here in order to ensure that the computation is correct for the full set of expected inputs. 
+This implementation uses the [PRBMath Library](https://github.com/hifi-finance/prb-math) for fixed point arithmetic, in order to implement the closed form solution to settling long term trades. Efforts were made to make the computation numerically stable, but there's remaining work to be done here in order to ensure that the computation is correct for the full set of expected inputs. 
 
 ## How to run 
 
@@ -42,6 +42,5 @@ npx hardhat test
 
 **Mainnet:** 
 
-**Ropsten:** [0xbfF3Bce78DE8b5829fE0476692279c57d81aF7e1](https://ropsten.etherscan.io/address/0xbfF3Bce78DE8b5829fE0476692279c57d81aF7e1)
+**Aggron:** [0xbfF3Bce78DE8b5829fE0476692279c57d81aF7e1](https://ropsten.etherscan.io/address/0xbfF3Bce78DE8b5829fE0476692279c57d81aF7e1)
 
-**Kovan:** [0x6DDFEb84c9e9E9681f2B9AbbD0726d834f0305c6](https://kovan.etherscan.io/address/0x6DDFEb84c9e9E9681f2B9AbbD0726d834f0305c6)
