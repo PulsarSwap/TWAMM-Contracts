@@ -9,9 +9,6 @@ contract Factory is IFactory {
     mapping(address => mapping(address => address)) public override getPair;
     address[] public override allPairs;
 
-    bytes32 public constant INIT_CODE_PAIR_HASH =
-        keccak256(abi.encodePacked(type(Pair).creationCode));
-
     function allPairsLength() external view override returns (uint256) {
         return allPairs.length;
     }
