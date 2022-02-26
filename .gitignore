@@ -11,3 +11,7 @@ node_modules
 .eslintcache
 
 .DS_Store
+
+# hardhat files
+artifacts
+cache
