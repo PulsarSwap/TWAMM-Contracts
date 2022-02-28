@@ -261,6 +261,9 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         emit InstantSwapBToA(sender, amountBIn, amountAOut);
     }
 
+    
+    
+
     ///@notice create a long term order to swap from tokenB
     ///@param amountBIn total amount of tokenB to swap
     ///@param numberOfBlockIntervals number of block intervals over which to execute long term order
@@ -338,20 +341,43 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         IERC20(to).transfer(sender, amountOutMinusFee);
     }
 
-    ///@notice get user orderIds
-    function userIdsCheck(address userAddress)
-        external
-        view
-        override
-        returns (uint256[] memory)
-    {
-        return longTermOrders.orderIdMap[userAddress];
+
+    ///@notice get user order details
+    function getOrderDetails(
+        uint256 orderId
+    ) external view returns (LongTermOrdersLib.Order memory) {
+        return longTermOrders.orderMap[orderId];
     }
 
     ///@notice get user orderIds
-    function orderIdStatusCheck(uint256 orderId) external view returns (bool) {
+    function userIdsCheck(
+        address userAddress
+    ) external view returns (uint256[] memory) {
+        return longTermOrders.orderIdMap[userAddress];
+    }
+
+
+    ///@notice get user order Id status
+    function orderIdStatusCheck(
+        uint256 orderId
+    ) external view returns (bool) {
         return longTermOrders.orderIdStatusMap[orderId];
     }
+
+    // ///@notice get user orderIds
+    // function userIdsCheck(address userAddress)
+    //     external
+    //     view
+    //     override
+    //     returns (uint256[] memory)
+    // {
+    //     return longTermOrders.orderIdMap[userAddress];
+    // }
+
+    // ///@notice get user orderIds
+    // function orderIdStatusCheck(uint256 orderId) external view returns (bool) {
+    //     return longTermOrders.orderIdStatusMap[orderId];
+    // }
 
     ///@notice convenience function to execute virtual orders. Note that this already happens
     ///before most interactions with the AMM

@@ -200,8 +200,8 @@ library LongTermOrdersLib {
             "No Proceeds To Withdraw"
         );
         //transfer to owner
-        ERC20(order.buyTokenId).transfer(msg.sender, purchasedAmount);
-        ERC20(order.sellTokenId).transfer(msg.sender, unsoldAmount);
+        IERC20(order.buyTokenId).transfer(msg.sender, purchasedAmount);
+        IERC20(order.sellTokenId).transfer(msg.sender, unsoldAmount);
 
 
         // delete orderId from account list
@@ -229,7 +229,7 @@ library LongTermOrdersLib {
 
         require(proceeds > 0, "No Proceeds To Withdraw");
         //transfer to owner
-        ERC20(order.buyTokenId).transfer(msg.sender, proceeds);
+        IERC20(order.buyTokenId).transfer(msg.sender, proceeds);
 
         // delete orderId from account list
         // removeOrderId(self, orderId, msg.sender);

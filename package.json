@@ -39,7 +39,7 @@
         "chai": "^4.3.4",
         "ethereum-waffle": "^3.4.0",
         "ethers": "^5.5.2",
-        "hardhat": "^2.7.0",
+        "hardhat": "^2.8.4",
         "hardhat-gas-reporter": "^1.0.4",
         "prb-math": "^2.4.0",
         "prettier": "^2.4.1",

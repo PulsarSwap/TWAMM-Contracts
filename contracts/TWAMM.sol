@@ -3,7 +3,7 @@
 
 // import "hardhat/console.sol";
 // import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-// import "./libraries/LongTermOrders.sol";
+
 // ///@notice TWAMM -- https://www.paradigm.xyz/2021/07/twamm/
 // contract TWAMM is ERC20 {
 //     using LongTermOrdersLib for LongTermOrdersLib.LongTermOrders;
@@ -19,8 +19,8 @@
 //     ///@notice fee for LP providers, 4 decimal places, i.e. 30 = 0.3%
 //     uint256 public constant LP_FEE = 30;
 
-//     ///@notice map token addresses to current amm reserves
-//     mapping(address => uint256) reserveMap;
+    // ///@notice map token addresses to current amm reserves
+    // mapping(address => uint256) reserveMap;
 
 //     /// ---------------------------
 //     /// -----TWAMM Parameters -----
@@ -52,6 +52,7 @@ import "./libraries/Library.sol";
 import "./libraries/TransferHelper.sol";
 import "./interfaces/IWETH.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+// import "./libraries/LongTermOrders.sol";
 
 contract TWAMM is ITWAMM {
     address public immutable override factory;
@@ -339,33 +340,33 @@ contract TWAMM is ITWAMM {
     }
 
 
-    ///@notice get user orderIds
-    function userIdsCheck(
-        address userAddress
-    ) external view returns (uint256[] memory) {
-        return longTermOrders.orderIdMap[userAddress];
-    }
+    // ///@notice get user orderIds
+    // function userIdsCheck(
+    //     address userAddress
+    // ) external view returns (uint256[] memory) {
+    //     return longTermOrders.orderIdMap[userAddress];
+    // }
 
 
-    ///@notice get user order Id status
-    function orderIdStatusCheck(
-        uint256 orderId
-    ) external view returns (bool) {
-        return longTermOrders.orderIdStatusMap[orderId];
-    }
+    // ///@notice get user order Id status
+    // function orderIdStatusCheck(
+    //     uint256 orderId
+    // ) external view returns (bool) {
+    //     return longTermOrders.orderIdStatusMap[orderId];
+    // }
 
-    ///@notice get user order details
-    function getOrderDetails(
-        uint256 orderId
-    ) external view returns (LongTermOrdersLib.Order memory) {
-        return longTermOrders.orderMap[orderId];
-    }
+    // ///@notice get user order details
+    // function getOrderDetails(
+    //     uint256 orderId
+    // ) external view returns (LongTermOrdersLib.Order memory) {
+    //     return longTermOrders.orderMap[orderId];
+    // }
     
+    // ///@notice get tokenA reserves
+    // function tokenAReserves() public view returns (uint256) {
+    //     return reserveMap[tokenA];
+    // }
 
-    ///@notice get tokenA reserves
-    function tokenAReserves() public view returns (uint256) {
-        return reserveMap[tokenA];
-        
     function longTermSwapETHToToken(
         address token,
         uint256 amountETHIn,
