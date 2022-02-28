@@ -1,52 +1,53 @@
 {
-  "name": "pulsar-twamm",
-  "description": "pulsar time weighted automated market making",
-  "version": "1.0.0",
-  "main": "index.js",
-  "directories": {
-    "test": "test"
-  },
-  "keywords": [
-    "ethereum",
-    "twamm",
-    "swap",
-    "amm",
-    "pulsar"
-  ],
-  "scripts": {
-    "compile": "npx hardhat compile",
-    "test": "npx hardhat test",
-    "deploy:mainnet": "npx hardhat run --network mainnet",
-    "prettier": "npx prettier --write 'contracts/**/*.sol'",
-    "sollhint:sol": "npx solhint 'contracts/**/*.sol'"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/PulsarSwap/TWAMM-Contracts.git"
-  },
-  "author": "pulsar",
-  "license": "GPL-3.0-or-later",
-  "bugs": {
-    "url": "https://github.com/PulsarSwap/TWAMM-Contracts/issues"
-  },
-  "homepage": "https://github.com/PulsarSwap/TWAMM-Contracts#readme",
-  "devDependencies": {
-    "@nomiclabs/hardhat-ethers": "^2.0.2",
-    "@nomiclabs/hardhat-etherscan": "^2.1.7",
-    "@nomiclabs/hardhat-solhint": "^2.0.0",
-    "@nomiclabs/hardhat-waffle": "^2.0.1",
-    "@openzeppelin/contracts": "^4.3.3",
-    "chai": "^4.3.4",
-    "ethereum-waffle": "^3.4.0",
-    "ethers": "^5.5.1",
-    "hardhat": "^2.6.8",
-    "hardhat-gas-reporter": "^1.0.4",
-    "prb-math": "^2.4.0",
-    "prettier": "^2.4.1",
-    "prettier-plugin-solidity": "^1.0.0-beta.18"
-  },
-  "dependencies": {
-    "dotenv": "^10.0.0",
-    "hardhat-deploy": "^0.9.4"
-  }
+    "name": "twamm-contracts",
+    "description": "pulsar time weighted automated market making",
+    "version": "1.0.0",
+    "main": "index.js",
+    "directories": {
+        "test": "test"
+    },
+    "keywords": [
+        "ethereum",
+        "twamm",
+        "amm",
+        "swap",
+        "pulsar"
+    ],
+    "scripts": {
+        "compile": "npx hardhat compile",
+        "test": "npx hardhat test",
+        "deploy:mainnet": "npx hardhat run --network mainnet",
+        "prettier": "npx prettier --write 'contracts/**/*.sol'",
+        "sollhint:sol": "npx solhint 'contracts/**/*.sol'"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/PulsarSwap/TWAMM-Contracts.git"
+    },
+    "author": "pulsar",
+    "license": "GPL-3.0-or-later",
+    "bugs": {
+        "url": "https://github.com/PulsarSwap/TWAMM-Contracts/issues"
+    },
+    "homepage": "https://github.com/PulsarSwap/TWAMM-Contracts#readme",
+    "devDependencies": {
+        "@nomiclabs/hardhat-ethers": "^2.0.3",
+        "@nomiclabs/hardhat-etherscan": "^2.1.8",
+        "@nomiclabs/hardhat-solhint": "^2.0.0",
+        "@nomiclabs/hardhat-waffle": "^2.0.1",
+        "@openzeppelin/contracts": "^4.3.2",
+        "chai": "^4.3.4",
+        "ethereum-waffle": "^3.4.0",
+        "ethers": "^5.5.2",
+        "hardhat": "^2.7.0",
+        "hardhat-gas-reporter": "^1.0.4",
+        "prb-math": "^2.4.0",
+        "prettier": "^2.4.1",
+        "prettier-plugin-solidity": "^1.0.0-beta.18"
+    },
+    "dependencies": {
+        "@rari-capital/solmate": "^6.2.0",
+        "dotenv": "^10.0.0",
+        "hardhat-deploy": "^0.9.4"
+    }
 }

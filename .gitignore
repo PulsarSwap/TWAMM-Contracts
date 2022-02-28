@@ -5,13 +5,13 @@ typechain
 
 node_modules
 
-# Hardhat files
-cache
-artifacts
-
 # environment
 .env
 
 .eslintcache
 
 .DS_Store
+
+# hardhat files
+artifacts
+cache

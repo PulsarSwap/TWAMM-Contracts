@@ -1,99 +1,65 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+// pragma solidity ^0.8.9;
+
+// import "hardhat/console.sol";
+// import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+// import "./libraries/LongTermOrders.sol";
+// ///@notice TWAMM -- https://www.paradigm.xyz/2021/07/twamm/
+// contract TWAMM is ERC20 {
+//     using LongTermOrdersLib for LongTermOrdersLib.LongTermOrders;
+//     using PRBMathUD60x18 for uint256;
+
+//     /// ---------------------------
+//     /// ------ AMM Parameters -----
+//     /// ---------------------------
+//     ///@notice tokens that can be traded in the AMM
+//     address public tokenA;
+//     address public tokenB;
+
+//     ///@notice fee for LP providers, 4 decimal places, i.e. 30 = 0.3%
+//     uint256 public constant LP_FEE = 30;
+
+//     ///@notice map token addresses to current amm reserves
+//     mapping(address => uint256) reserveMap;
+
+//     /// ---------------------------
+//     /// -----TWAMM Parameters -----
+//     /// ---------------------------
+
+//     ///@notice interval between blocks that are eligible for order expiry
+//     uint256 public orderBlockInterval;
+
+//     ///@notice data structure to handle long term orders
+//     LongTermOrdersLib.LongTermOrders internal longTermOrders;
+
+//     /// ---------------------------
+//     /// --------- Events ----------
+//     /// ---------------------------
+
+//     ///@notice An event emitted when initial liquidity is provided
+//     event InitialLiquidityProvided(
+//         address indexed addr,
+//         uint256 amountA,
+//         uint256 amountB
+//     );
+
 pragma solidity ^0.8.9;
 
-import "hardhat/console.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "./libraries/LongTermOrders.sol";
-///@notice TWAMM -- https://www.paradigm.xyz/2021/07/twamm/
-contract TWAMM is ERC20 {
-    using LongTermOrdersLib for LongTermOrdersLib.LongTermOrders;
-    using PRBMathUD60x18 for uint256;
+import "./interfaces/ITWAMM.sol";
+import "./interfaces/IPair.sol";
+import "./interfaces/IFactory.sol";
+import "./libraries/Library.sol";
+import "./libraries/TransferHelper.sol";
+import "./interfaces/IWETH.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-    /// ---------------------------
-    /// ------ AMM Parameters -----
-    /// ---------------------------
-    ///@notice tokens that can be traded in the AMM
-    address public tokenA;
-    address public tokenB;
+contract TWAMM is ITWAMM {
+    address public immutable override factory;
+    address public immutable override WETH;
 
-    ///@notice fee for LP providers, 4 decimal places, i.e. 30 = 0.3%
-    uint256 public constant LP_FEE = 30;
-
-    ///@notice map token addresses to current amm reserves
-    mapping(address => uint256) reserveMap;
-
-    /// ---------------------------
-    /// -----TWAMM Parameters -----
-    /// ---------------------------
-
-    ///@notice interval between blocks that are eligible for order expiry
-    uint256 public orderBlockInterval;
-
-    ///@notice data structure to handle long term orders
-    LongTermOrdersLib.LongTermOrders internal longTermOrders;
-
-    /// ---------------------------
-    /// --------- Events ----------
-    /// ---------------------------
-
-    ///@notice An event emitted when initial liquidity is provided
-    event InitialLiquidityProvided(
-        address indexed addr,
-        uint256 amountA,
-        uint256 amountB
-    );
-
-    ///@notice An event emitted when liquidity is provided
-    event LiquidityProvided(address indexed addr, uint256 lpTokens);
-
-    ///@notice An event emitted when liquidity is removed
-    event LiquidityRemoved(address indexed addr, uint256 lpTokens);
-
-    ///@notice An event emitted when a swap from tokenA to tokenB is performed
-    event SwapAToB(address indexed addr, uint256 amountAIn, uint256 amountBOut);
-
-    ///@notice An event emitted when a swap from tokenB to tokenA is performed
-    event SwapBToA(address indexed addr, uint256 amountBIn, uint256 amountAOut);
-
-    ///@notice An event emitted when a long term swap from tokenA to tokenB is performed
-    event LongTermSwapAToB(
-        address indexed addr,
-        uint256 amountAIn,
-        uint256 orderId
-    );
-
-    ///@notice An event emitted when a long term swap from tokenB to tokenA is performed
-    event LongTermSwapBToA(
-        address indexed addr,
-        uint256 amountBIn,
-        uint256 orderId
-    );
-
-    ///@notice An event emitted when a long term swap is cancelled
-    event CancelLongTermOrder(address indexed addr, uint256 orderId);
-
-    ///@notice An event emitted when proceeds from a long term swap are withdrawm
-    event WithdrawProceedsFromLongTermOrder(
-        address indexed addr,
-        uint256 orderId
-    );
-
-    constructor(
-        string memory _name,
-        string memory _symbol,
-        address _tokenA,
-        address _tokenB,
-        uint256 _orderBlockInterval
-    ) ERC20(_name, _symbol) {
-        tokenA = _tokenA;
-        tokenB = _tokenB;
-        orderBlockInterval = _orderBlockInterval;
-        longTermOrders.initialize(
-            _tokenA,
-            _tokenB,
-            block.number,
-            _orderBlockInterval
-        );
+    modifier ensure(uint256 deadline) {
+        require(deadline >= block.timestamp, "TWAMM: Expired");
+        _;
     }
 
     // ///@notice provide  temporary approve function for user (msg.sender) to approve amount TokenA & B to this contract
@@ -108,163 +74,268 @@ contract TWAMM is ERC20 {
 
     // }
 
-    ///@notice provide initial liquidity to the amm. This sets the relative price between tokens
-    function provideInitialLiquidity(uint256 amountA, uint256 amountB)
-        external
-    {
-        require(
-            totalSupply() == 0,
-            "liquidity has already been provided, need to call provideLiquidity"
+    // ///@notice provide initial liquidity to the amm. This sets the relative price between tokens
+    // function provideInitialLiquidity(uint256 amountA, uint256 amountB)
+    //     external
+    // {
+    //     require(
+    //         totalSupply() == 0,
+    //         "liquidity has already been provided, need to call provideLiquidity"
+    //     );
+
+
+    //     ERC20(tokenA).transferFrom(msg.sender, address(this), amountA);
+    //     ERC20(tokenB).transferFrom(msg.sender, address(this), amountB);
+
+    //     reserveMap[tokenA] = amountA;
+    //     reserveMap[tokenB] = amountB;
+
+    //     //initial LP amount is the geometric mean of supplied tokens
+    //     uint256 lpAmount = amountA
+    //         .fromUint()
+    //         .sqrt()
+    //         .mul(amountB.fromUint().sqrt())
+    //         .toUint();
+    //     _mint(msg.sender, lpAmount);
+
+    //     emit InitialLiquidityProvided(msg.sender, amountA, amountB);
+    constructor(address _factory, address _WETH) {
+        factory = _factory;
+        WETH = _WETH;
+    }
+
+    receive() external payable {
+        assert(msg.sender == WETH); // only accept ETH via fallback from the WETH contract
+    }
+
+    // ///@notice remove liquidity to the AMM
+    // ///@param lpTokenAmount number of lp tokens to burn
+    // function removeLiquidity(uint256 lpTokenAmount) external {
+    //     require(
+    //         lpTokenAmount <= totalSupply(),
+    //         "not enough lp tokens available"
+    //     );
+    //     //execute virtual orders
+    //     longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
+
+    //     //the ratio between the number of underlying tokens and the number of lp tokens must remain invariant after burn
+    //     uint256 amountAOut = (reserveMap[tokenA] * lpTokenAmount) /
+    //         totalSupply();
+    //     uint256 amountBOut = (reserveMap[tokenB] * lpTokenAmount) /
+    //         totalSupply();
+
+    //     ERC20(tokenA).transfer(msg.sender, amountAOut);
+    //     ERC20(tokenB).transfer(msg.sender, amountBOut);
+    function addInitialLiquidity(
+        address token0,
+        address token1,
+        uint256 amount0,
+        uint256 amount1,
+        uint256 deadline
+    ) external virtual override ensure(deadline) {
+        // create the pair if it doesn't exist yet
+        if (IFactory(factory).getPair(token0, token1) == address(0)) {
+            IFactory(factory).createPair(token0, token1);
+        }
+        address pair = Library.pairFor(factory, token0, token1);
+        (address tokenA, ) = Library.sortTokens(token0, token1);
+        (uint256 amountA, uint256 amountB) = tokenA == token0
+            ? (amount0, amount1)
+            : (amount1, amount0);
+        IPair(pair).provideInitialLiquidity(msg.sender, amountA, amountB);
+    }
+
+    function addInitialLiquidityETH(
+        address token,
+        uint256 amountToken,
+        uint256 amountETH,
+        uint256 deadline
+    ) external payable virtual override ensure(deadline) {
+        if (IFactory(factory).getPair(token, WETH) == address(0)) {
+            IFactory(factory).createPair(token, WETH);
+        }
+        address pair = Library.pairFor(factory, token, WETH);
+        (address tokenA, ) = Library.sortTokens(token, WETH);
+        (uint256 amountA, uint256 amountB) = tokenA == token
+            ? (amountToken, amountETH)
+            : (amountETH, amountToken);
+        IWETH(WETH).deposit{value: amountETH}();
+        IPair(pair).provideInitialLiquidity(msg.sender, amountA, amountB);
+        // refund dust eth, if any
+        if (msg.value > amountETH)
+            TransferHelper.safeTransferETH(msg.sender, msg.value - amountETH);
+    }
+
+    function addLiquidity(
+        address token0,
+        address token1,
+        uint256 lpTokenAmount,
+        uint256 deadline
+    ) external virtual override ensure(deadline) {
+        address pair = Library.pairFor(factory, token0, token1);
+        IPair(pair).provideLiquidity(msg.sender, lpTokenAmount);
+    }
+
+    function addLiquidityETH(
+        address token,
+        uint256 lpTokenAmount,
+        uint256 deadline
+    ) external payable virtual override ensure(deadline) {
+        address pair = Library.pairFor(factory, token, WETH);
+        (, uint256 reserveETH) = Library.getReserves(factory, token, WETH);
+        uint256 totalSupplyLP = IERC20(pair).totalSupply();
+        uint256 amountETH = (lpTokenAmount * reserveETH) / totalSupplyLP;
+        IWETH(WETH).deposit{value: amountETH}();
+        IPair(pair).provideLiquidity(msg.sender, lpTokenAmount);
+        // refund dust eth, if any
+        if (msg.value > amountETH)
+            TransferHelper.safeTransferETH(msg.sender, msg.value - amountETH);
+    }
+
+    function withdrawLiquidity(
+        address token0,
+        address token1,
+        uint256 lpTokenAmount,
+        uint256 deadline
+    ) external virtual override ensure(deadline) {
+        address pair = Library.pairFor(factory, token0, token1);
+        IPair(pair).removeLiquidity(msg.sender, lpTokenAmount);
+    }
+    // ///@notice create a long term order to swap from tokenA
+    // ///@param amountAIn total amount of token A to swap
+    // ///@param numberOfBlockIntervals number of block intervals over which to execute long term order
+    // function longTermSwapFromAToB(
+    //     uint256 amountAIn,
+    //     uint256 numberOfBlockIntervals
+    // ) external {
+    //     uint256 orderId = longTermOrders.longTermSwapFromAToB(
+    //         amountAIn,
+    //         numberOfBlockIntervals,
+    //         reserveMap
+    //     );
+    //     emit LongTermSwapAToB(msg.sender, amountAIn, orderId);
+
+    function withdrawLiquidityETH(
+        address token,
+        uint256 lpTokenAmount,
+        uint256 deadline
+    ) external virtual override ensure(deadline) {
+        address pair = Library.pairFor(factory, token, WETH);
+        IPair(pair).removeLiquidity(msg.sender, lpTokenAmount);
+        (, uint256 reserveETH) = Library.getReserves(factory, token, WETH);
+        uint256 totalSupplyLP = IERC20(pair).totalSupply();
+        uint256 amountETH = (reserveETH * lpTokenAmount) / totalSupplyLP;
+        IWETH(WETH).withdraw(amountETH);
+    }
+
+    function instantSwapTokenToToken(
+        address token0,
+        address token1,
+        uint256 amountIn,
+        uint256 deadline
+    ) external virtual override ensure(deadline) {
+        address pair = Library.pairFor(factory, token0, token1);
+        (address tokenA, ) = Library.sortTokens(token0, token1);
+
+        if (tokenA == token0) {
+            IPair(pair).instantSwapFromAToB(msg.sender, amountIn);
+        } else {
+            IPair(pair).instantSwapFromBToA(msg.sender, amountIn);
+        }
+    }
+
+    function instantSwapTokenToETH(
+        address token,
+        uint256 amountTokenIn,
+        uint256 deadline
+    ) external virtual override ensure(deadline) {
+        address pair = Library.pairFor(factory, token, WETH);
+        (address tokenA, ) = Library.sortTokens(token, WETH);
+
+        if (tokenA == token) {
+            IPair(pair).instantSwapFromAToB(msg.sender, amountTokenIn);
+        } else {
+            IPair(pair).instantSwapFromBToA(msg.sender, amountTokenIn);
+        }
+
+        (uint256 reserveToken, uint256 reserveETH) = Library.getReserves(
+            factory,
+            token,
+            WETH
         );
-
-
-        ERC20(tokenA).transferFrom(msg.sender, address(this), amountA);
-        ERC20(tokenB).transferFrom(msg.sender, address(this), amountB);
-
-        reserveMap[tokenA] = amountA;
-        reserveMap[tokenB] = amountB;
-
-        //initial LP amount is the geometric mean of supplied tokens
-        uint256 lpAmount = amountA
-            .fromUint()
-            .sqrt()
-            .mul(amountB.fromUint().sqrt())
-            .toUint();
-        _mint(msg.sender, lpAmount);
-
-        emit InitialLiquidityProvided(msg.sender, amountA, amountB);
-    }
-
-    ///@notice provide liquidity to the AMM
-    ///@param lpTokenAmount number of lp tokens to mint with new liquidity
-    function provideLiquidity(uint256 lpTokenAmount) external {
-        require(
-            totalSupply() != 0,
-            "no liquidity has been provided yet, need to call provideInitialLiquidity"
-        );
-
-        //execute virtual orders
-        longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
-
-        //the ratio between the number of underlying tokens and the number of lp tokens must remain invariant after mint
-        uint256 amountAIn = (lpTokenAmount * reserveMap[tokenA]) /
-            totalSupply();
-        uint256 amountBIn = (lpTokenAmount * reserveMap[tokenB]) /
-            totalSupply();
-
-        ERC20(tokenA).transferFrom(msg.sender, address(this), amountAIn);
-        ERC20(tokenB).transferFrom(msg.sender, address(this), amountBIn);
-
-        reserveMap[tokenA] += amountAIn;
-        reserveMap[tokenB] += amountBIn;
-
-        _mint(msg.sender, lpTokenAmount);
-
-        emit LiquidityProvided(msg.sender, lpTokenAmount);
-    }
-
-    ///@notice remove liquidity to the AMM
-    ///@param lpTokenAmount number of lp tokens to burn
-    function removeLiquidity(uint256 lpTokenAmount) external {
-        require(
-            lpTokenAmount <= totalSupply(),
-            "not enough lp tokens available"
-        );
-        //execute virtual orders
-        longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
-
-        //the ratio between the number of underlying tokens and the number of lp tokens must remain invariant after burn
-        uint256 amountAOut = (reserveMap[tokenA] * lpTokenAmount) /
-            totalSupply();
-        uint256 amountBOut = (reserveMap[tokenB] * lpTokenAmount) /
-            totalSupply();
-
-        ERC20(tokenA).transfer(msg.sender, amountAOut);
-        ERC20(tokenB).transfer(msg.sender, amountBOut);
-
-        reserveMap[tokenA] -= amountAOut;
-        reserveMap[tokenB] -= amountBOut;
-
-        _burn(msg.sender, lpTokenAmount);
-
-        emit LiquidityRemoved(msg.sender, lpTokenAmount);
-    }
-
-    ///@notice swap a given amount of TokenA against embedded amm
-    function swapFromAToB(uint256 amountAIn) external {
-        uint256 amountBOut = performSwap(tokenA, tokenB, amountAIn);
-        emit SwapAToB(msg.sender, amountAIn, amountBOut);
-    }
-    ///@notice create a long term order to swap from tokenA
-    ///@param amountAIn total amount of token A to swap
-    ///@param numberOfBlockIntervals number of block intervals over which to execute long term order
-    function longTermSwapFromAToB(
-        uint256 amountAIn,
-        uint256 numberOfBlockIntervals
-    ) external {
-        uint256 orderId = longTermOrders.longTermSwapFromAToB(
-            amountAIn,
-            numberOfBlockIntervals,
-            reserveMap
-        );
-        emit LongTermSwapAToB(msg.sender, amountAIn, orderId);
-    }
-
-    ///@notice swap a given amount of TokenB against embedded amm
-    function swapFromBToA(uint256 amountBIn) external {
-        uint256 amountAOut = performSwap(tokenB, tokenA, amountBIn);
-        emit SwapBToA(msg.sender, amountBIn, amountAOut);
-    }
-
-    ///@notice create a long term order to swap from tokenB
-    ///@param amountBIn total amount of tokenB to swap
-    ///@param numberOfBlockIntervals number of block intervals over which to execute long term order
-    function longTermSwapFromBToA(
-        uint256 amountBIn,
-        uint256 numberOfBlockIntervals
-    ) external {
-        uint256 orderId = longTermOrders.longTermSwapFromBToA(
-            amountBIn,
-            numberOfBlockIntervals,
-            reserveMap
-        );
-        emit LongTermSwapBToA(msg.sender, amountBIn, orderId);
-    }
-
-    ///@notice stop the execution of a long term order
-    function cancelLongTermSwap(uint256 orderId) external {
-        longTermOrders.cancelLongTermSwap(orderId, reserveMap);
-        emit CancelLongTermOrder(msg.sender, orderId);
-    }
-
-    ///@notice withdraw proceeds from a long term swap
-    function withdrawProceedsFromLongTermSwap(uint256 orderId) external {
-        longTermOrders.withdrawProceedsFromLongTermSwap(orderId, reserveMap);
-        emit WithdrawProceedsFromLongTermOrder(msg.sender, orderId);
-    }
-
-    ///@notice private function which implements swap logic
-    function performSwap(
-        address from,
-        address to,
-        uint256 amountIn
-    ) private returns (uint256 amountOutMinusFee) {
-        require(amountIn > 0, "swap amount must be positive");
-
-        //execute virtual orders
-        longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
-
-        //constant product formula
-        uint256 amountOut = (reserveMap[to] * amountIn) /
-            (reserveMap[from] + amountIn);
+        uint256 amountETHOut = (reserveETH * amountTokenIn) /
+            (reserveToken + amountTokenIn);
         //charge LP fee
-        amountOutMinusFee = (amountOut * (10000 - LP_FEE)) / 10000;
+        uint256 amountETHOutMinusFee = (amountETHOut * 997) / 1000;
+        IWETH(WETH).withdraw(amountETHOutMinusFee);
+    }
 
-        ERC20(from).transferFrom(msg.sender, address(this), amountIn);
-        ERC20(to).transfer(msg.sender, amountOutMinusFee);
+    function instantSwapETHToToken(
+        address token,
+        uint256 amountETHIn,
+        uint256 deadline
+    ) external payable virtual override ensure(deadline) {
+        address pair = Library.pairFor(factory, WETH, token);
+        (address tokenA, ) = Library.sortTokens(WETH, token);
+        IWETH(WETH).deposit{value: amountETHIn}();
 
-        reserveMap[from] += amountIn;
-        reserveMap[to] -= amountOutMinusFee;
+        if (tokenA == WETH) {
+            IPair(pair).instantSwapFromAToB(msg.sender, amountETHIn);
+        } else {
+            IPair(pair).instantSwapFromBToA(msg.sender, amountETHIn);
+        }
+        // refund dust eth, if any
+        if (msg.value > amountETHIn)
+            TransferHelper.safeTransferETH(msg.sender, msg.value - amountETHIn);
+    }
+
+    function longTermSwapTokenToToken(
+        address token0,
+        address token1,
+        uint256 amountIn,
+        uint256 numberOfBlockIntervals,
+        uint256 deadline
+    ) external virtual override ensure(deadline) {
+        address pair = Library.pairFor(factory, token0, token1);
+        (address tokenA, ) = Library.sortTokens(token0, token1);
+
+        if (tokenA == token0) {
+            IPair(pair).longTermSwapFromAToB(
+                msg.sender,
+                amountIn,
+                numberOfBlockIntervals
+            );
+        } else {
+            IPair(pair).longTermSwapFromBToA(
+                msg.sender,
+                amountIn,
+                numberOfBlockIntervals
+            );
+        }
+    }
+
+    function longTermSwapTokenToETH(
+        address token,
+        uint256 amountTokenIn,
+        uint256 numberOfBlockIntervals,
+        uint256 deadline
+    ) external virtual override ensure(deadline) {
+        address pair = Library.pairFor(factory, token, WETH);
+        (address tokenA, ) = Library.sortTokens(token, WETH);
+
+        if (tokenA == token) {
+            IPair(pair).longTermSwapFromAToB(
+                msg.sender,
+                amountTokenIn,
+                numberOfBlockIntervals
+            );
+        } else {
+            IPair(pair).longTermSwapFromBToA(
+                msg.sender,
+                amountTokenIn,
+                numberOfBlockIntervals
+            );
+        }
     }
 
 
@@ -294,16 +365,52 @@ contract TWAMM is ERC20 {
     ///@notice get tokenA reserves
     function tokenAReserves() public view returns (uint256) {
         return reserveMap[tokenA];
+        
+    function longTermSwapETHToToken(
+        address token,
+        uint256 amountETHIn,
+        uint256 numberOfBlockIntervals,
+        uint256 deadline
+    ) external payable virtual override ensure(deadline) {
+        address pair = Library.pairFor(factory, WETH, token);
+        (address tokenA, ) = Library.sortTokens(WETH, token);
+        IWETH(WETH).deposit{value: amountETHIn}();
+
+        if (tokenA == WETH) {
+            IPair(pair).longTermSwapFromAToB(
+                msg.sender,
+                amountETHIn,
+                numberOfBlockIntervals
+            );
+        } else {
+            IPair(pair).longTermSwapFromBToA(
+                msg.sender,
+                amountETHIn,
+                numberOfBlockIntervals
+            );
+        }
+        // refund dust eth, if any
+        if (msg.value > amountETHIn)
+            TransferHelper.safeTransferETH(msg.sender, msg.value - amountETHIn);
     }
 
-    ///@notice get tokenB reserves
-    function tokenBReserves() public view returns (uint256) {
-        return reserveMap[tokenB];
+    function cancelTermSwap(
+        address token0,
+        address token1,
+        uint256 orderId,
+        uint256 deadline
+    ) external virtual override ensure(deadline) {
+        address pair = Library.pairFor(factory, token0, token1);
+        IPair(pair).cancelLongTermSwap(msg.sender, orderId);
     }
 
-    ///@notice convenience function to execute virtual orders. Note that this already happens
-    ///before most interactions with the AMM
-    function executeVirtualOrders() public {
-        longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
+    function withdrawProceedsFromTermSwap(
+        address token0,
+        address token1,
+        uint256 orderId,
+        uint256 deadline
+    ) external virtual override ensure(deadline) {
+        address pair = Library.pairFor(factory, token0, token1);
+        IPair(pair).withdrawProceedsFromLongTermSwap(msg.sender, orderId);
     }
 }

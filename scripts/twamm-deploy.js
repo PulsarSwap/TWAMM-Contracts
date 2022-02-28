@@ -4,6 +4,7 @@ const initialLiquidityProvided = ethers.utils.parseUnits("50");
 const ERC20Supply = ethers.utils.parseUnits("100"); 
 
 async function main() {
+
     if (hre.network.name === 'mainnet') {
         console.log(
             'Deploying TWAMM to mainnet. Hit ctrl + c to abort',
@@ -64,6 +65,10 @@ async function main() {
     String(tokenB.address),
     hre.network.config.BlockInterval)
     console.log('TWAMM deployed');
+
+    //     hre.network.config.Factory,
+    //     hre.network.config.WETH,
+    // );
 
     await twamm.deployed();
 

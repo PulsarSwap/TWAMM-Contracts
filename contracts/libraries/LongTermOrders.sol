@@ -2,7 +2,7 @@
 pragma solidity ^0.8.9;
 
 import "hardhat/console.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "prb-math/contracts/PRBMathSD59x18.sol";
 import "./OrderPool.sol";
 
@@ -60,9 +60,10 @@ library LongTermOrdersLib {
         self.orderBlockInterval = orderBlockInterval;
     }
 
-    ///@notice swap token A for token B. Amount represents total amount being sold, numberOfBlockIntervals determines when order expires
+    ///@notice long term swap token A for token B. Amount represents total amount being sold, numberOfBlockIntervals determines when order expires
     function longTermSwapFromAToB(
         LongTermOrders storage self,
+        address sender,
         uint256 amountA,
         uint256 numberOfBlockIntervals,
         mapping(address => uint256) storage reserveMap
@@ -72,15 +73,17 @@ library LongTermOrdersLib {
                 self,
                 self.tokenA,
                 self.tokenB,
+                sender,
                 amountA,
                 numberOfBlockIntervals,
                 reserveMap
             );
     }
 
-    ///@notice swap token B for token A. Amount represents total amount being sold, numberOfBlockIntervals determines when order expires
+    ///@notice long term swap token B for token A. Amount represents total amount being sold, numberOfBlockIntervals determines when order expires
     function longTermSwapFromBToA(
         LongTermOrders storage self,
+        address sender,
         uint256 amountB,
         uint256 numberOfBlockIntervals,
         mapping(address => uint256) storage reserveMap
@@ -90,6 +93,7 @@ library LongTermOrdersLib {
                 self,
                 self.tokenB,
                 self.tokenA,
+                sender,
                 amountB,
                 numberOfBlockIntervals,
                 reserveMap
@@ -101,6 +105,7 @@ library LongTermOrdersLib {
         LongTermOrders storage self,
         address from,
         address to,
+        address sender,
         uint256 amount,
         uint256 numberOfBlockIntervals,
         mapping(address => uint256) storage reserveMap
@@ -109,7 +114,7 @@ library LongTermOrdersLib {
         executeVirtualOrdersUntilCurrentBlock(self, reserveMap);
 
         // transfer sale amount to contract
-        ERC20(from).transferFrom(msg.sender, address(this), amount);
+        IERC20(from).transferFrom(sender, address(this), amount);
 
         //determine the selling rate based on number of blocks to expiry and total amount
         uint256 currentBlock = block.number;
@@ -129,7 +134,7 @@ library LongTermOrdersLib {
             self.orderId,
             orderExpiry,
             sellingRate,
-            msg.sender,
+            sender,
             from,
             to
         );
@@ -173,6 +178,7 @@ library LongTermOrdersLib {
     ///@notice cancel long term swap, pay out unsold tokens and well as purchased tokens
     function cancelLongTermSwap(
         LongTermOrders storage self,
+        address sender,
         uint256 orderId,
         mapping(address => uint256) storage reserveMap
     ) internal {
@@ -180,7 +186,7 @@ library LongTermOrdersLib {
         executeVirtualOrdersUntilCurrentBlock(self, reserveMap);
 
         Order storage order = self.orderMap[orderId];
-        require(order.owner == msg.sender, "sender must be order owner");
+        require(order.owner == sender, "Sender Must Be Order Owner");
 
         OrderPoolLib.OrderPool storage OrderPool = self.OrderPoolMap[
             order.sellTokenId
@@ -191,7 +197,7 @@ library LongTermOrdersLib {
 
         require(
             unsoldAmount > 0 || purchasedAmount > 0,
-            "no proceeds to withdraw"
+            "No Proceeds To Withdraw"
         );
         //transfer to owner
         ERC20(order.buyTokenId).transfer(msg.sender, purchasedAmount);
@@ -206,6 +212,7 @@ library LongTermOrdersLib {
     ///@notice withdraw proceeds from a long term swap (can be expired or ongoing)
     function withdrawProceedsFromLongTermSwap(
         LongTermOrders storage self,
+        address sender,
         uint256 orderId,
         mapping(address => uint256) storage reserveMap
     ) internal {
@@ -213,14 +220,14 @@ library LongTermOrdersLib {
         executeVirtualOrdersUntilCurrentBlock(self, reserveMap);
 
         Order storage order = self.orderMap[orderId];
-        require(order.owner == msg.sender, "sender must be order owner");
+        require(order.owner == sender, "Sender Must Be Order Owner");
 
         OrderPoolLib.OrderPool storage OrderPool = self.OrderPoolMap[
             order.sellTokenId
         ];
         uint256 proceeds = OrderPool.withdrawProceeds(orderId);
 
-        require(proceeds > 0, "no proceeds to withdraw");
+        require(proceeds > 0, "No Proceeds To Withdraw");
         //transfer to owner
         ERC20(order.buyTokenId).transfer(msg.sender, proceeds);
 

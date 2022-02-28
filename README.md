@@ -38,10 +38,18 @@ npm install
 # test contracts with hardhat
 npx hardhat test
 ```
-## TWAMM Contract Address
 
-**Mainnet:** 
+## Contract Address
+
+**Mainnet**
+
+`Factory:`
+
+`TWAMM:`
+
+**Ropsten**
 
 **Ropsten:** [0xbfF3Bce78DE8b5829fE0476692279c57d81aF7e1](https://ropsten.etherscan.io/address/0xbfF3Bce78DE8b5829fE0476692279c57d81aF7e1)
+`Factory:`[0x6bd436Ef48A96dBeD455553E991ce29f5c586A48](https://ropsten.etherscan.io/address/0x6bd436Ef48A96dBeD455553E991ce29f5c586A48#readContract)
 
-**Kovan:** [0x6DDFEb84c9e9E9681f2B9AbbD0726d834f0305c6](https://kovan.etherscan.io/address/0x6DDFEb84c9e9E9681f2B9AbbD0726d834f0305c6)
+`TWAMM:`[0x429b0d84E8a986ECdCf5ca664d20Fa79f7b948b4](https://ropsten.etherscan.io/address/0x429b0d84E8a986ECdCf5ca664d20Fa79f7b948b4)
