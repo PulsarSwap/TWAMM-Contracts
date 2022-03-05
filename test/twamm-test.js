@@ -1,4 +1,5 @@
 const { expect } = require("chai");
+const { parseUnits } = require("ethers/lib/utils");
 const { ethers } = require("hardhat");
 
 describe("TWAMM", function () {
@@ -10,6 +11,9 @@ describe("TWAMM", function () {
     let addr1;
     let addr2;
     let addrs;
+    let factory;
+    let pair;
+    let WETH;
 
     const blockInterval = 10;
 
@@ -17,32 +21,77 @@ describe("TWAMM", function () {
     const ERC20Supply = ethers.utils.parseUnits("100"); 
     
     beforeEach(async function () {
-        
-        await network.provider.send("evm_setAutomine", [true]);
+        // network basics
+        // await network.provider.send("evm_setAutomine", [true]);
         [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
+        
+        //factory deployment
+        await console.log("Deploying factory")
+        const factoryContract = await ethers.getContractFactory("Factory");
+        factory = await factoryContract.deploy();
+        const allpairLength = await factory.allPairsLength();
+        await console.log("factory has been successfully deployed")
+        await console.log("factory length check", allpairLength)
 
+
+        //create two tokens for pair creation, and WETH
         const ERC20Factory =  await ethers.getContractFactory("ERC20Mock");
         tokenA = await ERC20Factory.deploy("TokenA", "TokenA", ERC20Supply);
         tokenB = await ERC20Factory.deploy("TokenB", "TokenB", ERC20Supply);
+        WETH = await ERC20Factory.deploy("WETH", "WETH", ERC20Supply);
+        await console.log("two tokens and WETH created")
 
-        const TWAMMFactory = await ethers.getContractFactory("TWAMM", { gasLimit: "1000000000" })
-        await ethers.provider.getBlockNumber().then((blockNumber) => {
-            console.log("Current block number: " + blockNumber);
-        })
+        // TWAMM init
+        const TWAMM = await ethers.getContractFactory("TWAMM", { gasLimit: "1000000000" })
+        twamm = await TWAMM.deploy(factory.address, WETH.address)
+        await console.log("TWAMM is initialized")
 
-        await ethers.provider.getBlock().then((block) => {
-            console.log("Current block gasLimit: " + block.gasLimit);
-        })
+        // create pair and initialize liquidity for the pair
+        await tokenA.approve(twamm.address, initialLiquidityProvided); //owner calls it
+        await tokenB.approve(twamm.address, initialLiquidityProvided); 
+        const blockNumber = await ethers.provider.getBlockNumber()
+        const timeStamp = (await ethers.provider.getBlock(blockNumber)).timestamp
+        await console.log('time stamp check', timeStamp)
+        await twamm.addInitialLiquidity(tokenA.address, tokenB.address, initialLiquidityProvided, initialLiquidityProvided, timeStamp+100000);
 
-        await ethers.provider.getBlock().then((block) => {
-            console.log("Current block gasused: " + block.gasUsed);
-        })
-        twamm = await TWAMMFactory.deploy(
-            "Pulsar-LP", 
-            "PUL-LP", 
-            tokenA.address,
-            tokenB.address,
-            blockInterval);
+
+        //initial liquidity providing
+        // await tokenA.approve(pair.address, initialLiquidityProvided); //owner calls it
+        // await tokenB.approve(pair.address, initialLiquidityProvided); 
+        // await pair.provideInitialLiquidity(initialLiquidityProvided, initialLiquidityProvided)
+        await console.log("initial liquidity provided")
+        // await console.log("check tokenA balance", twamm)
+        const tokenABalance = await twamm.reserveA(tokenA.address, tokenB.address);
+        await console.log("check reserveA", tokenABalance)
+        // const LPBalance1 = await twamm.balanceOf(owner.address);
+        
+
+        //check liquidity
+        // await console.log("check liquidity", tokenAReserves(), tokenBReserves())
+
+        // old deployment for the TWAMM v1
+        // const ERC20Factory =  await ethers.getContractFactory("ERC20Mock");
+        // tokenA = await ERC20Factory.deploy("TokenA", "TokenA", ERC20Supply);
+        // tokenB = await ERC20Factory.deploy("TokenB", "TokenB", ERC20Supply);
+
+        // const TWAMMFactory = await ethers.getContractFactory("TWAMM", { gasLimit: "1000000000" })
+        // await ethers.provider.getBlockNumber().then((blockNumber) => {
+        //     console.log("Current block number: " + blockNumber);
+        // })
+
+        // await ethers.provider.getBlock().then((block) => {
+        //     console.log("Current block gasLimit: " + block.gasLimit);
+        // })
+
+        // await ethers.provider.getBlock().then((block) => {
+        //     console.log("Current block gasused: " + block.gasUsed);
+        // })
+        // twamm = await TWAMMFactory.deploy(
+        //     "Pulsar-LP", 
+        //     "PUL-LP", 
+        //     tokenA.address,
+        //     tokenB.address,
+        //     blockInterval);
 
         
         
@@ -56,18 +105,18 @@ describe("TWAMM", function () {
         //// then twamm address's provideInitialLiuidity calls token's transferFrom function to transfer "initialLiquidityProvided" amount token A 
         // and token B to twamm address. Note that this time the transferFrom is triggered by twamm address not the owner address. 
         // this is why we need to firstly approve twamm onbehave of owner to spend owner's tokens
-        await tokenA.approve(twamm.address, ERC20Supply); //owner calls it
-        await tokenB.approve(twamm.address, ERC20Supply); 
+        // await tokenA.approve(twamm.address, ERC20Supply); //owner calls it
+        // await tokenB.approve(twamm.address, ERC20Supply); 
 
         
-        // await tokenB.connect(addr2).approve(twamm.address, 10000);
-        // const ttt = await twamm.estimateGas.longTermSwapFromBToA(10000/2, 3)
-        // console.log(ttt)
+        // // await tokenB.connect(addr2).approve(twamm.address, 10000);
+        // // const ttt = await twamm.estimateGas.longTermSwapFromBToA(10000/2, 3)
+        // // console.log(ttt)
         
-        // tokenA.approve(owner, ERC20Supply);
-        // tokenA.approve(owner, ERC20Supply);
+        // // tokenA.approve(owner, ERC20Supply);
+        // // tokenA.approve(owner, ERC20Supply);
 
-        await twamm.provideInitialLiquidity(initialLiquidityProvided,initialLiquidityProvided);
+        // await twamm.provideInitialLiquidity(initialLiquidityProvided,initialLiquidityProvided);
 
         // tokenA.approve(twamm.address, ERC20Supply);
         // tokenB.approve(twamm.address, ERC20Supply);
@@ -77,11 +126,12 @@ describe("TWAMM", function () {
     describe("Basic AMM", function () {
 
         describe("Providing Liquidity", function () {
+            
 
             it("Should mint correct number of LP tokens", async function () {
 
                 const LPBalance = await twamm.balanceOf(owner.address);
-
+                
                 expect(LPBalance).to.eq(initialLiquidityProvided);
             });
 

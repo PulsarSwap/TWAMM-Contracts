@@ -126,9 +126,8 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
             .sqrt()
             .mul(amountB.fromUint().sqrt())
             .toUint() - MINIMUM_LIQUIDITY;
-        _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens
+        // _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens // TODO: uncomment
         _mint(to, lpAmount);
-
         IERC20(tokenA).transferFrom(to, address(this), amountA);
         IERC20(tokenB).transferFrom(to, address(this), amountB);
 

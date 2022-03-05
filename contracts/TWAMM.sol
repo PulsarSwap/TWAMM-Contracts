@@ -52,6 +52,7 @@ import "./libraries/Library.sol";
 import "./libraries/TransferHelper.sol";
 import "./interfaces/IWETH.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "hardhat/console.sol";
 // import "./libraries/LongTermOrders.sol";
 
 contract TWAMM is ITWAMM {
@@ -98,6 +99,7 @@ contract TWAMM is ITWAMM {
     //         .mul(amountB.fromUint().sqrt())
     //         .toUint();
     //     _mint(msg.sender, lpAmount);
+    // event PairCheck(address pair);
 
     //     emit InitialLiquidityProvided(msg.sender, amountA, amountB);
     constructor(address _factory, address _WETH) {
@@ -143,7 +145,18 @@ contract TWAMM is ITWAMM {
         (uint256 amountA, uint256 amountB) = tokenA == token0
             ? (amount0, amount1)
             : (amount1, amount0);
+        console.log("deployed pair address check", pair);
+        // console.log(IPair);
         IPair(pair).provideInitialLiquidity(msg.sender, amountA, amountB);
+    }
+
+    function reserveA(
+        address tokenA,
+        address tokenB
+    ) external view returns (uint256) {
+        address pair = Library.pairFor(factory, tokenA, tokenB);
+        console.log("contract check", pair);
+        return IPair(pair).tokenAReserves();
     }
 
     function addInitialLiquidityETH(

@@ -1,18 +1,23 @@
-import chai, { expect } from 'chai'
-import { Contract } from 'ethers'
-import { bigNumberify } from 'ethers/utils'
-import { solidity, MockProvider, createFixtureLoader } from 'ethereum-waffle'
+// import chai, { expect } from 'chai'
+const { expect } = require("chai");
+// const { Contract } = require('ethers');
+const { ethers } = require("hardhat");
+const { Contract } = ethers
+// const { bigNumberify } = require('ethers/utils');
+// console.log('tt', ethers.bigNumberify)
+const bigNumberify = ethers.bigNumberify;
+const { solidity, MockProvider, createFixtureLoader } = require('ethereum-waffle');
 
-import { getCreate2Address } from './shared/utilities'
-import { factoryFixture } from './shared/fixtures'
-
-import Pair from '../artifacts/contracts/Factory.sol/Factory.json'
+const { getCreate2Address } = require('./shared/utilities');
+const { factoryFixture }  = require('./shared/fixtures');
+// const { factoryFixture }  = require('./shared/fixtures'); 
+const { Pair }  = require('../artifacts/contracts/Factory.sol/Factory.json');
 
 chai.use(solidity)
 
-const TEST_ADDRESSES: [string, string] = [
-    '0x1000000000000000000000000000000000000000',
-    '0x2000000000000000000000000000000000000000'
+const testAddresses = [
+    String('0x1000000000000000000000000000000000000000'),
+    String('0x2000000000000000000000000000000000000000')
 ]
 
 describe('Factory', () => {
@@ -24,7 +29,7 @@ describe('Factory', () => {
     const [wallet, other] = provider.getWallets()
     const loadFixture = createFixtureLoader(provider, [wallet, other])
 
-    let factory: Contract
+    let factory;
     beforeEach(async () => {
         const fixture = await loadFixture(factoryFixture)
         factory = fixture.factory
@@ -34,7 +39,7 @@ describe('Factory', () => {
         expect(await factory.allPairsLength()).to.eq(0)
     })
 
-    async function createPair(tokens: [string, string]) {
+    async function createPair(tokens) {
         const bytecode = `0x${Pair.evm.bytecode.object}`
         const create2Address = getCreate2Address(factory.address, tokens, bytecode)
         await expect(factory.createPair(...tokens))
@@ -59,7 +64,7 @@ describe('Factory', () => {
     })
 
     it('createPair:reverse', async () => {
-        await createPair(TEST_ADDRESSES.slice().reverse() as [string, string])
+        await createPair(TEST_ADDRESSES.slice().reverse()) //as [string, string])
     })
 
     it('createPair:gas', async () => {

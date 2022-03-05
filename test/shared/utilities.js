@@ -1,14 +1,20 @@
-import { Contract } from "ethers";
-import { Web3Provider } from "ethers/providers";
-import {
-    BigNumber,
-    bigNumberify,
-    getAddress,
-    keccak256,
-    defaultAbiCoder,
-    toUtf8Bytes,
-    solidityPack,
-} from "ethers/utils";
+const { Contract, BigNumber, bigNumberify, getAddress, keccak256, defaultAbiCoder, solidityPack } = require("ethers");
+// import { Web3Provider }=require("ethers/providers";
+const { ethers } = require("hardhat");
+const Web3Provider = ethers.Web3Provider;
+// ethers.u
+
+const { toUtf8Bytes } = ethers
+console.log(ethers.toUtf8Bytes)
+// const {
+//     BigNumber,
+//     bigNumberify,
+//     getAddress,
+//     keccak256,
+//     defaultAbiCoder,
+//     toUtf8Bytes,
+//     solidityPack,
+// } = require( "ethers/utils");
 
 const PERMIT_TYPEHASH = keccak256(
     toUtf8Bytes(
@@ -16,11 +22,11 @@ const PERMIT_TYPEHASH = keccak256(
     )
 );
 
-export function expandTo18Decimals(n: number): BigNumber {
+function expandTo18Decimals(n) {
     return bigNumberify(n).mul(bigNumberify(10).pow(18));
 }
 
-function getDomainSeparator(name: string, tokenAddress: string) {
+function getDomainSeparator(name, tokenAddress) {
     return keccak256(
         defaultAbiCoder.encode(
             ["bytes32", "bytes32", "bytes32", "uint256", "address"],
@@ -39,11 +45,11 @@ function getDomainSeparator(name: string, tokenAddress: string) {
     );
 }
 
-export function getCreate2Address(
-    factoryAddress: string,
-    [token0, token1]: [string, string],
-    bytecode: string
-): string {
+function getCreate2Address(
+    factoryAddress,
+    [token0, token1],
+    bytecode
+) {
     const [tokenA, tokenB] =
         token0 < token1 ? [token0, token1] : [token1, token0];
     const create2Inputs = [
@@ -56,16 +62,18 @@ export function getCreate2Address(
     return getAddress(`0x${keccak256(sanitizedInputs).slice(-40)}`);
 }
 
-export async function getApprovalDigest(
-    token: Contract,
-    approve: {
-        owner: string;
-        spender: string;
-        value: BigNumber;
-    },
-    nonce: BigNumber,
-    deadline: BigNumber
-): Promise<string> {
+// : {
+//     owner;
+//     spender;
+//     value;
+// }
+
+async function getApprovalDigest(
+    token,
+    approve,
+    nonce,
+    deadline
+) {
     const name = await token.name();
     const DOMAIN_SEPARATOR = getDomainSeparator(name, token.address);
     return keccak256(
@@ -93,14 +101,14 @@ export async function getApprovalDigest(
     );
 }
 
-export async function mineBlock(
-    provider: Web3Provider,
-    timestamp: number
-): Promise<void> {
+async function mineBlock(
+    provider,
+    timestamp
+) {
     await new Promise(async (resolve, reject) => {
-        (provider._web3Provider.sendAsync as any)(
+        (provider._web3Provider.sendAsync)(
             { jsonrpc: "2.0", method: "evm_mine", params: [timestamp] },
-            (error: any, result: any): void => {
+            (error, result) => {
                 if (error) {
                     reject(error);
                 } else {
@@ -111,7 +119,7 @@ export async function mineBlock(
     });
 }
 
-export function encodePrice(reserve0: BigNumber, reserve1: BigNumber) {
+function encodePrice(reserve0, reserve1) {
     return [
         reserve1.mul(bigNumberify(2).pow(112)).div(reserve0),
         reserve0.mul(bigNumberify(2).pow(112)).div(reserve1),
