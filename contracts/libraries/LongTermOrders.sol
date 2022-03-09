@@ -11,6 +11,9 @@ library LongTermOrdersLib {
     using PRBMathSD59x18 for int256;
     using OrderPoolLib for OrderPoolLib.OrderPool;
 
+    ///@notice fee for LP providers, 4 decimal places, i.e. 30 = 0.3%
+    uint256 public constant LP_FEE = 30;
+
     ///@notice information associated with a long term order
     struct Order {
         uint256 id;
@@ -163,12 +166,16 @@ library LongTermOrdersLib {
             orderId
         );
 
+        //charge LP fee
+        purchasedAmountMinusFee = (purchasedAmount * (10000 - LP_FEE)) / 10000;
+
         require(
-            unsoldAmount > 0 || purchasedAmount > 0,
+            unsoldAmount > 0 || purchasedAmountMinusFee > 0,
             "No Proceeds To Withdraw"
         );
+
         //transfer to owner
-        IERC20(order.buyTokenId).transfer(sender, purchasedAmount);
+        IERC20(order.buyTokenId).transfer(sender, purchasedAmountMinusFee);
         IERC20(order.sellTokenId).transfer(sender, unsoldAmount);
         // delete orderId from account list
         // removeOrderId(self, orderId, sender);
@@ -193,9 +200,12 @@ library LongTermOrdersLib {
         ];
         uint256 proceeds = OrderPool.withdrawProceeds(orderId);
 
-        require(proceeds > 0, "No Proceeds To Withdraw");
+        //charge LP fee
+        proceedsMinusFee = (proceeds * (10000 - LP_FEE)) / 10000;
+
+        require(proceedsMinusFee > 0, "No Proceeds To Withdraw");
         //transfer to owner
-        IERC20(order.buyTokenId).transfer(sender, proceeds);
+        IERC20(order.buyTokenId).transfer(sender, proceedsMinusFee);
         // delete orderId from account list
         // removeOrderId(self, orderId, sender);
         self.orderIdStatusMap[orderId] = false;
