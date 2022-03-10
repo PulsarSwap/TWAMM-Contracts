@@ -154,7 +154,7 @@ contract TWAMM is ITWAMM {
         );
         uint256 amountETHOut = (reserveETH * amountTokenIn) /
             (reserveToken + amountTokenIn);
-        //charge LP fee
+        //Calculate LP fee
         uint256 amountETHOutMinusFee = (amountETHOut * 997) / 1000;
         IWETH(WETH).withdraw(amountETHOutMinusFee);
     }
