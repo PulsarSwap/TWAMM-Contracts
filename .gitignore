@@ -15,3 +15,12 @@ node_modules
 # hardhat files
 artifacts
 cache
+node_modules
+.env
+coverage
+coverage.json
+typechain
+
+#Hardhat files
+cache
+artifacts

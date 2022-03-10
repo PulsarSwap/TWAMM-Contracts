@@ -52,9 +52,17 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         _;
         unlocked = 1; // unlock
     }
-
-    constructor() ERC20("Pulsar-LP", "PUL-LP") {
+    // address _tokenA, address _tokenB
+    constructor(address _tokenA, address _tokenB) ERC20("Pulsar-LP", "PUL-LP") {
         factory = msg.sender;
+        // longTermOrders.initialize(
+        //     tokenA,
+        //     tokenB,
+        //     block.number,
+        //     orderBlockInterval
+        // );
+        tokenA = _tokenA;
+        tokenB = _tokenB;
         longTermOrders.initialize(
             tokenA,
             tokenB,
@@ -63,17 +71,17 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         );
     }
 
-    // called once by the factory at time of deployment
-    function initialize(address _tokenA, address _tokenB)
-        external
-        override
-        lock
-        nonReentrant
-    {
-        require(msg.sender == factory, "Pair: Forbidden"); // sufficient check
-        tokenA = _tokenA;
-        tokenB = _tokenB;
-    }
+    // // called once by the factory at time of deployment
+    //  function initialize(address _tokenA, address _tokenB)
+    //     external
+    //     // override
+    //     lock
+    //     nonReentrant
+    // {
+    //     require(msg.sender == factory, "Pair: Forbidden"); // sufficient check
+    //     // tokenA = _tokenA;
+    //     // tokenB = _tokenB;
+    // }
 
     ///@notice get tokenA reserves
     function tokenAReserves() public view returns (uint256) {
@@ -112,20 +120,24 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         uint256 amountA,
         uint256 amountB
     ) external override lock nonReentrant {
+        // console.log('in provide init lp');
         require(
             totalSupply() == 0,
             "Liquidity Has Already Been Provided, Need To Call provideLiquidity"
         );
 
+
+
         reserveMap[tokenA] = amountA;
         reserveMap[tokenB] = amountB;
 
+        
         //initial LP amount is the geometric mean of supplied tokens
         uint256 lpAmount = amountA
             .fromUint()
             .sqrt()
             .mul(amountB.fromUint().sqrt())
-            .toUint() - MINIMUM_LIQUIDITY;
+            .toUint();// - MINIMUM_LIQUIDITY;
         // _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens // TODO: uncomment
         _mint(to, lpAmount);
         IERC20(tokenA).transferFrom(to, address(this), amountA);
@@ -134,7 +146,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         emit InitialLiquidityProvided(to, amountA, amountB);
     }
 
-    ///@notice provide liquidity to the AMM
+    ///@notice provide liquidity to the AMM1
     ///@param lpTokenAmount number of lp tokens to mint with new liquidity
     function provideLiquidity(address to, uint256 lpTokenAmount)
         external

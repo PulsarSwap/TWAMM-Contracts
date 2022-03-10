@@ -4,9 +4,11 @@ pragma solidity ^0.8.9;
 
 import "../interfaces/IPair.sol";
 import "./SafeMath.sol";
+import "../Pair.sol";
 
 library Library {
     using SafeMath for uint256;
+
 
     // returns sorted token addresses, used to handle return values from pairs sorted in this order
     function sortTokens(address token0, address token1)
@@ -28,15 +30,17 @@ library Library {
         address token1
     ) internal pure returns (address pair) {
         (address tokenA, address tokenB) = sortTokens(token0, token1);
+        bytes memory bytecode = type(Pair).creationCode;
+        bytes memory bytecodeArg = abi.encodePacked(bytecode, abi.encode(tokenA, tokenB));
         pair = address(
             uint160(
                 uint256(
                     keccak256(
                         abi.encodePacked(
-                            hex"ff",
+                            bytes1(0xff),
                             factory,
                             keccak256(abi.encodePacked(tokenA, tokenB)),
-                            hex"57f900fec4f9ef5dbff745cf1cbc43e5812bb34ebb13d0e8c948c689ba0ba59b" // init code hash
+                            keccak256(bytecodeArg)
                         )
                     )
                 )

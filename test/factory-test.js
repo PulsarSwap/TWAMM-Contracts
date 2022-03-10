@@ -5,17 +5,20 @@ const { ethers } = require("hardhat");
 const { Contract } = ethers
 // const { bigNumberify } = require('ethers/utils');
 // console.log('tt', ethers.bigNumberify)
-const bigNumberify = ethers.bigNumberify;
+const { bigNumberify } = ethers.utils
+// const bigNumberify = ethers.bigNumberify;
 const { solidity, MockProvider, createFixtureLoader } = require('ethereum-waffle');
 
 const { getCreate2Address } = require('./shared/utilities');
+// const { getCreate2Address } = utilities;
+// import {  getCreate2Address } from './shared/utilities';
 const { factoryFixture }  = require('./shared/fixtures');
 // const { factoryFixture }  = require('./shared/fixtures'); 
 const { Pair }  = require('../artifacts/contracts/Factory.sol/Factory.json');
 
 chai.use(solidity)
 
-const testAddresses = [
+const TEST_ADDRESSES = [
     String('0x1000000000000000000000000000000000000000'),
     String('0x2000000000000000000000000000000000000000')
 ]

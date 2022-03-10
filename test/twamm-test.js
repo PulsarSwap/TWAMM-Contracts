@@ -22,7 +22,7 @@ describe("TWAMM", function () {
     
     beforeEach(async function () {
         // network basics
-        // await network.provider.send("evm_setAutomine", [true]);
+        await network.provider.send("evm_setAutomine", [true]);
         [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
         
         //factory deployment
@@ -39,11 +39,12 @@ describe("TWAMM", function () {
         tokenA = await ERC20Factory.deploy("TokenA", "TokenA", ERC20Supply);
         tokenB = await ERC20Factory.deploy("TokenB", "TokenB", ERC20Supply);
         WETH = await ERC20Factory.deploy("WETH", "WETH", ERC20Supply);
-        await console.log("two tokens and WETH created")
-
+        await console.log("two tokens and WETH created", tokenA.address, tokenB.address)
+ 
         // TWAMM init
         const TWAMM = await ethers.getContractFactory("TWAMM", { gasLimit: "1000000000" })
         twamm = await TWAMM.deploy(factory.address, WETH.address)
+        // const totalBalance = await twamm.balanceOf(owner.address);
         await console.log("TWAMM is initialized")
 
         // create pair and initialize liquidity for the pair

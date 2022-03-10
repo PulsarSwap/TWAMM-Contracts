@@ -5,7 +5,7 @@ const BigNumber = ethers.BigNumber;
 describe("Pair", function () {
     let tokenA;
     let tokenB;
-    // let pair;
+    let pair;
     let owner;
     let addr1;
     let addr2;
@@ -14,10 +14,12 @@ describe("Pair", function () {
     const blockInterval = 10;
 
     const initialLiquidityProvided = 100000000;
+    const initialLiquidityProvidedAdjusted = initialLiquidityProvided-10**3;
+    
     const ERC20Supply = ethers.utils.parseUnits("100");
 
     beforeEach(async function () {
-        // await network.provider.send("evm_setAutomine", [true]);
+        await network.provider.send("evm_setAutomine", [true]);
         [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
 
         const ERC20Factory = await ethers.getContractFactory("ERC20Mock");
@@ -26,24 +28,51 @@ describe("Pair", function () {
 
         const Pair = await ethers.getContractFactory("Pair");
         
-        pair = await Pair.deploy(
+        pair = await Pair.deploy(tokenA.address, tokenB.address
         );
-        
-        await pair.initialize(tokenA.address, tokenB.address);
-        const rA = await tokenA.allowance(owner.address, pair.address);
+        // await console.log(pair.factory.address)
+        // await pair.initialize(tokenA.address, tokenB.address);
+        // await console.log('after', pair.tokenA.address, tokenA.address)
+        // const rA = await tokenA.allowance(owner.address, pair.address);
         // await console.log(pair)
         tokenA.approve(pair.address, initialLiquidityProvided);
         tokenB.approve(pair.address, initialLiquidityProvided);
-        const rB = await tokenB.allowance(owner.address, pair.address);
-        await console.log(rB);
+        // const rB = await tokenB.allowance(owner.address, pair.address);
+        // await console.log(rB);
         // await console.log('check', )
         await pair.provideInitialLiquidity(
             owner.address,
             initialLiquidityProvided,
             initialLiquidityProvided
         );
-        const BL = await pair.tokenAReserves();
-        await console.log('check pair function', BL);
+        // let totalSupply = await pair.totalSupply();
+
+        
+
+        // let tokenAReserve = await pair.tokenAReserves();
+        // let tokenBReserve = await pair.tokenBReserves();
+
+        // let initialTokenAPerLP = tokenAReserve / totalSupply;
+        // let initialTokenBPerLP = tokenBReserve / totalSupply;
+        // await console.log(initialTokenAPerLP, initialTokenBPerLP, ethers.utils.formatUnits(totalSupply, 18), 
+        // ethers.utils.formatUnits(tokenAReserve, 18),
+        // ethers.utils.formatUnits(tokenBReserve, 18))
+
+        // let newLPTokens = 10000;
+        // // await console.log('check input', newInput)
+        // await tokenA.approve(pair.address, newLPTokens);
+        // await tokenB.approve(pair.address, newLPTokens);
+        // await pair.provideLiquidity(owner.address, newLPTokens);
+
+        // totalSupply = await pair.totalSupply();
+
+        // tokenAReserve = await pair.tokenAReserves();
+        // tokenBReserve = await pair.tokenBReserves();
+
+        // const finalTokenAPerLP = tokenAReserve / totalSupply;
+        // const finalTokenBPerLP = tokenBReserve / totalSupply;
+        // await console.log(finalTokenAPerLP, finalTokenBPerLP, totalSupply, tokenAReserve, tokenBReserve, 'aa')
+
         console.log('sucessfully setup the pre-test env!!!');
     });
 
@@ -53,8 +82,10 @@ describe("Pair", function () {
 
             it("Should mint correct number of LP tokens", async function () {
                 const LPBalance = await pair.balanceOf(owner.address);
-
+                const totalSupplyCheck = await pair.totalSupply();
+                expect(totalSupplyCheck).to.eq(initialLiquidityProvided);
                 expect(LPBalance).to.eq(initialLiquidityProvided);
+                // expect(totalSupplyCheck).to.eq(initialLiquidityProvidedAdjusted);
             });
 
             it("Can't provide initial liquidity twice", async function () {
@@ -76,8 +107,9 @@ describe("Pair", function () {
                 const initialTokenBPerLP = tokenBReserve / totalSupply;
 
                 const newLPTokens = 10000;
-                await tokenA.approve(pair.address, BigNumber(initialTokenAPerLP * newLPTokens));
-                await tokenB.approve(pair.address, BigNumber(initialTokenBPerLP * newLPTokens));
+
+                await tokenA.approve(pair.address, newLPTokens);
+                await tokenB.approve(pair.address, newLPTokens);
                 await pair.provideLiquidity(owner.address, newLPTokens);
 
                 totalSupply = await pair.totalSupply();
@@ -103,7 +135,7 @@ describe("Pair", function () {
                 const initialTokenAPerLP = tokenAReserve / totalSupply;
                 const initialTokenBPerLP = tokenBReserve / totalSupply;
 
-                const liquidityToRemove = initialLiquidityProvided / 2;
+                const liquidityToRemove = (initialLiquidityProvided) / 2;
                 await pair.removeLiquidity(owner.address, liquidityToRemove);
 
                 totalSupply = await pair.totalSupply();
@@ -156,7 +188,7 @@ describe("Pair", function () {
         describe("Long Term Swap", function () {
             it("Single sided long term order behaves like normal swap", async function () {
                 const amountInA = 10000;
-                await tokenA.transfer(addr1.address, amountInA*2);
+                await tokenA.transfer(addr1.address, amountInA);
 
                 //expected output
                 const tokenAReserve = await pair.tokenAReserves();
@@ -167,7 +199,7 @@ describe("Pair", function () {
 
                 //trigger long term order
                 tokenA.connect(addr1).approve(pair.address, amountInA);
-                await pair.connect(addr1).longTermSwapFromAToB(owner.address, amountInA, 2);
+                await pair.connect(addr1).longTermSwapFromAToB(addr1.address, amountInA, 2);
 
                 //move blocks forward, and execute virtual orders
                 await mineBlocks(3 * blockInterval);
@@ -175,7 +207,7 @@ describe("Pair", function () {
 
                 //withdraw proceeds
                 const beforeBalanceB = await tokenB.balanceOf(addr1.address);
-                await pair.connect(addr1).withdrawProceedsFromLongTermSwap(0);
+                await pair.connect(addr1).withdrawProceedsFromLongTermSwap(addr1.address, 0);
                 const afterBalanceB = await tokenB.balanceOf(addr1.address);
                 const actualOutput = afterBalanceB.sub(beforeBalanceB);
 
@@ -188,6 +220,8 @@ describe("Pair", function () {
 
             it("Orders in both pools work as expected", async function () {
                 const amountIn = ethers.BigNumber.from(10000);
+                await tokenA.approve(addr1.address, amountIn);
+                await tokenB.approve(addr2.address, amountIn);
                 await tokenA.transfer(addr1.address, amountIn);
                 await tokenB.transfer(addr2.address, amountIn);
 
@@ -196,16 +230,16 @@ describe("Pair", function () {
                 await tokenB.connect(addr2).approve(pair.address, amountIn);
 
                 //trigger long term orders
-                await pair.connect(addr1).longTermSwapFromAToB(owner.address, amountIn, 2);
-                await pair.connect(addr2).longTermSwapFromBToA(owner.address, amountIn, 2);
+                await pair.connect(addr1).longTermSwapFromAToB(addr1.address, amountIn, 2);
+                await pair.connect(addr2).longTermSwapFromBToA(addr2.address, amountIn, 2);
 
                 //move blocks forward, and execute virtual orders
                 await mineBlocks(3 * blockInterval);
                 await pair.executeVirtualOrders();
 
                 //withdraw proceeds
-                await pair.connect(addr1).withdrawProceedsFromLongTermSwap(0);
-                await pair.connect(addr2).withdrawProceedsFromLongTermSwap(1);
+                await pair.connect(addr1).withdrawProceedsFromLongTermSwap(addr1.address, 0);
+                await pair.connect(addr2).withdrawProceedsFromLongTermSwap(addr2.address, 1);
 
                 const amountABought = await tokenA.balanceOf(addr2.address);
                 const amountBBought = await tokenB.balanceOf(addr1.address);
@@ -218,6 +252,8 @@ describe("Pair", function () {
             it("Swap amounts are consistent with pair formula", async function () {
                 const tokenAIn = 10000;
                 const tokenBIn = 2000;
+                await tokenA.approve(addr1.address, tokenAIn);
+                await tokenB.approve(addr2.address, tokenBIn);
                 await tokenA.transfer(addr1.address, tokenAIn);
                 await tokenB.transfer(addr2.address, tokenBIn);
                 await tokenA.connect(addr1).approve(pair.address, tokenAIn);
@@ -249,16 +285,16 @@ describe("Pair", function () {
                 );
 
                 //trigger long term orders
-                await pair.connect(addr1).longTermSwapFromAToB(tokenAIn, 2);
-                await pair.connect(addr2).longTermSwapFromBToA(tokenBIn, 2);
+                await pair.connect(addr1).longTermSwapFromAToB(addr1.address, tokenAIn, 2);
+                await pair.connect(addr2).longTermSwapFromBToA(addr2.address, tokenBIn, 2);
 
                 //move blocks forward, and execute virtual orders
                 await mineBlocks(22 * blockInterval);
                 await pair.executeVirtualOrders();
 
                 //withdraw proceeds
-                await pair.connect(addr1).withdrawProceedsFromLongTermSwap(0);
-                await pair.connect(addr2).withdrawProceedsFromLongTermSwap(1);
+                await pair.connect(addr1).withdrawProceedsFromLongTermSwap(addr1.address, 0);
+                await pair.connect(addr2).withdrawProceedsFromLongTermSwap(addr2.address, 1);
 
                 const amountABought = await tokenA.balanceOf(addr2.address);
                 const amountBBought = await tokenB.balanceOf(addr1.address);
@@ -288,6 +324,8 @@ describe("Pair", function () {
 
             it("Multiple orders in both pools work as expected", async function () {
                 const amountIn = 10000;
+                await tokenA.approve(addr1.address, amountIn);
+                await tokenB.approve(addr2.address, amountIn);
                 await tokenA.transfer(addr1.address, amountIn);
                 await tokenB.transfer(addr2.address, amountIn);
 
@@ -296,20 +334,20 @@ describe("Pair", function () {
                 await tokenB.connect(addr2).approve(pair.address, amountIn);
 
                 //trigger long term orders
-                await pair.connect(addr1).longTermSwapFromAToB(amountIn / 2, 2);
-                await pair.connect(addr2).longTermSwapFromBToA(amountIn / 2, 3);
-                await pair.connect(addr1).longTermSwapFromAToB(amountIn / 2, 4);
-                await pair.connect(addr2).longTermSwapFromBToA(amountIn / 2, 5);
+                await pair.connect(addr1).longTermSwapFromAToB(addr1.address, amountIn / 2, 2);
+                await pair.connect(addr2).longTermSwapFromBToA(addr2.address, amountIn / 2, 3);
+                await pair.connect(addr1).longTermSwapFromAToB(addr1.address, amountIn / 2, 4);
+                await pair.connect(addr2).longTermSwapFromBToA(addr2.address, amountIn / 2, 5);
 
                 //move blocks forward, and execute virtual orders
                 await mineBlocks(6 * blockInterval);
                 await pair.executeVirtualOrders();
 
                 //withdraw proceeds
-                await pair.connect(addr1).withdrawProceedsFromLongTermSwap(0);
-                await pair.connect(addr2).withdrawProceedsFromLongTermSwap(1);
-                await pair.connect(addr1).withdrawProceedsFromLongTermSwap(2);
-                await pair.connect(addr2).withdrawProceedsFromLongTermSwap(3);
+                await pair.connect(addr1).withdrawProceedsFromLongTermSwap(addr1.address, 0);
+                await pair.connect(addr2).withdrawProceedsFromLongTermSwap(addr2.address, 1);
+                await pair.connect(addr1).withdrawProceedsFromLongTermSwap(addr1.address, 2);
+                await pair.connect(addr2).withdrawProceedsFromLongTermSwap(addr2.address, 3);
 
                 const amountABought = await tokenA.balanceOf(addr2.address);
                 const amountBBought = await tokenB.balanceOf(addr1.address);
@@ -321,6 +359,8 @@ describe("Pair", function () {
 
             it("Normal swap works as expected while long term orders are active", async function () {
                 const amountIn = 10000;
+                await tokenA.approve(addr1.address, amountIn);
+                await tokenB.approve(addr2.address, amountIn);
                 await tokenA.transfer(addr1.address, amountIn);
                 await tokenB.transfer(addr2.address, amountIn);
 
@@ -329,16 +369,16 @@ describe("Pair", function () {
                 await tokenB.connect(addr2).approve(pair.address, amountIn);
 
                 //trigger long term orders
-                await pair.connect(addr1).longTermSwapFromAToB(amountIn, 10);
-                await pair.connect(addr2).longTermSwapFromBToA(amountIn, 10);
+                await pair.connect(addr1).longTermSwapFromAToB(addr1.address, amountIn, 10);
+                await pair.connect(addr2).longTermSwapFromBToA(addr2.address, amountIn, 10);
 
                 //move blocks forward, and execute virtual orders
                 await mineBlocks(3 * blockInterval);
                 await pair.executeVirtualOrders();
 
                 //withdraw proceeds
-                await pair.connect(addr1).withdrawProceedsFromLongTermSwap(0);
-                await pair.connect(addr2).withdrawProceedsFromLongTermSwap(1);
+                await pair.connect(addr1).withdrawProceedsFromLongTermSwap(addr1.address, 0);
+                await pair.connect(addr2).withdrawProceedsFromLongTermSwap(addr2.address, 1);
 
                 const amountABought = await tokenA.balanceOf(addr2.address);
                 const amountBBought = await tokenB.balanceOf(addr1.address);
@@ -352,6 +392,7 @@ describe("Pair", function () {
         describe("Cancelling Orders", function () {
             it("Order can be cancelled", async function () {
                 const amountIn = 100000;
+                await tokenA.approve(addr1.address, amountIn);
                 await tokenA.transfer(addr1.address, amountIn);
                 await tokenA.connect(addr1).approve(pair.address, amountIn);
 
@@ -359,11 +400,11 @@ describe("Pair", function () {
                 const amountBBefore = await tokenB.balanceOf(addr1.address);
 
                 //trigger long term order
-                await pair.connect(addr1).longTermSwapFromAToB(amountIn, 10);
+                await pair.connect(addr1).longTermSwapFromAToB(addr1.address, amountIn, 10);
 
                 //move blocks forward, and execute virtual orders
                 await mineBlocks(3 * blockInterval);
-                await pair.connect(addr1).cancelLongTermSwap(0);
+                await pair.connect(addr1).cancelLongTermSwap(addr1.address, 0);
 
                 const amountAAfter = await tokenA.balanceOf(addr1.address);
                 const amountBAfter = await tokenB.balanceOf(addr1.address);
@@ -377,21 +418,23 @@ describe("Pair", function () {
         describe("Partial Withdrawal", function () {
             it("Proceeds can be withdrawn while order is still active", async function () {
                 const amountIn = 100000;
+                await tokenA.approve(addr1.address, amountIn);
                 await tokenA.transfer(addr1.address, amountIn);
                 await tokenA.connect(addr1).approve(pair.address, amountIn);
 
                 await tokenB.transfer(addr2.address, amountIn);
+                await tokenA.approve(addr2.address, amountIn);
                 await tokenB.connect(addr2).approve(pair.address, amountIn);
 
                 //trigger long term order
-                await pair.connect(addr1).longTermSwapFromAToB(amountIn, 10);
+                await pair.connect(addr1).longTermSwapFromAToB(addr1.address, amountIn, 10);
 
                 //move blocks forward, and execute virtual orders
                 await mineBlocks(3 * blockInterval);
 
                 const beforeBalanceA = await tokenA.balanceOf(addr2.address);
                 const beforeBalanceB = await tokenB.balanceOf(addr2.address);
-                await pair.connect(addr2).instantSwapFromBToA(amountIn);
+                await pair.connect(addr2).instantSwapFromBToA(addr2.address, amountIn);
                 const afterBalanceA = await tokenA.balanceOf(addr2.address);
                 const afterBalanceB = await tokenB.balanceOf(addr2.address);
 
