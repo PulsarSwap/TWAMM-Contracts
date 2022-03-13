@@ -56,6 +56,7 @@ contract TWAMM is ITWAMM {
         if (IFactory(factory).getPair(token, WETH) == address(0)) {
             IFactory(factory).createPair(token, WETH);
         }
+
         address pair = Library.pairFor(factory, token, WETH);
         (address tokenA, ) = Library.sortTokens(token, WETH);
         (uint256 amountA, uint256 amountB) = tokenA == token
@@ -63,6 +64,7 @@ contract TWAMM is ITWAMM {
             : (amountETH, amountToken);
         IWETH(WETH).deposit{value: amountETH}();
         IPair(pair).provideInitialLiquidity(msg.sender, amountA, amountB);
+
         // refund dust eth, if any
         if (msg.value > amountETH)
             TransferHelper.safeTransferETH(msg.sender, msg.value - amountETH);
@@ -89,6 +91,7 @@ contract TWAMM is ITWAMM {
         uint256 amountETH = (lpTokenAmount * reserveETH) / totalSupplyLP;
         IWETH(WETH).deposit{value: amountETH}();
         IPair(pair).provideLiquidity(msg.sender, lpTokenAmount);
+
         // refund dust eth, if any
         if (msg.value > amountETH)
             TransferHelper.safeTransferETH(msg.sender, msg.value - amountETH);
@@ -109,12 +112,13 @@ contract TWAMM is ITWAMM {
         uint256 lpTokenAmount,
         uint256 deadline
     ) external virtual override ensure(deadline) {
+        uint256 balanceBeforeWETH = IWETH(WETH).balanceOf(msg.sender);
         address pair = Library.pairFor(factory, token, WETH);
         IPair(pair).removeLiquidity(msg.sender, lpTokenAmount);
-        (, uint256 reserveETH) = Library.getReserves(factory, token, WETH);
-        uint256 totalSupplyLP = IERC20(pair).totalSupply();
-        uint256 amountETH = (reserveETH * lpTokenAmount) / totalSupplyLP;
-        IWETH(WETH).withdraw(amountETH);
+
+        uint256 balanceAfterWETH = IWETH(WETH).balanceOf(msg.sender);
+        uint256 amountETHWithdraw = balanceAfterWETH - balanceBeforeWETH;
+        IWETH(WETH).withdraw(amountETHWithdraw);
     }
 
     function instantSwapTokenToToken(
@@ -138,6 +142,7 @@ contract TWAMM is ITWAMM {
         uint256 amountTokenIn,
         uint256 deadline
     ) external virtual override ensure(deadline) {
+        uint256 balanceBeforeWETH = IWETH(WETH).balanceOf(msg.sender);
         address pair = Library.pairFor(factory, token, WETH);
         (address tokenA, ) = Library.sortTokens(token, WETH);
 
@@ -147,16 +152,9 @@ contract TWAMM is ITWAMM {
             IPair(pair).instantSwapFromBToA(msg.sender, amountTokenIn);
         }
 
-        (uint256 reserveToken, uint256 reserveETH) = Library.getReserves(
-            factory,
-            token,
-            WETH
-        );
-        uint256 amountETHOut = (reserveETH * amountTokenIn) /
-            (reserveToken + amountTokenIn);
-        //Calculate LP fee
-        uint256 amountETHOutMinusFee = (amountETHOut * 997) / 1000;
-        IWETH(WETH).withdraw(amountETHOutMinusFee);
+        uint256 balanceAfterWETH = IWETH(WETH).balanceOf(msg.sender);
+        uint256 amountETHWithdraw = balanceAfterWETH - balanceBeforeWETH;
+        IWETH(WETH).withdraw(amountETHWithdraw);
     }
 
     function instantSwapETHToToken(
@@ -255,7 +253,7 @@ contract TWAMM is ITWAMM {
             TransferHelper.safeTransferETH(msg.sender, msg.value - amountETHIn);
     }
 
-    function cancelTermSwap(
+    function cancelTermSwapTokenToToken(
         address token0,
         address token1,
         uint256 orderId,
@@ -265,7 +263,36 @@ contract TWAMM is ITWAMM {
         IPair(pair).cancelLongTermSwap(msg.sender, orderId);
     }
 
-    function withdrawProceedsFromTermSwap(
+    function cancelTermSwapTokenToETH(
+        address token,
+        uint256 orderId,
+        uint256 deadline
+    ) external virtual override ensure(deadline) {
+        uint256 balanceBeforeWETH = IWETH(WETH).balanceOf(msg.sender);
+        address pair = Library.pairFor(factory, token, WETH);
+        IPair(pair).cancelLongTermSwap(msg.sender, orderId);
+
+        uint256 balanceAfterWETH = IWETH(WETH).balanceOf(msg.sender);
+        uint256 amountETHWithdraw = balanceAfterWETH - balanceBeforeWETH;
+        IWETH(WETH).withdraw(amountETHWithdraw);       
+    }
+
+    function cancelTermSwapETHToToken(
+        address token0,
+        address token1,
+        uint256 orderId,
+        uint256 deadline
+    ) external virtual override ensure(deadline) {
+        uint256 balanceBeforeWETH = IWETH(WETH).balanceOf(msg.sender);
+        address pair = Library.pairFor(factory, WETH, token);
+        IPair(pair).cancelLongTermSwap(msg.sender, orderId);
+
+        uint256 balanceAfterWETH = IWETH(WETH).balanceOf(msg.sender);
+        uint256 amountETHWithdraw = balanceAfterWETH - balanceBeforeWETH;
+        IWETH(WETH).withdraw(amountETHWithdraw);
+    }
+
+    function withdrawProceedsFromTermSwapTokenToToken(
         address token0,
         address token1,
         uint256 orderId,
@@ -273,5 +300,33 @@ contract TWAMM is ITWAMM {
     ) external virtual override ensure(deadline) {
         address pair = Library.pairFor(factory, token0, token1);
         IPair(pair).withdrawProceedsFromLongTermSwap(msg.sender, orderId);
+    }
+
+    function withdrawProceedsFromTermSwapTokenToETH(
+        address token,
+        uint256 orderId,
+        uint256 deadline
+    ) external virtual override ensure(deadline) {
+        uint256 balanceBeforeWETH = IWETH(WETH).balanceOf(msg.sender);
+        address pair = Library.pairFor(factory, token, WETH);
+        IPair(pair).withdrawProceedsFromLongTermSwap(msg.sender, orderId);
+
+        uint256 balanceAfterWETH = IWETH(WETH).balanceOf(msg.sender);
+        uint256 amountETHWithdraw = balanceAfterWETH - balanceBeforeWETH;
+        IWETH(WETH).withdraw(amountETHWithdraw);
+    }
+
+    function withdrawProceedsFromTermSwapETHToToken(
+        address token,
+        uint256 orderId,
+        uint256 deadline
+    ) external virtual override ensure(deadline) {
+        uint256 balanceBeforeWETH = IWETH(WETH).balanceOf(msg.sender);
+        address pair = Library.pairFor(factory, WETH, token);
+        IPair(pair).withdrawProceedsFromLongTermSwap(msg.sender, orderId);
+        
+        uint256 balanceAfterWETH = IWETH(WETH).balanceOf(msg.sender);
+        uint256 amountETHWithdraw = balanceAfterWETH - balanceBeforeWETH;
+        IWETH(WETH).withdraw(amountETHWithdraw);
     }
 }
