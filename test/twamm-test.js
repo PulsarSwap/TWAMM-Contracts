@@ -217,6 +217,8 @@ describe("TWAMM", function () {
                         .mul(amountInA)
                         .div(tokenAReserve.add(amountInA));
 
+                const expectedOutputAfterFeeAdj = expectedOut.mul(1000 - 3).div(1000);
+
                 //trigger long term order
                 tokenA.connect(addr1).approve(pair, amountInA);
                 await twamm.connect(addr1).longTermSwapTokenToToken(tokenA.address, tokenB.address, amountInA, 2, timeStamp+100000)
@@ -236,6 +238,8 @@ describe("TWAMM", function () {
                     expectedOut,
                     ethers.utils.parseUnits("100", "wei")
                 );
+
+                expect(actualOutput).to.be.eq(expectedOutputAfterFeeAdj);
             });
 
             it("Orders in both pools work as expected", async function () {
