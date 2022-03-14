@@ -117,6 +117,7 @@ contract TWAMM is ITWAMM {
         IPair(pair).removeLiquidity(msg.sender, lpTokenAmount);
 
         uint256 balanceAfterWETH = IWETH(WETH).balanceOf(msg.sender);
+        require(balanceAfterWETH >= balanceBeforeWETH);
         uint256 amountETHWithdraw = balanceAfterWETH - balanceBeforeWETH;
         IWETH(WETH).withdraw(amountETHWithdraw);
     }
@@ -153,6 +154,7 @@ contract TWAMM is ITWAMM {
         }
 
         uint256 balanceAfterWETH = IWETH(WETH).balanceOf(msg.sender);
+        require(balanceAfterWETH >= balanceBeforeWETH);
         uint256 amountETHWithdraw = balanceAfterWETH - balanceBeforeWETH;
         IWETH(WETH).withdraw(amountETHWithdraw);
     }
@@ -273,6 +275,7 @@ contract TWAMM is ITWAMM {
         IPair(pair).cancelLongTermSwap(msg.sender, orderId);
 
         uint256 balanceAfterWETH = IWETH(WETH).balanceOf(msg.sender);
+        require(balanceAfterWETH >= balanceBeforeWETH);
         uint256 amountETHWithdraw = balanceAfterWETH - balanceBeforeWETH;
         IWETH(WETH).withdraw(amountETHWithdraw);
     }
@@ -287,6 +290,7 @@ contract TWAMM is ITWAMM {
         IPair(pair).cancelLongTermSwap(msg.sender, orderId);
 
         uint256 balanceAfterWETH = IWETH(WETH).balanceOf(msg.sender);
+        require(balanceAfterWETH >= balanceBeforeWETH);
         uint256 amountETHWithdraw = balanceAfterWETH - balanceBeforeWETH;
         IWETH(WETH).withdraw(amountETHWithdraw);
     }
@@ -311,6 +315,7 @@ contract TWAMM is ITWAMM {
         IPair(pair).withdrawProceedsFromLongTermSwap(msg.sender, orderId);
 
         uint256 balanceAfterWETH = IWETH(WETH).balanceOf(msg.sender);
+        require(balanceAfterWETH >= balanceBeforeWETH);
         uint256 amountETHWithdraw = balanceAfterWETH - balanceBeforeWETH;
         IWETH(WETH).withdraw(amountETHWithdraw);
     }
@@ -325,6 +330,7 @@ contract TWAMM is ITWAMM {
         IPair(pair).withdrawProceedsFromLongTermSwap(msg.sender, orderId);
 
         uint256 balanceAfterWETH = IWETH(WETH).balanceOf(msg.sender);
+        require(balanceAfterWETH >= balanceBeforeWETH);
         uint256 amountETHWithdraw = balanceAfterWETH - balanceBeforeWETH;
         IWETH(WETH).withdraw(amountETHWithdraw);
     }
