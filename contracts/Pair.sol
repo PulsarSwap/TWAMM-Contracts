@@ -88,6 +88,11 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         return reserveMap[tokenA];
     }
 
+    ///@notice get LP total supply
+    function getTotalSupply() public view returns (uint256) {
+        return totalSupply();
+    }
+
     ///@notice get tokenB reserves
     function tokenBReserves() public view returns (uint256) {
         return reserveMap[tokenB];
@@ -303,6 +308,8 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         nonReentrant
     {
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
+
+        
 
         longTermOrders.cancelLongTermSwap(sender, orderId, reserveMap);
 

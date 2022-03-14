@@ -27,6 +27,10 @@ interface IPair {
 
     function tokenBReserves() external view returns (uint256);
 
+    function getTotalSupply() external view returns (uint256);
+
+    function executeVirtualOrders() external;
+
     event UpdatePrice(uint256 reserveA, uint256 reserveB);
     event InitialLiquidityProvided(
         address indexed addr,

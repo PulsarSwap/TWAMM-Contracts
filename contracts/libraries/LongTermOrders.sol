@@ -139,8 +139,8 @@ library LongTermOrdersLib {
             to
         );
 
-        // add user to orderId mapping list content 
-        self.orderIdMap[msg.sender].push(self.orderId);
+        // add user's corresponding orderId to orderId mapping list content 
+        self.orderIdMap[sender].push(self.orderId);
 
         self.orderIdStatusMap[self.orderId] = true;
 
@@ -186,6 +186,7 @@ library LongTermOrdersLib {
         executeVirtualOrdersUntilCurrentBlock(self, reserveMap);
 
         Order storage order = self.orderMap[orderId];
+
         require(order.owner == sender, "Sender Must Be Order Owner");
 
         OrderPoolLib.OrderPool storage OrderPool = self.OrderPoolMap[
@@ -194,19 +195,18 @@ library LongTermOrdersLib {
         (uint256 unsoldAmount, uint256 purchasedAmount) = OrderPool.cancelOrder(
             orderId
         );
-
         require(
             unsoldAmount > 0 || purchasedAmount > 0,
             "No Proceeds To Withdraw"
         );
         //transfer to owner
-        IERC20(order.buyTokenId).transfer(msg.sender, purchasedAmount);
-        IERC20(order.sellTokenId).transfer(msg.sender, unsoldAmount);
+        IERC20(order.buyTokenId).transfer(sender, purchasedAmount);
+        IERC20(order.sellTokenId).transfer(sender, unsoldAmount);
 
-
+        // console.log(IERC20(order.buyTokenId).balanceOf(msg.sender));
         // delete orderId from account list
         // removeOrderId(self, orderId, msg.sender);
-        self.orderIdStatusMap[orderId] = false;
+        self.orderIdStatusMap[orderId] = false; 
     }
 
     ///@notice withdraw proceeds from a long term swap (can be expired or ongoing)
@@ -229,7 +229,7 @@ library LongTermOrdersLib {
 
         require(proceeds > 0, "No Proceeds To Withdraw");
         //transfer to owner
-        IERC20(order.buyTokenId).transfer(msg.sender, proceeds);
+        IERC20(order.buyTokenId).transfer(sender, proceeds);
 
         // delete orderId from account list
         // removeOrderId(self, orderId, msg.sender);

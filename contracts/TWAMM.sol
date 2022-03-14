@@ -23,7 +23,6 @@ contract TWAMM is ITWAMM {
         _;
     }
 
-    
 
     //     emit InitialLiquidityProvided(msg.sender, amountA, amountB);
     constructor(address _factory, address _WETH) {
@@ -35,6 +34,23 @@ contract TWAMM is ITWAMM {
         assert(msg.sender == WETH); // only accept ETH via fallback from the WETH contract
     }
 
+    function obtainPairAddress(
+        address token0,
+        address token1
+    ) external view returns (address) {
+        // address pair = Library.pairFor(factory, tokenA, tokenB);
+        return IFactory(factory).getPair(token0, token1);
+    }
+
+
+    function createPair(
+        address token0,
+        address token1,
+        uint256 deadline
+    ) external virtual override ensure(deadline) {
+        require(IFactory(factory).getPair(token0, token1) == address(0), "Pair Existing Already!");
+        IFactory(factory).createPair(token0, token1);
+    }
     
     function addInitialLiquidity(
         address token0,
@@ -43,29 +59,39 @@ contract TWAMM is ITWAMM {
         uint256 amount1,
         uint256 deadline
     ) external virtual override ensure(deadline) {
-        // create the pair if it doesn't exist yet
+        //create the pair if it doesn't exist yet
+        
+        require(IFactory(factory).getPair(token0, token1) != address(0), "No Existing Pair Found, Create Pair First!");
+        // if (IFactory(factory).getPair(token0, token1) == address(0)) {
+        //     IFactory(factory).createPair(token0, token1);
+        // }
         // console.log("till here", IFactory(factory).getPair(token0, token1), IFactory(factory).allPairsLength());
-        
-        if (IFactory(factory).getPair(token0, token1) == address(0)) {
-            IFactory(factory).createPair(token0, token1);
-        }
-
-        
         address pair = Library.pairFor(factory, token0, token1); //factory.pairFor(token0, token1);//
         (address tokenA, ) = Library.sortTokens(token0, token1);
         (uint256 amountA, uint256 amountB) = tokenA == token0
             ? (amount0, amount1)
             : (amount1, amount0);
+        // console.log('check in init lp', pair);
         IPair(pair).provideInitialLiquidity(msg.sender, amountA, amountB);
     }
 
     function reserveA(
-        address tokenA,
-        address tokenB
+        address pair
     ) external view returns (uint256) {
-        address pair = Library.pairFor(factory, tokenA, tokenB);
-        console.log("contract check", pair); 
+        // address pair = Library.pairFor(factory, tokenA, tokenB);
         return IPair(pair).tokenAReserves();
+    }
+
+    function reserveB(
+        address pair
+    ) external view returns (uint256) {
+        return IPair(pair).tokenBReserves();
+    }
+
+    function totalSupply(
+        address pair
+    ) external view returns (uint256) {
+        return IPair(pair).getTotalSupply();
     }
 
     function addInitialLiquidityETH(
@@ -208,7 +234,6 @@ contract TWAMM is ITWAMM {
     ) external virtual override ensure(deadline) {
         address pair = Library.pairFor(factory, token0, token1);
         (address tokenA, ) = Library.sortTokens(token0, token1);
-
         if (tokenA == token0) {
             IPair(pair).longTermSwapFromAToB(
                 msg.sender,
@@ -248,34 +273,6 @@ contract TWAMM is ITWAMM {
         }
     }
 
-
-    // ///@notice get user orderIds
-    // function userIdsCheck(
-    //     address userAddress
-    // ) external view returns (uint256[] memory) {
-    //     return longTermOrders.orderIdMap[userAddress];
-    // }
-
-
-    // ///@notice get user order Id status
-    // function orderIdStatusCheck(
-    //     uint256 orderId
-    // ) external view returns (bool) {
-    //     return longTermOrders.orderIdStatusMap[orderId];
-    // }
-
-    // ///@notice get user order details
-    // function getOrderDetails(
-    //     uint256 orderId
-    // ) external view returns (LongTermOrdersLib.Order memory) {
-    //     return longTermOrders.orderMap[orderId];
-    // }
-    
-    // ///@notice get tokenA reserves
-    // function tokenAReserves() public view returns (uint256) {
-    //     return reserveMap[tokenA];
-    // }
-
     function longTermSwapETHToToken(
         address token,
         uint256 amountETHIn,
@@ -311,6 +308,7 @@ contract TWAMM is ITWAMM {
         uint256 deadline
     ) external virtual override ensure(deadline) {
         address pair = Library.pairFor(factory, token0, token1);
+        
         IPair(pair).cancelLongTermSwap(msg.sender, orderId);
     }
 
@@ -322,5 +320,11 @@ contract TWAMM is ITWAMM {
     ) external virtual override ensure(deadline) {
         address pair = Library.pairFor(factory, token0, token1);
         IPair(pair).withdrawProceedsFromLongTermSwap(msg.sender, orderId);
+    }
+
+    function executeVirtualOrdersWrapper(
+        address pair
+    ) external virtual override {
+        IPair(pair).executeVirtualOrders();
     }
 }

@@ -15,6 +15,38 @@ interface ITWAMM {
         uint256 deadline
     ) external;
 
+    function obtainPairAddress(
+        address token0,
+        address token1
+    ) external returns (address);
+
+    function createPair(
+        address token0,
+        address token1,
+        uint256 deadline
+    ) external;
+
+    function reserveA(
+        address pair
+    ) external returns (uint256);
+
+    function reserveB(
+        address pair
+    ) external returns (uint256);
+
+    function totalSupply(
+        address pair
+    ) external returns (uint256);
+    // function getPair(
+    //     address token0,
+    //     address token1,
+    //     uint256 deadline
+    // ) external returns (address);
+
+    function executeVirtualOrdersWrapper(
+        address pair
+    ) external;
+    
     function addInitialLiquidityETH(
         address token,
         uint256 amountToken,
