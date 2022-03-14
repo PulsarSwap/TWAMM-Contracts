@@ -121,16 +121,40 @@ interface ITWAMM {
         uint256 deadline
     ) external payable;
 
-    function cancelTermSwap(
+    function cancelTermSwapTokenToToken(
         address token0,
         address token1,
         uint256 orderId,
         uint256 deadline
     ) external;
 
-    function withdrawProceedsFromTermSwap(
+    function cancelTermSwapTokenToETH(
+        address token,
+        uint256 orderId,
+        uint256 deadline
+    ) external;
+
+    function cancelTermSwapETHToToken(
+        address token,
+        uint256 orderId,
+        uint256 deadline
+    ) external;
+
+    function withdrawProceedsFromTermSwapTokenToToken(
         address token0,
         address token1,
+        uint256 orderId,
+        uint256 deadline
+    ) external;
+
+    function withdrawProceedsFromTermSwapTokenToETH(
+        address token,
+        uint256 orderId,
+        uint256 deadline
+    ) external;
+
+    function withdrawProceedsFromTermSwapETHToToken(
+        address token,
         uint256 orderId,
         uint256 deadline
     ) external;

@@ -227,7 +227,7 @@ describe("TWAMM", function () {
 
                 //withdraw proceeds 
                 const beforeBalanceB = await tokenB.balanceOf(addr1.address);
-                await twamm.connect(addr1).withdrawProceedsFromTermSwap(tokenA.address, tokenB.address, 0, timeStamp+100000);
+                await twamm.connect(addr1).withdrawProceedsFromTermSwapTokenToToken(tokenA.address, tokenB.address, 0, timeStamp+100000);
                 const afterBalanceB = await tokenB.balanceOf(addr1.address);
                 const actualOutput = afterBalanceB.sub(beforeBalanceB);
 
@@ -267,8 +267,8 @@ describe("TWAMM", function () {
                 
 
                 //withdraw proceeds 
-                await twamm.connect(addr1).withdrawProceedsFromTermSwap(tokenA.address, tokenB.address, 0, timeStamp+100000);
-                await twamm.connect(addr2).withdrawProceedsFromTermSwap(tokenA.address, tokenB.address, 1, timeStamp+100000);
+                await twamm.connect(addr1).withdrawProceedsFromTermSwapTokenToToken(tokenA.address, tokenB.address, 0, timeStamp+100000);
+                await twamm.connect(addr2).withdrawProceedsFromTermSwapTokenToToken(tokenA.address, tokenB.address, 1, timeStamp+100000);
 
                 const amountABought = await tokenA.balanceOf(addr2.address);
                 const amountBBought = await tokenB.balanceOf(addr1.address);
@@ -321,8 +321,8 @@ describe("TWAMM", function () {
                 await twamm.executeVirtualOrdersWrapper(pair);
 
                 //withdraw proceeds 
-                await twamm.connect(addr1).withdrawProceedsFromTermSwap(tokenA.address, tokenB.address, 0, timeStamp+100000);
-                await twamm.connect(addr2).withdrawProceedsFromTermSwap(tokenA.address, tokenB.address, 1, timeStamp+100000);
+                await twamm.connect(addr1).withdrawProceedsFromTermSwapTokenToToken(tokenA.address, tokenB.address, 0, timeStamp+100000);
+                await twamm.connect(addr2).withdrawProceedsFromTermSwapTokenToToken(tokenA.address, tokenB.address, 1, timeStamp+100000);
 
                 const amountABought = await tokenA.balanceOf(addr2.address);
                 const amountBBought = await tokenB.balanceOf(addr1.address);
@@ -361,10 +361,10 @@ describe("TWAMM", function () {
                 await twamm.executeVirtualOrdersWrapper(pair);
 
                 //withdraw proceeds 
-                await twamm.connect(addr1).withdrawProceedsFromTermSwap(tokenA.address, tokenB.address, 0, timeStamp+100000);
-                await twamm.connect(addr2).withdrawProceedsFromTermSwap(tokenA.address, tokenB.address, 1, timeStamp+100000);
-                await twamm.connect(addr1).withdrawProceedsFromTermSwap(tokenA.address, tokenB.address, 2, timeStamp+100000);
-                await twamm.connect(addr2).withdrawProceedsFromTermSwap(tokenA.address, tokenB.address, 3, timeStamp+100000);
+                await twamm.connect(addr1).withdrawProceedsFromTermSwapTokenToToken(tokenA.address, tokenB.address, 0, timeStamp+100000);
+                await twamm.connect(addr2).withdrawProceedsFromTermSwapTokenToToken(tokenA.address, tokenB.address, 1, timeStamp+100000);
+                await twamm.connect(addr1).withdrawProceedsFromTermSwapTokenToToken(tokenA.address, tokenB.address, 2, timeStamp+100000);
+                await twamm.connect(addr2).withdrawProceedsFromTermSwapTokenToToken(tokenA.address, tokenB.address, 3, timeStamp+100000);
 
                 const amountABought = await tokenA.balanceOf(addr2.address);
                 const amountBBought = await tokenB.balanceOf(addr1.address);
@@ -393,8 +393,8 @@ describe("TWAMM", function () {
                 await twamm.executeVirtualOrdersWrapper(pair);
 
                 //withdraw proceeds 
-                await twamm.connect(addr1).withdrawProceedsFromTermSwap(tokenA.address, tokenB.address, 0, timeStamp+100000);
-                await twamm.connect(addr2).withdrawProceedsFromTermSwap(tokenA.address, tokenB.address, 1, timeStamp+100000);
+                await twamm.connect(addr1).withdrawProceedsFromTermSwapTokenToToken(tokenA.address, tokenB.address, 0, timeStamp+100000);
+                await twamm.connect(addr2).withdrawProceedsFromTermSwapTokenToToken(tokenA.address, tokenB.address, 1, timeStamp+100000);
 
                 const amountABought = await tokenA.balanceOf(addr2.address);
                 const amountBBought = await tokenB.balanceOf(addr1.address);
@@ -423,7 +423,7 @@ describe("TWAMM", function () {
 
                 //move blocks forward, and execute virtual orders
                 await mineBlocks(3 * blockInterval)
-                await twamm.connect(addr1).cancelTermSwap(tokenA.address, tokenB.address, 0, timeStamp+100000);
+                await twamm.connect(addr1).cancelTermSwapTokenToToken(tokenA.address, tokenB.address, 0, timeStamp+100000);
 
                 const amountAAfter = await tokenA.balanceOf(addr1.address);
                 const amountBAfter = await tokenB.balanceOf(addr1.address);

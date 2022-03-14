@@ -11,6 +11,9 @@ library LongTermOrdersLib {
     using PRBMathSD59x18 for int256;
     using OrderPoolLib for OrderPoolLib.OrderPool;
 
+    ///@notice fee for LP providers, 4 decimal places, i.e. 30 = 0.3%
+    uint256 public constant LP_FEE = 30;
+
     ///@notice information associated with a long term order
     struct Order {
         uint256 id;
@@ -147,33 +150,6 @@ library LongTermOrdersLib {
         return self.orderId++;
     }
     
-    // ///@notice remove orderId from user orderIdMap after the order is physically cancelled
-    // function removeOrderId(
-    //     LongTermOrders storage self,
-    //     uint256 orderId,
-    //     address account
-    // ) internal view {
-    //     uint256[] memory orderIdList = self.orderIdMap[account];
-    //     require(orderIdList.length > 0, "this sender doesn't have long term swap orders");
-        // if (orderIdList.length == 1) {
-        //     delete orderIdList[0];
-        // }
-        // uint l = 0;
-        // uint r = orderIdList.length - 1;
-        // uint m ;
-        // while (l < r) {
-        //    m = uint(l + r / 2);
-        //    if ( orderIdList[m] < orderId) {
-        //         l = m + 1;
-        //    } else if ( orderIdList[m] > orderId) {
-        //        r = m - 1;
-        //    } else {
-        //        delete orderIdList[m];
-        //    }
-        // }
-
-
-    // }
 
     ///@notice cancel long term swap, pay out unsold tokens and well as purchased tokens
     function cancelLongTermSwap(
@@ -195,12 +171,17 @@ library LongTermOrdersLib {
         (uint256 unsoldAmount, uint256 purchasedAmount) = OrderPool.cancelOrder(
             orderId
         );
+
+        //charge LP fee
+        uint256 purchasedAmountMinusFee = (purchasedAmount * (10000 - LP_FEE)) /
+            10000;
+
         require(
-            unsoldAmount > 0 || purchasedAmount > 0,
+            unsoldAmount > 0 || purchasedAmountMinusFee > 0,
             "No Proceeds To Withdraw"
         );
         //transfer to owner
-        IERC20(order.buyTokenId).transfer(sender, purchasedAmount);
+        IERC20(order.buyTokenId).transfer(sender, purchasedAmountMinusFee);
         IERC20(order.sellTokenId).transfer(sender, unsoldAmount);
 
         // console.log(IERC20(order.buyTokenId).balanceOf(msg.sender));
@@ -227,9 +208,14 @@ library LongTermOrdersLib {
         ];
         uint256 proceeds = OrderPool.withdrawProceeds(orderId);
 
-        require(proceeds > 0, "No Proceeds To Withdraw");
+
+        //charge LP fee
+        uint256 proceedsMinusFee = (proceeds * (10000 - LP_FEE)) / 10000;
+
+
+        require(proceedsMinusFee > 0, "No Proceeds To Withdraw");
         //transfer to owner
-        IERC20(order.buyTokenId).transfer(sender, proceeds);
+        IERC20(order.buyTokenId).transfer(sender, proceedsMinusFee);
 
         // delete orderId from account list
         // removeOrderId(self, orderId, msg.sender);
