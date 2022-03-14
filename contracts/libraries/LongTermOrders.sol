@@ -167,7 +167,8 @@ library LongTermOrdersLib {
         );
 
         //charge LP fee
-        purchasedAmountMinusFee = (purchasedAmount * (10000 - LP_FEE)) / 10000;
+        uint256 purchasedAmountMinusFee = (purchasedAmount * (10000 - LP_FEE)) /
+            10000;
 
         require(
             unsoldAmount > 0 || purchasedAmountMinusFee > 0,
@@ -201,7 +202,7 @@ library LongTermOrdersLib {
         uint256 proceeds = OrderPool.withdrawProceeds(orderId);
 
         //charge LP fee
-        proceedsMinusFee = (proceeds * (10000 - LP_FEE)) / 10000;
+        uint256 proceedsMinusFee = (proceeds * (10000 - LP_FEE)) / 10000;
 
         require(proceedsMinusFee > 0, "No Proceeds To Withdraw");
         //transfer to owner
