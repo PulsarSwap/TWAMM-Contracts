@@ -13,6 +13,7 @@ describe("TWAMM", function () {
     let addrs;
     let factory;
     let pair;
+    let pairETH;
     let WETH;
     let blockNumber;
     let timeStamp;
@@ -26,7 +27,7 @@ describe("TWAMM", function () {
         // network basics
         await network.provider.send("evm_setAutomine", [true]);
         [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
-        
+    
         //factory deployment
         await console.log("Deploying factory")
         const factoryContract = await ethers.getContractFactory("Factory");
@@ -38,10 +39,22 @@ describe("TWAMM", function () {
 
         //create two tokens for pair creation, and WETH
         const ERC20Factory =  await ethers.getContractFactory("ERC20Mock");
+        
         tokenA = await ERC20Factory.deploy("TokenA", "TokenA", ERC20Supply);
         tokenB = await ERC20Factory.deploy("TokenB", "TokenB", ERC20Supply);
-        WETH = await ERC20Factory.deploy("WETH", "WETH", ERC20Supply);
-        await console.log("two tokens and WETH created", tokenA.address, tokenB.address)
+        const Weth = await ethers.getContractFactory("WETH10");
+        WETH = await Weth.deploy();
+        expect(await WETH.symbol()).to.equal("WETH10");
+        await console.log(await WETH.balanceOf(owner.address), await owner.getBalance())
+        // const aa = await owner.getBalance();
+        // WETH = await ERC20Factory.deploy("WETH", "WETH", ERC20Supply);
+        await WETH.deposit({value: ethers.utils.parseUnits("1", 'ether')  })
+        await WETH.connect(addr1).deposit({value: ethers.utils.parseUnits("1", 'ether')  })
+        await console.log(await WETH.balanceOf(owner.address), await owner.getBalance())
+        // const bb = await owner.getBalance()
+
+        // await console.log(await WETH.balanceOf(owner.address), aa.div(bb).toString())
+        await console.log("two tokens and WETH created", tokenA.address, tokenB.address, WETH.address)
  
         // TWAMM init
         const TWAMM = await ethers.getContractFactory("TWAMM", { gasLimit: "1000000000" })
@@ -62,6 +75,15 @@ describe("TWAMM", function () {
         // await console.log('pair pair add', tmpPairAdd)
         await twamm.addInitialLiquidity(tokenA.address, tokenB.address, initialLiquidityProvided, initialLiquidityProvided, timeStamp+100000);
         await console.log("initial liquidity provided", pair)
+
+        await twamm.createPair(WETH.address, tokenB.address, timeStamp+50000)
+        pairETH = await twamm.obtainPairAddress(WETH.address, tokenB.address)
+        await WETH.approve(pairETH, initialLiquidityProvided); //owner calls it
+        await tokenB.approve(pairETH, initialLiquidityProvided);
+        await console.log(pairETH); 
+        // await console.log('pair pair add', tmpPairAdd)
+        await twamm.addInitialLiquidityETH(tokenB.address, initialLiquidityProvided, initialLiquidityProvided, timeStamp+100000, {value: initialLiquidityProvided});
+        await console.log("initial ETH liquidity provided", pairETH)
 
 
         
@@ -235,11 +257,47 @@ describe("TWAMM", function () {
 
                 //since we are breaking up order, match is not exact
                 expect(actualOutput).to.be.closeTo(
-                    expectedOut,
+                    expectedOutputAfterFeeAdj,
                     ethers.utils.parseUnits("100", "wei")
                 );
 
-                expect(actualOutput).to.be.eq(expectedOutputAfterFeeAdj);
+            });
+
+
+            it("(ETH) Single sided long term order behaves like normal swap (ETH)", async function () {
+
+                const amountInA = 10000; 
+                
+                //expected output
+                const tokenAReserve = await twamm.reserveA(pairETH);
+                const tokenBReserve = await twamm.reserveB(pairETH);
+                const expectedOut = 
+                    tokenBReserve
+                        .mul(amountInA)
+                        .div(tokenAReserve.add(amountInA));
+
+                const expectedOutputAfterFeeAdj = expectedOut.mul(1000 - 3).div(1000);
+
+                //trigger long term order
+                WETH.connect(addr1).approve(pairETH, amountInA);
+                await twamm.connect(addr1).longTermSwapETHToToken(tokenB.address, amountInA, 2, timeStamp+100000)
+                
+                //move blocks forward, and execute virtual orders
+                await mineBlocks(3 * blockInterval)
+                await twamm.executeVirtualOrdersWrapper(pairETH);
+
+                //withdraw proceeds 
+                const beforeBalanceB = await tokenB.balanceOf(addr1.address);
+                await twamm.connect(addr1).withdrawProceedsFromTermSwapETHToToken(tokenB.address, 0, timeStamp+100000);
+                const afterBalanceB = await tokenB.balanceOf(addr1.address);
+                const actualOutput = afterBalanceB.sub(beforeBalanceB);
+
+                //since we are breaking up order, match is not exact
+                expect(actualOutput).to.be.closeTo(
+                    expectedOutputAfterFeeAdj,
+                    ethers.utils.parseUnits("100", "wei")
+                );
+
             });
 
             it("Orders in both pools work as expected", async function () {
