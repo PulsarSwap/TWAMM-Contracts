@@ -327,5 +327,5 @@ contract TWAMM is ITWAMM {
     ) external virtual override ensure(deadline) {  
         address pair = Library.pairFor(factory, WETH, token);
         IPair(pair).withdrawProceedsFromLongTermSwap(msg.sender, orderId);
-        uint256 balanceAfterWETH = IWETH(WETH).balanceOf(msg.sender);
+    }
 }
