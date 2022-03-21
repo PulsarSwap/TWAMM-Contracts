@@ -14,7 +14,7 @@ node_modules
 
 # hardhat files
 artifacts
-cache
+
 node_modules
 .env
 coverage
