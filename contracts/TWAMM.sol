@@ -113,7 +113,6 @@ contract TWAMM is ITWAMM {
         IPair(pair).provideInitialLiquidity(msg.sender, amountA, amountB);
         // refund dust eth, if any
         if (msg.value > amountETH) {
-            console.log('inhere');
             TransferHelper.safeTransferETH(msg.sender, msg.value - amountETH);
         }
     }
@@ -137,7 +136,7 @@ contract TWAMM is ITWAMM {
         (, uint256 reserveETH) = Library.getReserves(factory, token, WETH);
         uint256 totalSupplyLP = IERC20(pair).totalSupply();
         uint256 amountETH = (lpTokenAmount * reserveETH) / totalSupplyLP;
-        IWETH10(WETH).deposit();
+        IWETH10(WETH).deposit{value: msg.value}();
         IPair(pair).provideLiquidity(msg.sender, lpTokenAmount);
         // refund dust eth, if any
         if (msg.value > amountETH)
@@ -216,7 +215,7 @@ contract TWAMM is ITWAMM {
     ) external payable virtual override ensure(deadline) {
         address pair = Library.pairFor(factory, WETH, token);
         (address tokenA, ) = Library.sortTokens(WETH, token);
-        IWETH10(WETH).deposit{value: amountETHIn}();
+        IWETH10(WETH).deposit{value: msg.value}();
 
         if (tokenA == WETH) {
             IPair(pair).instantSwapFromAToB(msg.sender, amountETHIn);
@@ -284,7 +283,7 @@ contract TWAMM is ITWAMM {
     ) external payable virtual override ensure(deadline) {
 
         require(IFactory(factory).getPair(token, WETH) != address(0), 'Liquidity Not Provided. Provide It First.');
-        address pair = Library.pairFor(factory, WETH, token);
+        address pair = Library.pairFor(factory, token, WETH);
         (address tokenA, ) = Library.sortTokens(WETH, token);
         IWETH10(WETH).deposit{value: msg.value}();
 
@@ -375,13 +374,13 @@ contract TWAMM is ITWAMM {
         uint256 orderId,
         uint256 deadline
     ) external virtual override ensure(deadline) {
-        uint256 balanceBeforeWETH = IWETH10(WETH).balanceOf(msg.sender);
+        // uint256 balanceBeforeWETH = IWETH10(WETH).balanceOf(msg.sender);
         address pair = Library.pairFor(factory, WETH, token);
         IPair(pair).withdrawProceedsFromLongTermSwap(msg.sender, orderId);
         
-        uint256 balanceAfterWETH = IWETH10(WETH).balanceOf(msg.sender);
-        uint256 amountETHWithdraw = balanceAfterWETH - balanceBeforeWETH;
-        IWETH10(WETH).withdraw(amountETHWithdraw);
+        // uint256 balanceAfterWETH = IWETH10(WETH).balanceOf(msg.sender);
+        // uint256 amountETHWithdraw = balanceAfterWETH - balanceBeforeWETH;
+        // IWETH10(WETH).withdraw(amountETHWithdraw);
     }
 
     function executeVirtualOrdersWrapper(
