@@ -71,17 +71,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         );
     }
 
-    // // called once by the factory at time of deployment
-    //  function initialize(address _tokenA, address _tokenB)
-    //     external
-    //     // override
-    //     lock
-    //     nonReentrant
-    // {
-    //     require(msg.sender == factory, "Pair: Forbidden"); // sufficient check
-    //     // tokenA = _tokenA;
-    //     // tokenB = _tokenB;
-    // }
 
     ///@notice get tokenA reserves
     function tokenAReserves() public view returns (uint256) {
@@ -125,7 +114,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         uint256 amountA,
         uint256 amountB
     ) external override lock nonReentrant {
-        // console.log('in provide init lp');
         require(
             totalSupply() == 0,
             "Liquidity Has Already Been Provided, Need To Call provideLiquidity"
@@ -381,21 +369,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     ) external view returns (bool) {
         return longTermOrders.orderIdStatusMap[orderId];
     }
-
-    // ///@notice get user orderIds
-    // function userIdsCheck(address userAddress)
-    //     external
-    //     view
-    //     override
-    //     returns (uint256[] memory)
-    // {
-    //     return longTermOrders.orderIdMap[userAddress];
-    // }
-
-    // ///@notice get user orderIds
-    // function orderIdStatusCheck(uint256 orderId) external view returns (bool) {
-    //     return longTermOrders.orderIdStatusMap[orderId];
-    // }
 
     ///@notice convenience function to execute virtual orders. Note that this already happens
     ///before most interactions with the AMM

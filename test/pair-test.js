@@ -30,48 +30,14 @@ describe("Pair", function () {
         
         pair = await Pair.deploy(tokenA.address, tokenB.address
         );
-        // await console.log(pair.factory.address)
-        // await pair.initialize(tokenA.address, tokenB.address);
-        // await console.log('after', pair.tokenA.address, tokenA.address)
-        // const rA = await tokenA.allowance(owner.address, pair.address);
-        // await console.log(pair)
         tokenA.approve(pair.address, initialLiquidityProvided);
         tokenB.approve(pair.address, initialLiquidityProvided);
-        // const rB = await tokenB.allowance(owner.address, pair.address);
-        // await console.log(rB);
-        // await console.log('check', )
         await pair.provideInitialLiquidity(
             owner.address,
             initialLiquidityProvided,
             initialLiquidityProvided
         );
-        // let totalSupply = await pair.totalSupply();
 
-        
-
-        // let tokenAReserve = await pair.tokenAReserves();
-        // let tokenBReserve = await pair.tokenBReserves();
-
-        // let initialTokenAPerLP = tokenAReserve / totalSupply;
-        // let initialTokenBPerLP = tokenBReserve / totalSupply;
-        // await console.log(initialTokenAPerLP, initialTokenBPerLP, ethers.utils.formatUnits(totalSupply, 18), 
-        // ethers.utils.formatUnits(tokenAReserve, 18),
-        // ethers.utils.formatUnits(tokenBReserve, 18))
-
-        // let newLPTokens = 10000;
-        // // await console.log('check input', newInput)
-        // await tokenA.approve(pair.address, newLPTokens);
-        // await tokenB.approve(pair.address, newLPTokens);
-        // await pair.provideLiquidity(owner.address, newLPTokens);
-
-        // totalSupply = await pair.totalSupply();
-
-        // tokenAReserve = await pair.tokenAReserves();
-        // tokenBReserve = await pair.tokenBReserves();
-
-        // const finalTokenAPerLP = tokenAReserve / totalSupply;
-        // const finalTokenBPerLP = tokenBReserve / totalSupply;
-        // await console.log(finalTokenAPerLP, finalTokenBPerLP, totalSupply, tokenAReserve, tokenBReserve, 'aa')
 
         console.log('sucessfully setup the pre-test env!!!');
     });
@@ -85,7 +51,6 @@ describe("Pair", function () {
                 const totalSupplyCheck = await pair.totalSupply();
                 expect(totalSupplyCheck).to.eq(initialLiquidityProvided);
                 expect(LPBalance).to.eq(initialLiquidityProvided);
-                // expect(totalSupplyCheck).to.eq(initialLiquidityProvidedAdjusted);
             });
 
             it("Can't provide initial liquidity twice", async function () {

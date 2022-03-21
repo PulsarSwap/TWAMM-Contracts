@@ -29,12 +29,9 @@ describe("TWAMM", function () {
         [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
     
         //factory deployment
-        await console.log("Deploying factory")
         const factoryContract = await ethers.getContractFactory("Factory");
         factory = await factoryContract.deploy();
         const allpairLength = await factory.allPairsLength();
-        await console.log("factory has been successfully deployed")
-        await console.log("factory length check", allpairLength)
 
 
         //create two tokens for pair creation, and WETH
@@ -45,45 +42,30 @@ describe("TWAMM", function () {
         const Weth = await ethers.getContractFactory("WETH10");
         WETH = await Weth.deploy();
         expect(await WETH.symbol()).to.equal("WETH10");
-        await console.log(await WETH.balanceOf(owner.address), await owner.getBalance())
-        // const aa = await owner.getBalance();
-        // WETH = await ERC20Factory.deploy("WETH", "WETH", ERC20Supply);
         await WETH.deposit({value: ethers.utils.parseUnits("10", 'ether')  })
         await WETH.connect(addr1).deposit({value: ethers.utils.parseUnits("10", 'ether')  })
-        // await WETH.connect(addr2).deposit({value: ethers.utils.parseUnits("1", 'ether')  })
-        await console.log(await WETH.balanceOf(owner.address), await owner.getBalance())
-        // const bb = await owner.getBalance()
-
-        // await console.log(await WETH.balanceOf(owner.address), aa.div(bb).toString())
-        await console.log("two tokens and WETH created", tokenA.address, tokenB.address, WETH.address)
  
         // TWAMM init
         const TWAMM = await ethers.getContractFactory("TWAMM", { gasLimit: "1000000000" })
         twamm = await TWAMM.deploy(factory.address, WETH.address)
-        await console.log("TWAMM is initialized")
 
         // create pair and initialize liquidity for the pair
         
         blockNumber = await ethers.provider.getBlockNumber()
         timeStamp = (await ethers.provider.getBlock(blockNumber)).timestamp
-        // await console.log('time stamp check', timeStamp)
         const allw = await tokenA.allowance(owner.address, twamm.address);
-        // console.log('bb', allw, owner.address)
         await twamm.createPair(tokenA.address, tokenB.address, timeStamp+50000)
         pair = await twamm.obtainPairAddress(tokenA.address, tokenB.address)
-        await tokenA.approve(pair, initialLiquidityProvided); //owner calls it
-        await tokenB.approve(pair, initialLiquidityProvided); 
-        // await console.log('pair pair add', tmpPairAdd)
+        await tokenA.approve(pair, initialLiquidityProvided); 
+        await tokenB.approve(pair, initialLiquidityProvided);
         await twamm.addInitialLiquidity(tokenA.address, tokenB.address, initialLiquidityProvided, initialLiquidityProvided, timeStamp+100000);
-        await console.log("initial liquidity provided", pair)
 
         await twamm.createPair(WETH.address, tokenB.address, timeStamp+50000)
         pairETH = await twamm.obtainPairAddress(WETH.address, tokenB.address)
-        await WETH.approve(pairETH, initialLiquidityProvided); //owner calls it
+        await WETH.approve(pairETH, initialLiquidityProvided); 
         await tokenB.approve(pairETH, initialLiquidityProvided);
-        // await console.log('pair pair add', tmpPairAdd)
         await twamm.addInitialLiquidityETH(tokenB.address, initialLiquidityProvided, initialLiquidityProvided, timeStamp+100000, {value: initialLiquidityProvided});
-        await console.log("initial ETH liquidity provided", pairETH)
+        await console.log('Setup Finished')
 
 
         
@@ -120,7 +102,7 @@ describe("TWAMM", function () {
                 const initialTokenAPerLP = tokenAReserve / totalSupply;
                 const initialTokenBPerLP = tokenBReserve / totalSupply;
                 const newLPTokens = 10000;
-                await tokenA.approve(pair, newLPTokens); //owner calls it
+                await tokenA.approve(pair, newLPTokens); 
                 await tokenB.approve(pair, newLPTokens); 
 
                 
@@ -150,7 +132,7 @@ describe("TWAMM", function () {
                 const initialTokenAPerLP = tokenAReserve / totalSupply;
                 const initialTokenBPerLP = tokenBReserve / totalSupply;
                 const newLPTokens = 10000;
-                await WETH.approve(pairETH, newLPTokens); //owner calls it
+                await WETH.approve(pairETH, newLPTokens);
                 await tokenB.approve(pairETH, newLPTokens); 
 
                 
@@ -264,7 +246,7 @@ describe("TWAMM", function () {
 
                 //adjust for LP fee of 0.3%
                 const expectedOutput = expectedOutBeforeFees.mul(1000 - 3).div(1000);
-                await tokenA.approve(pair, amountInA); //owner calls it
+                await tokenA.approve(pair, amountInA); 
                 const beforeBalanceB = await tokenB.balanceOf(owner.address);
                 await twamm.instantSwapTokenToToken(tokenA.address, tokenB.address, amountInA, timeStamp+100000);
                 const afterBalanceB = await tokenB.balanceOf(owner.address);
@@ -286,7 +268,7 @@ describe("TWAMM", function () {
 
                 //adjust for LP fee of 0.3%
                 const expectedOutput = expectedOutBeforeFees.mul(1000 - 3).div(1000);
-                await WETH.approve(pairETH, amountInA); //owner calls it
+                await WETH.approve(pairETH, amountInA); 
                 const beforeBalanceB = await tokenB.balanceOf(owner.address);
                 await twamm.instantSwapETHToToken(tokenB.address, amountInA, timeStamp+100000, {value:amountInA});
                 const afterBalanceB = await tokenB.balanceOf(owner.address);
@@ -309,7 +291,7 @@ describe("TWAMM", function () {
 
                 //adjust for LP fee of 0.3%
                 const expectedOutput = expectedOutBeforeFees.mul(1000 - 3).div(1000);
-                await tokenB.approve(pairETH, amountInB); //owner calls it
+                await tokenB.approve(pairETH, amountInB); 
                 const beforeBalanceA = await WETH.balanceOf(owner.address);
                 await twamm.instantSwapTokenToETH(tokenB.address, amountInB, timeStamp+100000);
                 const afterBalanceA = await WETH.balanceOf(owner.address);
@@ -331,7 +313,7 @@ describe("TWAMM", function () {
 
                 //adjust for LP fee of 0.3%
                 const expectedOutput = expectedOutBeforeFees.mul(1000 - 3).div(1000);
-                await tokenB.approve(pair, amountInB); //owner calls it
+                await tokenB.approve(pair, amountInB); 
                 const beforeBalanceA = await tokenA.balanceOf(owner.address);
                 await twamm.instantSwapTokenToToken(tokenB.address, tokenA.address, amountInB, timeStamp+100000);
                 const afterBalanceA = await tokenA.balanceOf(owner.address);

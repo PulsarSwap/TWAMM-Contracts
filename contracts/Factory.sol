@@ -28,11 +28,10 @@ contract Factory is IFactory {
         bytes memory bytecodeArg = abi.encodePacked(bytecode, abi.encode(tokenA, tokenB));
         bytes32 salt = keccak256(abi.encodePacked(tokenA, tokenB));
         assembly {
-            pair := create2(0, add(bytecodeArg,0x20), mload(bytecodeArg), salt)//create2(0, add(bytecode, 32), mload(bytecode), salt)
+            pair := create2(0, add(bytecodeArg,0x20), mload(bytecodeArg), salt)
         }
         require(pair != address(0), "Create2: Failed on deploy");
-        //IPair(pair).initialize(tokenA, tokenB);
-        // IPair(pair).initialize();
+
         getPair[tokenA][tokenB] = pair;
         getPair[tokenB][tokenA] = pair; // populate mapping in the reverse direction
         allPairs.push(pair);
