@@ -1,11 +1,10 @@
 require("@nomiclabs/hardhat-waffle");
-require('@nomiclabs/hardhat-ethers');
+require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-solhint");
 require("@nomiclabs/hardhat-etherscan");
 require("hardhat-gas-reporter");
-require('hardhat-deploy');
-require('dotenv').config();
-
+require("hardhat-deploy");
+require("dotenv").config();
 
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   const accounts = await hre.ethers.getSigners();
@@ -14,7 +13,6 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
     console.log(account.address);
   }
 });
-
 
 // task("accounts", "Prints the list of accounts", async () => {
 //     const accounts = await ethers.getSigners();
@@ -30,10 +28,10 @@ const PRIVATE_KEY_MAINNET = process.env.PRIVATE_KEY_MAINNET;
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
 
 if (!INFURA_API_KEY) {
-    console.log(
-        '\n !! IMPORTANT !!\n Must set INFURA_API_KEY in .env before running hardhat',
-    );
-    process.exit(0);
+  console.log(
+    "\n !! IMPORTANT !!\n Must set INFURA_API_KEY in .env before running hardhat"
+  );
+  process.exit(0);
 }
 
 const localArgs = {
@@ -54,14 +52,13 @@ const ropstenArgs = {
 const kovanArgs = {
   Factory: "",
   WETH: "0xd0A1E359811322d97991E03f863a0C30C2cF029C",
-
 };
 
 // const ropstenArgs = {
 //   Name: name,
 //   Symbol: symbol,
 //   WETH: "0xE22953C88933f9dF589c259a385C7FA4F5257151",
-//   USDT: "0x52709362Aaa0143e38d53c671B4C443ccd19B4D9", 
+//   USDT: "0x52709362Aaa0143e38d53c671B4C443ccd19B4D9",
 //   BlockInterval: blockInterval,
 // };
 
@@ -69,7 +66,7 @@ const kovanArgs = {
 //   Name: name,
 //   Symbol: symbol,
 //   WETH: "0x19642AcD1544bB95e0F7c916f065F8C811fd14B8",
-//   USDT: "0x7702d7eD5A5C53e6699cc2a135bD5318bD01777e", 
+//   USDT: "0x7702d7eD5A5C53e6699cc2a135bD5318bD01777e",
 //   BlockInterval: blockInterval,
 // };
 
@@ -79,14 +76,14 @@ const kovanArgs = {
 //     maxMethodDiff: 25,
 //     coinmarketcap: process.env.COINMARKETCAP_API_KEY,
 //   },
-  
+
 //   defaultNetwork: 'hardhat',
 
 //   networks: {
 
 //     hardhat: {
 //       // forking: {
-//       //   url: `https://ropsten.infura.io/v3/${INFURA_API_KEY}`, 
+//       //   url: `https://ropsten.infura.io/v3/${INFURA_API_KEY}`,
 //       //   // blockNumber: 12115900,
 //       //   blockNumber: 11478321,
 //       // },
@@ -125,7 +122,6 @@ const kovanArgs = {
 //       ...ropstenArgs,
 //     },
 
-    
 //     // mainnet: {
 //     //   url: `https://mainnet.infura.io/v3/${INFURA_API_KEY}`,
 //     //   accounts: [PRIVATE_KEY_MAINNET],
@@ -148,7 +144,7 @@ const kovanArgs = {
 //   etherscan: {
 //     apiKey: ETHERSCAN_API_KEY,
 //   },
-    
+
 //   solidity: {
 //     compilers: [
 //       {
@@ -188,19 +184,19 @@ const kovanArgs = {
 // };
 
 module.exports = {
-    gasReporter: {
-        enabled: process.env.REPORT_GAS ? true : false,
-        maxMethodDiff: 25,
-        coinmarketcap: process.env.COINMARKETCAP_API_KEY,
+  gasReporter: {
+    enabled: process.env.REPORT_GAS ? true : false,
+    maxMethodDiff: 25,
+    coinmarketcap: process.env.COINMARKETCAP_API_KEY,
+  },
+
+  defaultNetwork: "hardhat",
+
+  networks: {
+    localhost: {
+      url: "http://127.0.0.1:8545",
     },
-
-    defaultNetwork: 'hardhat',
-
-    networks: {
-        localhost: {
-            url: "http://127.0.0.1:8545",
-        },
-        /*
+    /*
             hardhat: {
               forking: {
                 url: `https://ropsten.infura.io/v3/${INFURA_API_KEY}`,
@@ -210,81 +206,81 @@ module.exports = {
               ...ropstenArgs,
             },
         */
-        hardhat: {
-            allowUnlimitedContractSize: true,
-            mining: {
-                auto: false,
-                interval: 5000,
-            },
-            ...localArgs,
+    hardhat: {
+      allowUnlimitedContractSize: true,
+      mining: {
+        auto: false,
+        interval: 5000,
+      },
+      ...localArgs,
+    },
+
+    mainnet: {
+      url: `https://mainnet.infura.io/v3/${INFURA_API_KEY}`,
+      accounts: [PRIVATE_KEY_MAINNET],
+      hardfork: "berlin",
+      ...mainnetArgs,
+    },
+
+    ropsten: {
+      url: `https://ropsten.infura.io/v3/${INFURA_API_KEY}`,
+      accounts: [PRIVATE_KEY_TEST],
+      hardfork: "berlin",
+      ...ropstenArgs,
+    },
+
+    kovan: {
+      url: `https://kovan.infura.io/v3/${INFURA_API_KEY}`,
+      accounts: [PRIVATE_KEY_TEST],
+      hardfork: "berlin",
+      ...kovanArgs,
+    },
+  },
+
+  etherscan: {
+    apiKey: ETHERSCAN_API_KEY,
+  },
+
+  solidity: {
+    compilers: [
+      {
+        version: "0.8.9",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
         },
-
-        mainnet: {
-            url: `https://mainnet.infura.io/v3/${INFURA_API_KEY}`,
-            accounts: [PRIVATE_KEY_MAINNET],
-            hardfork: "berlin",
-            ...mainnetArgs,
+      },
+      {
+        version: "0.4.19",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
         },
-
-        ropsten: {
-            url: `https://ropsten.infura.io/v3/${INFURA_API_KEY}`,
-            accounts: [PRIVATE_KEY_TEST],
-            hardfork: "berlin",
-            ...ropstenArgs,
+      },
+      {
+        version: "0.7.6",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
         },
+      },
+    ],
+  },
 
-        kovan: {
-            url: `https://kovan.infura.io/v3/${INFURA_API_KEY}`,
-            accounts: [PRIVATE_KEY_TEST],
-            hardfork: "berlin",
-            ...kovanArgs,
-        },
-    },
+  paths: {
+    sources: "./contracts",
+    tests: "./test",
+    cache: "./cache",
+    artifacts: "./artifacts",
+  },
 
-    etherscan: {
-        apiKey: ETHERSCAN_API_KEY,
-    },
-
-    solidity: {
-        compilers: [
-            {
-                version: "0.8.9",
-                settings: {
-                    optimizer: {
-                        enabled: true,
-                        runs: 200
-                    },
-                },
-            },
-            {
-                version: "0.4.19",
-                settings: {
-                    optimizer: {
-                        enabled: true,
-                        runs: 200
-                    },
-                },
-            },
-            {
-                version: "0.7.6",
-                settings: {
-                    optimizer: {
-                        enabled: true,
-                        runs: 200
-                    },
-                },
-            },
-        ]
-    },
-
-    paths: {
-        sources: "./contracts",
-        tests: "./test",
-        cache: "./cache",
-        artifacts: "./artifacts"
-    },
-
-    mocha: {
-        timeout: 20000,
-    },
+  mocha: {
+    timeout: 20000,
+  },
 };

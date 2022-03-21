@@ -6,7 +6,7 @@
 
 **Time-Weighted Average Market Maker ([TWAMM](https://www.paradigm.xyz/2021/07/twamm/))** is a new on-chain market making model, designed by [@\_Dave\_\_White\_](https://twitter.com/_Dave__White_), [@danrobinson](https://twitter.com/danrobinson) and [@haydenzadams](https://twitter.com/haydenzadams). TWAMM allows market participants to efficiently execute large orders over multiple blocks on Ethereum.
 
-**Pulsar TWAMM** is the first implementation of TWAMM. The math involved in TWAMM can be found in this article: <https://hackmd.io/6buFzQikSGegwrqNNelMYg?both#Mathematical-Principle-Of-TWAMM>
+**Pulsar TWAMM** is the first implementation of TWAMM. The math involved in TWAMM can be found in this article: <https://hackmd.io/@luffy/SJxSsOH1Y>
 
 ## Implementation Notes
 
