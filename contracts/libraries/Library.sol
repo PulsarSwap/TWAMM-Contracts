@@ -9,7 +9,6 @@ import "../Pair.sol";
 library Library {
     using SafeMath for uint256;
 
-
     // returns sorted token addresses, used to handle return values from pairs sorted in this order
     function sortTokens(address token0, address token1)
         internal
@@ -31,7 +30,10 @@ library Library {
     ) internal pure returns (address pair) {
         (address tokenA, address tokenB) = sortTokens(token0, token1);
         bytes memory bytecode = type(Pair).creationCode;
-        bytes memory bytecodeArg = abi.encodePacked(bytecode, abi.encode(tokenA, tokenB));
+        bytes memory bytecodeArg = abi.encodePacked(
+            bytecode,
+            abi.encode(tokenA, tokenB)
+        );
         pair = address(
             uint160(
                 uint256(

@@ -13,7 +13,6 @@ import "hardhat/console.sol";
 
 contract TWAMM is ITWAMM {
     using Library for address;
-    
 
     address public immutable override factory;
     address public immutable override WETH;
@@ -22,7 +21,6 @@ contract TWAMM is ITWAMM {
         require(deadline >= block.timestamp, "TWAMM: Expired");
         _;
     }
-
 
     //     emit InitialLiquidityProvided(msg.sender, amountA, amountB);
     constructor(address _factory, address _WETH) {
@@ -34,24 +32,27 @@ contract TWAMM is ITWAMM {
         assert(msg.sender == WETH); // only accept ETH via fallback from the WETH contract
     }
 
-    function obtainPairAddress(
-        address token0,
-        address token1
-    ) external view returns (address) {
+    function obtainPairAddress(address token0, address token1)
+        external
+        view
+        returns (address)
+    {
         // address pair = Library.pairFor(factory, tokenA, tokenB);
         return IFactory(factory).getPair(token0, token1);
     }
-
 
     function createPair(
         address token0,
         address token1,
         uint256 deadline
     ) external virtual override ensure(deadline) {
-        require(IFactory(factory).getPair(token0, token1) == address(0), "Pair Existing Already!");
+        require(
+            IFactory(factory).getPair(token0, token1) == address(0),
+            "Pair Existing Already!"
+        );
         IFactory(factory).createPair(token0, token1);
     }
-    
+
     function addInitialLiquidity(
         address token0,
         address token1,
@@ -60,8 +61,11 @@ contract TWAMM is ITWAMM {
         uint256 deadline
     ) external virtual override ensure(deadline) {
         //create the pair if it doesn't exist yet
-        
-        require(IFactory(factory).getPair(token0, token1) != address(0), "No Existing Pair Found, Create Pair First!");
+
+        require(
+            IFactory(factory).getPair(token0, token1) != address(0),
+            "No Existing Pair Found, Create Pair First!"
+        );
         // if (IFactory(factory).getPair(token0, token1) == address(0)) {
         //     IFactory(factory).createPair(token0, token1);
         // }
@@ -75,22 +79,16 @@ contract TWAMM is ITWAMM {
         IPair(pair).provideInitialLiquidity(msg.sender, amountA, amountB);
     }
 
-    function reserveA(
-        address pair
-    ) external view returns (uint256) {
+    function reserveA(address pair) external view returns (uint256) {
         // address pair = Library.pairFor(factory, tokenA, tokenB);
         return IPair(pair).tokenAReserves();
     }
 
-    function reserveB(
-        address pair
-    ) external view returns (uint256) {
+    function reserveB(address pair) external view returns (uint256) {
         return IPair(pair).tokenBReserves();
     }
 
-    function totalSupply(
-        address pair
-    ) external view returns (uint256) {
+    function totalSupply(address pair) external view returns (uint256) {
         return IPair(pair).getTotalSupply();
     }
 
@@ -103,7 +101,10 @@ contract TWAMM is ITWAMM {
         // if (IFactory(factory).getPair(token, WETH) == address(0)) {
         //     IFactory(factory).createPair(token, WETH);
         // }
-        require(IFactory(factory).getPair(token, WETH) != address(0), "No Existing Pair Found, Create Pair First!");
+        require(
+            IFactory(factory).getPair(token, WETH) != address(0),
+            "No Existing Pair Found, Create Pair First!"
+        );
         address pair = Library.pairFor(factory, token, WETH);
         (address tokenA, ) = Library.sortTokens(token, WETH);
         (uint256 amountA, uint256 amountB) = tokenA == token
@@ -203,7 +204,7 @@ contract TWAMM is ITWAMM {
         );
         uint256 amountETHOut = (reserveETH * amountTokenIn) /
             (reserveToken + amountTokenIn);
-        //charge LP fee
+        //calculate LP fee
         uint256 amountETHOutMinusFee = (amountETHOut * 997) / 1000;
         IWETH10(WETH).withdraw(amountETHOutMinusFee);
     }
@@ -281,12 +282,13 @@ contract TWAMM is ITWAMM {
         uint256 numberOfBlockIntervals,
         uint256 deadline
     ) external payable virtual override ensure(deadline) {
-
-        require(IFactory(factory).getPair(token, WETH) != address(0), 'Liquidity Not Provided. Provide It First.');
+        require(
+            IFactory(factory).getPair(token, WETH) != address(0),
+            "Liquidity Not Provided. Provide It First."
+        );
         address pair = Library.pairFor(factory, token, WETH);
         (address tokenA, ) = Library.sortTokens(WETH, token);
         IWETH10(WETH).deposit{value: msg.value}();
-
 
         if (tokenA == WETH) {
             IPair(pair).longTermSwapFromAToB(
@@ -313,7 +315,7 @@ contract TWAMM is ITWAMM {
         uint256 deadline
     ) external virtual override ensure(deadline) {
         address pair = Library.pairFor(factory, token0, token1);
-        
+
         IPair(pair).cancelLongTermSwap(msg.sender, orderId);
     }
 
@@ -328,7 +330,7 @@ contract TWAMM is ITWAMM {
 
         uint256 balanceAfterWETH = IWETH10(WETH).balanceOf(msg.sender);
         uint256 amountETHWithdraw = balanceAfterWETH - balanceBeforeWETH;
-        IWETH10(WETH).withdraw(amountETHWithdraw);       
+        IWETH10(WETH).withdraw(amountETHWithdraw);
     }
 
     function cancelTermSwapETHToToken(
@@ -377,15 +379,17 @@ contract TWAMM is ITWAMM {
         // uint256 balanceBeforeWETH = IWETH10(WETH).balanceOf(msg.sender);
         address pair = Library.pairFor(factory, WETH, token);
         IPair(pair).withdrawProceedsFromLongTermSwap(msg.sender, orderId);
-        
+
         // uint256 balanceAfterWETH = IWETH10(WETH).balanceOf(msg.sender);
         // uint256 amountETHWithdraw = balanceAfterWETH - balanceBeforeWETH;
         // IWETH10(WETH).withdraw(amountETHWithdraw);
     }
 
-    function executeVirtualOrdersWrapper(
-        address pair
-    ) external virtual override {
+    function executeVirtualOrdersWrapper(address pair)
+        external
+        virtual
+        override
+    {
         IPair(pair).executeVirtualOrders();
     }
 }

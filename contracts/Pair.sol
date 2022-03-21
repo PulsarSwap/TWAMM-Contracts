@@ -52,6 +52,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         _;
         unlocked = 1; // unlock
     }
+
     // address _tokenA, address _tokenB
     constructor(address _tokenA, address _tokenB) ERC20("Pulsar-LP", "PUL-LP") {
         factory = msg.sender;
@@ -131,18 +132,15 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
             "Liquidity Has Already Been Provided, Need To Call provideLiquidity"
         );
 
-
-
         reserveMap[tokenA] = amountA;
         reserveMap[tokenB] = amountB;
 
-        
         //initial LP amount is the geometric mean of supplied tokens
         uint256 lpAmount = amountA
             .fromUint()
             .sqrt()
             .mul(amountB.fromUint().sqrt())
-            .toUint();// - MINIMUM_LIQUIDITY;
+            .toUint(); // - MINIMUM_LIQUIDITY;
         // _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens // TODO: uncomment
         _mint(to, lpAmount);
         IERC20(tokenA).transferFrom(to, address(this), amountA);
@@ -277,9 +275,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         emit InstantSwapBToA(sender, amountBIn, amountAOut);
     }
 
-    
-    
-
     ///@notice create a long term order to swap from tokenB
     ///@param amountBIn total amount of tokenB to swap
     ///@param numberOfBlockIntervals number of block intervals over which to execute long term order
@@ -308,8 +303,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         nonReentrant
     {
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
-
-        
 
         longTermOrders.cancelLongTermSwap(sender, orderId, reserveMap);
 
@@ -359,26 +352,26 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         IERC20(to).transfer(sender, amountOutMinusFee);
     }
 
-
     ///@notice get user order details
-    function getOrderDetails(
-        uint256 orderId
-    ) external view returns (LongTermOrdersLib.Order memory) {
+    function getOrderDetails(uint256 orderId)
+        external
+        view
+        returns (LongTermOrdersLib.Order memory)
+    {
         return longTermOrders.orderMap[orderId];
     }
 
     ///@notice get user orderIds
-    function userIdsCheck(
-        address userAddress
-    ) external view returns (uint256[] memory) {
+    function userIdsCheck(address userAddress)
+        external
+        view
+        returns (uint256[] memory)
+    {
         return longTermOrders.orderIdMap[userAddress];
     }
 
-
     ///@notice get user order Id status
-    function orderIdStatusCheck(
-        uint256 orderId
-    ) external view returns (bool) {
+    function orderIdStatusCheck(uint256 orderId) external view returns (bool) {
         return longTermOrders.orderIdStatusMap[orderId];
     }
 

@@ -25,10 +25,13 @@ contract Factory is IFactory {
         require(tokenA != address(0), "Factory: Zero_Address");
         require(getPair[tokenA][tokenB] == address(0), "Factory: Pair_Exists"); // single check is sufficient
         bytes memory bytecode = type(Pair).creationCode;
-        bytes memory bytecodeArg = abi.encodePacked(bytecode, abi.encode(tokenA, tokenB));
+        bytes memory bytecodeArg = abi.encodePacked(
+            bytecode,
+            abi.encode(tokenA, tokenB)
+        );
         bytes32 salt = keccak256(abi.encodePacked(tokenA, tokenB));
         assembly {
-            pair := create2(0, add(bytecodeArg,0x20), mload(bytecodeArg), salt)//create2(0, add(bytecode, 32), mload(bytecode), salt)
+            pair := create2(0, add(bytecodeArg, 0x20), mload(bytecodeArg), salt) //create2(0, add(bytecode, 32), mload(bytecode), salt)
         }
         require(pair != address(0), "Create2: Failed on deploy");
         //IPair(pair).initialize(tokenA, tokenB);

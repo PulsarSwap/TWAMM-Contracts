@@ -40,13 +40,10 @@ library LongTermOrdersLib {
         uint256 orderId;
         ///@notice mapping from order ids to Orders
         mapping(uint256 => Order) orderMap;
-
         ///@notice mapping from account address to its corresponding list of order ids
         mapping(address => uint256[]) orderIdMap;
-
         ///@notice mapping from order id to its status (false for nonactive true for active)
         mapping(uint256 => bool) orderIdStatusMap;
-
     }
 
     ///@notice initialize state
@@ -131,7 +128,7 @@ library LongTermOrdersLib {
         //add order to correct pool
         OrderPoolLib.OrderPool storage OrderPool = self.OrderPoolMap[from];
         OrderPool.depositOrder(self.orderId, sellingRate, orderExpiry);
-        
+
         //add to order map
         self.orderMap[self.orderId] = Order(
             self.orderId,
@@ -142,14 +139,13 @@ library LongTermOrdersLib {
             to
         );
 
-        // add user's corresponding orderId to orderId mapping list content 
+        // add user's corresponding orderId to orderId mapping list content
         self.orderIdMap[sender].push(self.orderId);
 
         self.orderIdStatusMap[self.orderId] = true;
 
         return self.orderId++;
     }
-    
 
     ///@notice cancel long term swap, pay out unsold tokens and well as purchased tokens
     function cancelLongTermSwap(
@@ -187,7 +183,7 @@ library LongTermOrdersLib {
         // console.log(IERC20(order.buyTokenId).balanceOf(msg.sender));
         // delete orderId from account list
         // removeOrderId(self, orderId, msg.sender);
-        self.orderIdStatusMap[orderId] = false; 
+        self.orderIdStatusMap[orderId] = false;
     }
 
     ///@notice withdraw proceeds from a long term swap (can be expired or ongoing)
@@ -208,10 +204,8 @@ library LongTermOrdersLib {
         ];
         uint256 proceeds = OrderPool.withdrawProceeds(orderId);
 
-
         //charge LP fee
         uint256 proceedsMinusFee = (proceeds * (10000 - LP_FEE)) / 10000;
-
 
         require(proceedsMinusFee > 0, "No Proceeds To Withdraw");
         //transfer to owner
