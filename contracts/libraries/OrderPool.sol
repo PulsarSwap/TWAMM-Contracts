@@ -72,7 +72,7 @@ library OrderPoolLib {
         returns (uint256 unsoldAmount, uint256 purchasedAmount)
     {
         uint256 expiry = self.orderExpiry[orderId];
-        require(expiry > block.number, "order already finished");
+        require(expiry > block.number, "Order Already Finished");
 
         //calculate amount that wasn't sold, and needs to be returned
         uint256 salesRate = self.salesRate[orderId];
@@ -102,7 +102,7 @@ library OrderPoolLib {
         returns (uint256 totalReward)
     {
         uint256 stakedAmount = self.salesRate[orderId];
-        require(stakedAmount > 0, "sales rate amount must be positive");
+        require(stakedAmount > 0, "Sales Rate Amount Must Be Positive");
         uint256 orderExpiry = self.orderExpiry[orderId];
         uint256 rewardFactorAtSubmission = self.rewardFactorAtSubmission[
             orderId
