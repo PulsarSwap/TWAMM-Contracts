@@ -46,7 +46,6 @@ describe("Pair", function () {
         const totalSupplyCheck = await pair.totalSupply();
         expect(totalSupplyCheck).to.eq(initialLiquidityProvided);
         expect(LPBalance).to.eq(initialLiquidityProvided);
-        // expect(totalSupplyCheck).to.eq(initialLiquidityProvidedAdjusted);
       });
 
       it("Can't provide initial liquidity twice", async function () {

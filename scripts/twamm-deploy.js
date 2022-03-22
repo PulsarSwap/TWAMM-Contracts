@@ -1,7 +1,5 @@
 const hre = require("hardhat");
 const ethers = hre.ethers;
-// const initialLiquidityProvided = ethers.utils.parseUnits("50");
-const ERC20Supply = ethers.utils.parseUnits("100");
 
 async function main() {
   if (hre.network.name === "mainnet") {
@@ -35,9 +33,6 @@ async function main() {
   await twamm.deployed();
 
   console.log("TWAMM address:", twamm.address);
-
-  // await twamm.provideInitialLiquidity(initialLiquidityProvided,initialLiquidityProvided);
-  // console.log('initial liquidity added');
 }
 
 main()
