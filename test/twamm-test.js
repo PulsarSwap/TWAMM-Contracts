@@ -31,7 +31,6 @@ describe("TWAMM", function () {
     const factoryContract = await ethers.getContractFactory("Factory");
     factory = await factoryContract.deploy();
     const allpairLength = await factory.allPairsLength();
-  
 
     //create two tokens for pair creation, and WETH
     const ERC20Factory = await ethers.getContractFactory("ERC20Mock");
@@ -51,7 +50,6 @@ describe("TWAMM", function () {
       gasLimit: "1000000000",
     });
     twamm = await TWAMM.deploy(factory.address, WETH.address);
-
 
     // create pair and initialize liquidity for the pair
     blockNumber = await ethers.provider.getBlockNumber();
@@ -526,7 +524,7 @@ describe("TWAMM", function () {
       });
 
       it("(ETH) Orders in both pools work as expected (ETH)", async function () {
-        const amountIn = 10000; 
+        const amountIn = 10000;
         await tokenB.approve(addr2.address, amountIn);
         await tokenB.transfer(addr2.address, amountIn);
 

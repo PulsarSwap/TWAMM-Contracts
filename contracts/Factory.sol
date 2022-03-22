@@ -31,7 +31,7 @@ contract Factory is IFactory {
         );
         bytes32 salt = keccak256(abi.encodePacked(tokenA, tokenB));
         assembly {
-            pair := create2(0, add(bytecodeArg, 0x20), mload(bytecodeArg), salt) 
+            pair := create2(0, add(bytecodeArg, 0x20), mload(bytecodeArg), salt)
         }
         require(pair != address(0), "Create2: Failed on deploy");
         getPair[tokenA][tokenB] = pair;

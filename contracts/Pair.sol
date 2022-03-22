@@ -64,7 +64,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         );
     }
 
-
     ///@notice get tokenA reserves
     function tokenAReserves() public view returns (uint256) {
         return reserveMap[tokenA];
