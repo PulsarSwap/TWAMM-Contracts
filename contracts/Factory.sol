@@ -33,7 +33,7 @@ contract Factory is IFactory {
         assembly {
             pair := create2(0, add(bytecodeArg, 0x20), mload(bytecodeArg), salt)
         }
-        require(pair != address(0), "Create2: Failed on deploy");
+        require(pair != address(0), "Create2: Failed On Deploy");
         getPair[tokenA][tokenB] = pair;
         getPair[tokenB][tokenA] = pair; // populate mapping in the reverse direction
         allPairs.push(pair);

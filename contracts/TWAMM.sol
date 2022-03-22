@@ -30,6 +30,18 @@ contract TWAMM is ITWAMM {
         assert(msg.sender == WETH); // only accept ETH via fallback from the WETH contract
     }
 
+    function reserveA(address pair) external view returns (uint256) {
+        return IPair(pair).tokenAReserves();
+    }
+
+    function reserveB(address pair) external view returns (uint256) {
+        return IPair(pair).tokenBReserves();
+    }
+
+    function totalSupply(address pair) external view returns (uint256) {
+        return IPair(pair).getTotalSupply();
+    }
+
     function obtainPairAddress(address token0, address token1)
         external
         view
@@ -69,18 +81,6 @@ contract TWAMM is ITWAMM {
             : (amount1, amount0);
 
         IPair(pair).provideInitialLiquidity(msg.sender, amountA, amountB);
-    }
-
-    function reserveA(address pair) external view returns (uint256) {
-        return IPair(pair).tokenAReserves();
-    }
-
-    function reserveB(address pair) external view returns (uint256) {
-        return IPair(pair).tokenBReserves();
-    }
-
-    function totalSupply(address pair) external view returns (uint256) {
-        return IPair(pair).getTotalSupply();
     }
 
     function addInitialLiquidityETH(

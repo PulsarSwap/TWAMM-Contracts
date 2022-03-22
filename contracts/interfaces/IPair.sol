@@ -21,15 +21,11 @@ interface IPair {
 
     function reserveMap(address) external view returns (uint256);
 
-    // function initialize(address, address) external;
-
     function tokenAReserves() external view returns (uint256);
 
     function tokenBReserves() external view returns (uint256);
 
     function getTotalSupply() external view returns (uint256);
-
-    function executeVirtualOrders() external;
 
     event UpdatePrice(uint256 reserveA, uint256 reserveB);
     event InitialLiquidityProvided(
@@ -102,4 +98,6 @@ interface IPair {
         returns (uint256[] memory);
 
     function orderIdStatusCheck(uint256 orderId) external view returns (bool);
+
+    function executeVirtualOrders() external;
 }

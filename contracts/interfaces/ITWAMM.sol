@@ -7,13 +7,11 @@ interface ITWAMM {
 
     function WETH() external view returns (address);
 
-    function addInitialLiquidity(
-        address token0,
-        address token1,
-        uint256 amount0,
-        uint256 amount1,
-        uint256 deadline
-    ) external;
+    function reserveA(address pair) external returns (uint256);
+
+    function reserveB(address pair) external returns (uint256);
+
+    function totalSupply(address pair) external returns (uint256);
 
     function obtainPairAddress(address token0, address token1)
         external
@@ -25,19 +23,13 @@ interface ITWAMM {
         uint256 deadline
     ) external;
 
-    function reserveA(address pair) external returns (uint256);
-
-    function reserveB(address pair) external returns (uint256);
-
-    function totalSupply(address pair) external returns (uint256);
-
-    // function getPair(
-    //     address token0,
-    //     address token1,
-    //     uint256 deadline
-    // ) external returns (address);
-
-    function executeVirtualOrdersWrapper(address pair) external;
+    function addInitialLiquidity(
+        address token0,
+        address token1,
+        uint256 amount0,
+        uint256 amount1,
+        uint256 deadline
+    ) external;
 
     function addInitialLiquidityETH(
         address token,
@@ -150,4 +142,6 @@ interface ITWAMM {
         uint256 orderId,
         uint256 deadline
     ) external;
+
+    function executeVirtualOrdersWrapper(address pair) external;
 }

@@ -69,14 +69,14 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         return reserveMap[tokenA];
     }
 
-    ///@notice get LP total supply
-    function getTotalSupply() public view returns (uint256) {
-        return totalSupply();
-    }
-
     ///@notice get tokenB reserves
     function tokenBReserves() public view returns (uint256) {
         return reserveMap[tokenB];
+    }
+
+    ///@notice get LP total supply
+    function getTotalSupply() public view returns (uint256) {
+        return totalSupply();
     }
 
     // update price accumulators, on the first call per block
@@ -108,7 +108,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     ) external override lock nonReentrant {
         require(
             totalSupply() == 0,
-            "Liquidity Has Already Been Provided, Need To Call provideLiquidity"
+            "Liquidity Has Already Been Provided, Need To Call provideLiquidity()"
         );
 
         reserveMap[tokenA] = amountA;
@@ -128,7 +128,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         emit InitialLiquidityProvided(to, amountA, amountB);
     }
 
-    ///@notice provide liquidity to the AMM1
+    ///@notice provide liquidity to the AMM
     ///@param lpTokenAmount number of lp tokens to mint with new liquidity
     function provideLiquidity(address to, uint256 lpTokenAmount)
         external
@@ -138,7 +138,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     {
         require(
             totalSupply() != 0,
-            "No Liquidity Has Been Provided Yet, Need To Call provideInitialLiquidity"
+            "No Liquidity Has Been Provided Yet, Need To Call provideInitialLiquidity()"
         );
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
 
