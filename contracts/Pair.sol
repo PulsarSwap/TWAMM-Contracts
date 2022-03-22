@@ -9,7 +9,6 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@rari-capital/solmate/src/utils/ReentrancyGuard.sol";
 import "prb-math/contracts/PRBMathUD60x18.sol";
 import "./libraries/UQ112x112.sol";
-import "hardhat/console.sol";
 
 contract Pair is IPair, ERC20, ReentrancyGuard {
     using LongTermOrdersLib for LongTermOrdersLib.LongTermOrders;
@@ -53,15 +52,8 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         unlocked = 1; // unlock
     }
 
-    // address _tokenA, address _tokenB
     constructor(address _tokenA, address _tokenB) ERC20("Pulsar-LP", "PUL-LP") {
         factory = msg.sender;
-        // longTermOrders.initialize(
-        //     tokenA,
-        //     tokenB,
-        //     block.number,
-        //     orderBlockInterval
-        // );
         tokenA = _tokenA;
         tokenB = _tokenB;
         longTermOrders.initialize(
@@ -72,17 +64,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         );
     }
 
-    // // called once by the factory at time of deployment
-    //  function initialize(address _tokenA, address _tokenB)
-    //     external
-    //     // override
-    //     lock
-    //     nonReentrant
-    // {
-    //     require(msg.sender == factory, "Pair: Forbidden"); // sufficient check
-    //     // tokenA = _tokenA;
-    //     // tokenB = _tokenB;
-    // }
 
     ///@notice get tokenA reserves
     function tokenAReserves() public view returns (uint256) {
@@ -126,7 +107,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         uint256 amountA,
         uint256 amountB
     ) external override lock nonReentrant {
-        // console.log('in provide init lp');
         require(
             totalSupply() == 0,
             "Liquidity Has Already Been Provided, Need To Call provideLiquidity"
@@ -374,21 +354,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     function orderIdStatusCheck(uint256 orderId) external view returns (bool) {
         return longTermOrders.orderIdStatusMap[orderId];
     }
-
-    // ///@notice get user orderIds
-    // function userIdsCheck(address userAddress)
-    //     external
-    //     view
-    //     override
-    //     returns (uint256[] memory)
-    // {
-    //     return longTermOrders.orderIdMap[userAddress];
-    // }
-
-    // ///@notice get user orderIds
-    // function orderIdStatusCheck(uint256 orderId) external view returns (bool) {
-    //     return longTermOrders.orderIdStatusMap[orderId];
-    // }
 
     ///@notice convenience function to execute virtual orders. Note that this already happens
     ///before most interactions with the AMM

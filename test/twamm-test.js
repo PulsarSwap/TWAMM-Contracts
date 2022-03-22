@@ -28,12 +28,10 @@ describe("TWAMM", function () {
     [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
 
     //factory deployment
-    await console.log("Deploying factory");
     const factoryContract = await ethers.getContractFactory("Factory");
     factory = await factoryContract.deploy();
     const allpairLength = await factory.allPairsLength();
-    await console.log("factory has been successfully deployed");
-    await console.log("factory length check", allpairLength);
+  
 
     //create two tokens for pair creation, and WETH
     const ERC20Factory = await ethers.getContractFactory("ERC20Mock");
@@ -43,45 +41,21 @@ describe("TWAMM", function () {
     const Weth = await ethers.getContractFactory("WETH10");
     WETH = await Weth.deploy();
     expect(await WETH.symbol()).to.equal("WETH10");
-    await console.log(
-      await WETH.balanceOf(owner.address),
-      await owner.getBalance()
-    );
-    // const aa = await owner.getBalance();
-    // WETH = await ERC20Factory.deploy("WETH", "WETH", ERC20Supply);
     await WETH.deposit({ value: ethers.utils.parseUnits("10", "ether") });
     await WETH.connect(addr1).deposit({
       value: ethers.utils.parseUnits("10", "ether"),
     });
-    // await WETH.connect(addr2).deposit({value: ethers.utils.parseUnits("1", 'ether')  })
-    await console.log(
-      await WETH.balanceOf(owner.address),
-      await owner.getBalance()
-    );
-    // const bb = await owner.getBalance()
-
-    // await console.log(await WETH.balanceOf(owner.address), aa.div(bb).toString())
-    await console.log(
-      "two tokens and WETH created",
-      tokenA.address,
-      tokenB.address,
-      WETH.address
-    );
 
     // TWAMM init
     const TWAMM = await ethers.getContractFactory("TWAMM", {
       gasLimit: "1000000000",
     });
     twamm = await TWAMM.deploy(factory.address, WETH.address);
-    await console.log("TWAMM is initialized");
+
 
     // create pair and initialize liquidity for the pair
-
     blockNumber = await ethers.provider.getBlockNumber();
     timeStamp = (await ethers.provider.getBlock(blockNumber)).timestamp;
-    // await console.log('time stamp check', timeStamp)
-    const allw = await tokenA.allowance(owner.address, twamm.address);
-    // console.log('bb', allw, owner.address)
     await twamm.createPair(tokenA.address, tokenB.address, timeStamp + 50000);
     pair = await twamm.obtainPairAddress(tokenA.address, tokenB.address);
     await tokenA.approve(pair, initialLiquidityProvided); //owner calls it
@@ -94,13 +68,11 @@ describe("TWAMM", function () {
       initialLiquidityProvided,
       timeStamp + 100000
     );
-    await console.log("initial liquidity provided", pair);
 
     await twamm.createPair(WETH.address, tokenB.address, timeStamp + 50000);
     pairETH = await twamm.obtainPairAddress(WETH.address, tokenB.address);
-    await WETH.approve(pairETH, initialLiquidityProvided); //owner calls it
+    await WETH.approve(pairETH, initialLiquidityProvided);
     await tokenB.approve(pairETH, initialLiquidityProvided);
-    // await console.log('pair pair add', tmpPairAdd)
     await twamm.addInitialLiquidityETH(
       tokenB.address,
       initialLiquidityProvided,
@@ -108,7 +80,7 @@ describe("TWAMM", function () {
       timeStamp + 100000,
       { value: initialLiquidityProvided }
     );
-    await console.log("initial ETH liquidity provided", pairETH);
+    await console.log("Initial Setup Finished");
   });
 
   describe("Basic AMM", function () {
@@ -489,7 +461,7 @@ describe("TWAMM", function () {
       });
 
       it("Orders in both pools work as expected", async function () {
-        const amountIn = 10000; //ethers.BigNumber.from(10000);
+        const amountIn = 10000;
 
         await tokenA.approve(addr1.address, amountIn);
         await tokenB.approve(addr2.address, amountIn);
@@ -554,7 +526,7 @@ describe("TWAMM", function () {
       });
 
       it("(ETH) Orders in both pools work as expected (ETH)", async function () {
-        const amountIn = 10000; //ethers.BigNumber.from(10000);
+        const amountIn = 10000; 
         await tokenB.approve(addr2.address, amountIn);
         await tokenB.transfer(addr2.address, amountIn);
 
@@ -584,8 +556,6 @@ describe("TWAMM", function () {
         //move blocks forward, and execute virtual orders
         await mineBlocks(3 * blockInterval);
         await twamm.executeVirtualOrdersWrapper(pairETH);
-
-        // await twamm.userIdsCheck(addr2)
 
         //withdraw proceeds
         await twamm

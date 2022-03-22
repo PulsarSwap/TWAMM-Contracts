@@ -9,7 +9,6 @@ import "./libraries/Library.sol";
 import "./libraries/TransferHelper.sol";
 import "./interfaces/IWETH10.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "hardhat/console.sol";
 
 contract TWAMM is ITWAMM {
     using Library for address;
@@ -22,7 +21,6 @@ contract TWAMM is ITWAMM {
         _;
     }
 
-    //     emit InitialLiquidityProvided(msg.sender, amountA, amountB);
     constructor(address _factory, address _WETH) {
         factory = _factory;
         WETH = _WETH;
@@ -37,7 +35,6 @@ contract TWAMM is ITWAMM {
         view
         returns (address)
     {
-        // address pair = Library.pairFor(factory, tokenA, tokenB);
         return IFactory(factory).getPair(token0, token1);
     }
 
@@ -60,27 +57,22 @@ contract TWAMM is ITWAMM {
         uint256 amount1,
         uint256 deadline
     ) external virtual override ensure(deadline) {
-        //create the pair if it doesn't exist yet
 
         require(
             IFactory(factory).getPair(token0, token1) != address(0),
             "No Existing Pair Found, Create Pair First!"
         );
-        // if (IFactory(factory).getPair(token0, token1) == address(0)) {
-        //     IFactory(factory).createPair(token0, token1);
-        // }
-        // console.log("till here", IFactory(factory).getPair(token0, token1), IFactory(factory).allPairsLength());
-        address pair = Library.pairFor(factory, token0, token1); //factory.pairFor(token0, token1);//
+ 
+        address pair = Library.pairFor(factory, token0, token1); 
         (address tokenA, ) = Library.sortTokens(token0, token1);
         (uint256 amountA, uint256 amountB) = tokenA == token0
             ? (amount0, amount1)
             : (amount1, amount0);
-        // console.log('check in init lp', pair);
+        
         IPair(pair).provideInitialLiquidity(msg.sender, amountA, amountB);
     }
 
     function reserveA(address pair) external view returns (uint256) {
-        // address pair = Library.pairFor(factory, tokenA, tokenB);
         return IPair(pair).tokenAReserves();
     }
 
@@ -98,9 +90,6 @@ contract TWAMM is ITWAMM {
         uint256 amountETH,
         uint256 deadline
     ) external payable virtual override ensure(deadline) {
-        // if (IFactory(factory).getPair(token, WETH) == address(0)) {
-        //     IFactory(factory).createPair(token, WETH);
-        // }
         require(
             IFactory(factory).getPair(token, WETH) != address(0),
             "No Existing Pair Found, Create Pair First!"
@@ -376,13 +365,8 @@ contract TWAMM is ITWAMM {
         uint256 orderId,
         uint256 deadline
     ) external virtual override ensure(deadline) {
-        // uint256 balanceBeforeWETH = IWETH10(WETH).balanceOf(msg.sender);
         address pair = Library.pairFor(factory, WETH, token);
         IPair(pair).withdrawProceedsFromLongTermSwap(msg.sender, orderId);
-
-        // uint256 balanceAfterWETH = IWETH10(WETH).balanceOf(msg.sender);
-        // uint256 amountETHWithdraw = balanceAfterWETH - balanceBeforeWETH;
-        // IWETH10(WETH).withdraw(amountETHWithdraw);
     }
 
     function executeVirtualOrdersWrapper(address pair)
