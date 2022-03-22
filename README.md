@@ -34,10 +34,10 @@ This implementation uses the [PRBMath Library](https://github.com/hifi-finance/p
 # Install dependencies
 npm install
 
-# compile contracts with hardhat
+# Compile contracts with hardhat
 npx hardhat compile
 
-# test contracts with hardhat
+# Test contracts with hardhat
 npx hardhat test
 ```
 
