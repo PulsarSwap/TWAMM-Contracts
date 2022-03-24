@@ -53,7 +53,7 @@ describe("Pair", function () {
         await expect(
           pair.provideInitialLiquidity(owner.address, amount, amount)
         ).to.be.revertedWith(
-          "Liquidity Has Already Been Provided, Need To Call provideLiquidity"
+          "Liquidity Has Already Been Provided, Need To Call provideLiquidity()"
         );
       });
 

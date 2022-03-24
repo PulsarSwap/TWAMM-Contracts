@@ -94,7 +94,7 @@ describe("TWAMM", function () {
             timeStamp + 100000
           )
         ).to.be.revertedWith(
-          "Liquidity Has Already Been Provided, Need To Call provideLiquidity"
+          "Liquidity Has Already Been Provided, Need To Call provideLiquidity()"
         );
       });
 
@@ -109,7 +109,7 @@ describe("TWAMM", function () {
             { value: amount }
           )
         ).to.be.revertedWith(
-          "Liquidity Has Already Been Provided, Need To Call provideLiquidity"
+          "Liquidity Has Already Been Provided, Need To Call provideLiquidity()"
         );
       });
 
