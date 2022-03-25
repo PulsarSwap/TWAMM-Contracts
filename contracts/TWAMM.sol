@@ -98,7 +98,7 @@ contract TWAMM is ITWAMM {
         (uint256 amountA, uint256 amountB) = tokenA == token
             ? (amountToken, amountETH)
             : (amountETH, amountToken);
-        IWETH10(WETH).deposit{value: msg.value}();
+        IWETH10(WETH).depositTo{value: msg.value}(msg.sender);
         IPair(pair).provideInitialLiquidity(msg.sender, amountA, amountB);
         // refund dust eth, if any
         if (msg.value > amountETH) {
@@ -125,7 +125,7 @@ contract TWAMM is ITWAMM {
         (, uint256 reserveETH) = Library.getReserves(factory, token, WETH);
         uint256 totalSupplyLP = IERC20(pair).totalSupply();
         uint256 amountETH = (lpTokenAmount * reserveETH) / totalSupplyLP;
-        IWETH10(WETH).deposit{value: msg.value}();
+        IWETH10(WETH).depositTo{value: msg.value}(msg.sender);
         IPair(pair).provideLiquidity(msg.sender, lpTokenAmount);
         // refund dust eth, if any
         if (msg.value > amountETH)
@@ -204,7 +204,7 @@ contract TWAMM is ITWAMM {
     ) external payable virtual override ensure(deadline) {
         address pair = Library.pairFor(factory, WETH, token);
         (address tokenA, ) = Library.sortTokens(WETH, token);
-        IWETH10(WETH).deposit{value: msg.value}();
+        IWETH10(WETH).depositTo{value: msg.value}(msg.sender);
 
         if (tokenA == WETH) {
             IPair(pair).instantSwapFromAToB(msg.sender, amountETHIn);
@@ -276,7 +276,7 @@ contract TWAMM is ITWAMM {
         );
         address pair = Library.pairFor(factory, token, WETH);
         (address tokenA, ) = Library.sortTokens(WETH, token);
-        IWETH10(WETH).deposit{value: msg.value}();
+        IWETH10(WETH).depositTo{value: msg.value}(msg.sender);
 
         if (tokenA == WETH) {
             IPair(pair).longTermSwapFromAToB(
