@@ -28,8 +28,8 @@ describe("TWAMM", function () {
     [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
 
     //factory deployment
-    const factoryContract = await ethers.getContractFactory("Factory");
-    factory = await factoryContract.deploy();
+    const Factory = await ethers.getContractFactory("Factory");
+    factory = await Factory.deploy();
     const allpairLength = await factory.allPairsLength();
 
     //create two tokens for pair creation, and WETH
