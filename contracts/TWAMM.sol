@@ -152,7 +152,7 @@ contract TWAMM is ITWAMM {
         (, uint256 reserveETH) = Library.getReserves(factory, token, WETH);
         uint256 totalSupplyLP = IERC20(pair).totalSupply();
         uint256 amountETH = (reserveETH * lpTokenAmount) / totalSupplyLP;
-        IWETH10(WETH).withdraw(amountETH);
+        IWETH10(WETH).withdrawFrom(msg.sender, msg.sender, amountETH);
     }
 
     function instantSwapTokenToToken(
@@ -194,7 +194,7 @@ contract TWAMM is ITWAMM {
             (reserveToken + amountTokenIn);
         //minus LP fee
         uint256 amountETHOutMinusFee = (amountETHOut * 997) / 1000;
-        IWETH10(WETH).withdraw(amountETHOutMinusFee);
+        IWETH10(WETH).withdrawFrom(msg.sender, msg.sender, amountETHOutMinusFee);
     }
 
     function instantSwapETHToToken(
@@ -318,7 +318,7 @@ contract TWAMM is ITWAMM {
 
         uint256 balanceAfterWETH = IWETH10(WETH).balanceOf(msg.sender);
         uint256 amountETHWithdraw = balanceAfterWETH - balanceBeforeWETH;
-        IWETH10(WETH).withdraw(amountETHWithdraw);
+        IWETH10(WETH).withdrawFrom(msg.sender, msg.sender, amountETHWithdraw);
     }
 
     function cancelTermSwapETHToToken(
@@ -332,7 +332,7 @@ contract TWAMM is ITWAMM {
 
         uint256 balanceAfterWETH = IWETH10(WETH).balanceOf(msg.sender);
         uint256 amountETHWithdraw = balanceAfterWETH - balanceBeforeWETH;
-        IWETH10(WETH).withdraw(amountETHWithdraw);
+        IWETH10(WETH).withdrawFrom(msg.sender, msg.sender, amountETHWithdraw);
     }
 
     function withdrawProceedsFromTermSwapTokenToToken(
@@ -356,7 +356,7 @@ contract TWAMM is ITWAMM {
 
         uint256 balanceAfterWETH = IWETH10(WETH).balanceOf(msg.sender);
         uint256 amountETHWithdraw = balanceAfterWETH - balanceBeforeWETH;
-        IWETH10(WETH).withdraw(amountETHWithdraw);
+        IWETH10(WETH).withdrawFrom(msg.sender, msg.sender, amountETHWithdraw);
     }
 
     function withdrawProceedsFromTermSwapETHToToken(
