@@ -34,20 +34,24 @@ interface ITWAMM {
     function addInitialLiquidityETH(
         address token,
         uint256 amountToken,
-        uint256 amountETH,
         uint256 deadline
     ) external payable;
 
     function addLiquidity(
         address token0,
         address token1,
-        uint256 lpTokenAmount,
+        uint256 amount0Desired,
+        uint256 amount1Desired,
+        uint256 amount0Min,
+        uint256 amount1Min,
         uint256 deadline
     ) external;
 
     function addLiquidityETH(
         address token,
-        uint256 lpTokenAmount,
+        uint256 amountTokenDesired,
+        uint256 amountTokenMin,
+        uint256 amountETHMin,
         uint256 deadline
     ) external payable;
 
@@ -77,11 +81,9 @@ interface ITWAMM {
         uint256 deadline
     ) external;
 
-    function instantSwapETHToToken(
-        address token,
-        uint256 amountETHIn,
-        uint256 deadline
-    ) external payable;
+    function instantSwapETHToToken(address token, uint256 deadline)
+        external
+        payable;
 
     function longTermSwapTokenToToken(
         address token0,
@@ -100,7 +102,6 @@ interface ITWAMM {
 
     function longTermSwapETHToToken(
         address token,
-        uint256 amountETHIn,
         uint256 numberOfBlockIntervals,
         uint256 deadline
     ) external payable;

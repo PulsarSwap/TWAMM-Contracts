@@ -65,7 +65,6 @@ library LongTermOrdersLib {
     ///@notice long term swap token A for token B. Amount represents total amount being sold, numberOfBlockIntervals determines when order expires
     function longTermSwapFromAToB(
         LongTermOrders storage self,
-        address sender,
         uint256 amountA,
         uint256 numberOfBlockIntervals,
         mapping(address => uint256) storage reserveMap
@@ -75,7 +74,6 @@ library LongTermOrdersLib {
                 self,
                 self.tokenA,
                 self.tokenB,
-                sender,
                 amountA,
                 numberOfBlockIntervals,
                 reserveMap
@@ -85,7 +83,6 @@ library LongTermOrdersLib {
     ///@notice long term swap token B for token A. Amount represents total amount being sold, numberOfBlockIntervals determines when order expires
     function longTermSwapFromBToA(
         LongTermOrders storage self,
-        address sender,
         uint256 amountB,
         uint256 numberOfBlockIntervals,
         mapping(address => uint256) storage reserveMap
@@ -95,7 +92,6 @@ library LongTermOrdersLib {
                 self,
                 self.tokenB,
                 self.tokenA,
-                sender,
                 amountB,
                 numberOfBlockIntervals,
                 reserveMap
@@ -107,7 +103,6 @@ library LongTermOrdersLib {
         LongTermOrders storage self,
         address from,
         address to,
-        address sender,
         uint256 amount,
         uint256 numberOfBlockIntervals,
         mapping(address => uint256) storage reserveMap
@@ -116,7 +111,7 @@ library LongTermOrdersLib {
         executeVirtualOrdersUntilCurrentBlock(self, reserveMap);
 
         // transfer sale amount to contract
-        IERC20(from).safeTransferFrom(sender, address(this), amount);
+        IERC20(from).safeTransferFrom(msg.sender, address(this), amount);
 
         //determine the selling rate based on number of blocks to expiry and total amount
         uint256 currentBlock = block.number;
@@ -136,13 +131,13 @@ library LongTermOrdersLib {
             self.orderId,
             orderExpiry,
             sellingRate,
-            sender,
+            msg.sender,
             from,
             to
         );
 
         // add user's corresponding orderId to orderId mapping list content
-        self.orderIdMap[sender].push(self.orderId);
+        self.orderIdMap[msg.sender].push(self.orderId);
 
         self.orderIdStatusMap[self.orderId] = true;
 
@@ -152,7 +147,6 @@ library LongTermOrdersLib {
     ///@notice cancel long term swap, pay out unsold tokens and well as purchased tokens
     function cancelLongTermSwap(
         LongTermOrders storage self,
-        address sender,
         uint256 orderId,
         mapping(address => uint256) storage reserveMap
     ) internal {
@@ -161,7 +155,7 @@ library LongTermOrdersLib {
 
         Order storage order = self.orderMap[orderId];
 
-        require(order.owner == sender, "Sender Must Be Order Owner");
+        require(order.owner == msg.sender, "Sender Must Be Order Owner");
 
         OrderPoolLib.OrderPool storage OrderPool = self.OrderPoolMap[
             order.sellTokenId
@@ -179,10 +173,12 @@ library LongTermOrdersLib {
             "No Proceeds To Withdraw"
         );
         //transfer to owner
-        IERC20(order.buyTokenId).safeTransfer(sender, purchasedAmountMinusFee);
-        IERC20(order.sellTokenId).safeTransfer(sender, unsoldAmount);
+        IERC20(order.buyTokenId).safeTransfer(
+            msg.sender,
+            purchasedAmountMinusFee
+        );
+        IERC20(order.sellTokenId).safeTransfer(msg.sender, unsoldAmount);
 
-        // console.log(IERC20(order.buyTokenId).balanceOf(msg.sender));
         // delete orderId from account list
         // removeOrderId(self, orderId, msg.sender);
         self.orderIdStatusMap[orderId] = false;
@@ -191,7 +187,6 @@ library LongTermOrdersLib {
     ///@notice withdraw proceeds from a long term swap (can be expired or ongoing)
     function withdrawProceedsFromLongTermSwap(
         LongTermOrders storage self,
-        address sender,
         uint256 orderId,
         mapping(address => uint256) storage reserveMap
     ) internal {
@@ -199,7 +194,7 @@ library LongTermOrdersLib {
         executeVirtualOrdersUntilCurrentBlock(self, reserveMap);
 
         Order storage order = self.orderMap[orderId];
-        require(order.owner == sender, "Sender Must Be Order Owner");
+        require(order.owner == msg.sender, "Sender Must Be Order Owner");
 
         OrderPoolLib.OrderPool storage OrderPool = self.OrderPoolMap[
             order.sellTokenId
@@ -211,7 +206,7 @@ library LongTermOrdersLib {
 
         require(proceedsMinusFee > 0, "No Proceeds To Withdraw");
         //transfer to owner
-        IERC20(order.buyTokenId).safeTransfer(sender, proceedsMinusFee);
+        IERC20(order.buyTokenId).safeTransfer(msg.sender, proceedsMinusFee);
 
         // delete orderId from account list
         // removeOrderId(self, orderId, msg.sender);
