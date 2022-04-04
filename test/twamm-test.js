@@ -366,7 +366,7 @@ describe("TWAMM", function () {
     describe("Long term swaps", function () {
       it("Single sided long term order behaves like normal swap", async function () {
         const amountInA = 10000;
-        await tokenA.safeTransfer(addr1.address, amountInA);
+        await tokenA.transfer(addr1.address, amountInA);
 
         //expected output
         const tokenAReserve = await twamm.reserveA(pair);
@@ -464,8 +464,8 @@ describe("TWAMM", function () {
         await tokenA.approve(addr1.address, amountIn);
         await tokenB.approve(addr2.address, amountIn);
 
-        await tokenA.safeTransfer(addr1.address, amountIn);
-        await tokenB.safeTransfer(addr2.address, amountIn);
+        await tokenA.transfer(addr1.address, amountIn);
+        await tokenB.transfer(addr2.address, amountIn);
 
         //trigger long term order
         await tokenA.connect(addr1).approve(pair, amountIn);
@@ -526,7 +526,7 @@ describe("TWAMM", function () {
       it("(ETH) Orders in both pools work as expected (ETH)", async function () {
         const amountIn = 10000;
         await tokenB.approve(addr2.address, amountIn);
-        await tokenB.safeTransfer(addr2.address, amountIn);
+        await tokenB.transfer(addr2.address, amountIn);
 
         //trigger long term order
         await WETH.connect(addr1).approve(pairETH, amountIn);
@@ -584,8 +584,8 @@ describe("TWAMM", function () {
         const tokenBIn = 2000;
         await tokenA.approve(addr1.address, tokenAIn);
         await tokenB.approve(addr2.address, tokenBIn);
-        await tokenA.safeTransfer(addr1.address, tokenAIn);
-        await tokenB.safeTransfer(addr2.address, tokenBIn);
+        await tokenA.transfer(addr1.address, tokenAIn);
+        await tokenB.transfer(addr2.address, tokenBIn);
         await tokenA.connect(addr1).approve(pair, tokenAIn);
         await tokenB.connect(addr2).approve(pair, tokenBIn);
 
@@ -686,7 +686,7 @@ describe("TWAMM", function () {
         const tokenAIn = 10000;
         const tokenBIn = 2000;
         await tokenB.approve(addr2.address, tokenBIn);
-        await tokenB.safeTransfer(addr2.address, tokenBIn);
+        await tokenB.transfer(addr2.address, tokenBIn);
         await WETH.connect(addr1).approve(pairETH, tokenAIn);
         await tokenB.connect(addr2).approve(pairETH, tokenBIn);
 
@@ -784,8 +784,8 @@ describe("TWAMM", function () {
         const amountIn = 10000;
         await tokenA.approve(addr1.address, amountIn);
         await tokenB.approve(addr2.address, amountIn);
-        await tokenA.safeTransfer(addr1.address, amountIn);
-        await tokenB.safeTransfer(addr2.address, amountIn);
+        await tokenA.transfer(addr1.address, amountIn);
+        await tokenB.transfer(addr2.address, amountIn);
 
         //trigger long term order
         await tokenA.connect(addr1).approve(pair, amountIn);
@@ -878,7 +878,7 @@ describe("TWAMM", function () {
       it("(ETH)Multiple orders in both pools work as expected(ETH)", async function () {
         const amountIn = 10000;
         await tokenB.approve(addr2.address, amountIn);
-        await tokenB.safeTransfer(addr2.address, amountIn);
+        await tokenB.transfer(addr2.address, amountIn);
 
         //trigger long term order
         await WETH.connect(addr1).approve(pairETH, amountIn);
@@ -964,8 +964,8 @@ describe("TWAMM", function () {
 
       it("Normal swap works as expected while long term orders are active", async function () {
         const amountIn = 10000;
-        await tokenA.safeTransfer(addr1.address, amountIn);
-        await tokenB.safeTransfer(addr2.address, amountIn);
+        await tokenA.transfer(addr1.address, amountIn);
+        await tokenB.transfer(addr2.address, amountIn);
 
         //trigger long term order
         await tokenA.connect(addr1).approve(pair, amountIn);
@@ -1023,7 +1023,7 @@ describe("TWAMM", function () {
 
       it("(ETH)Normal swap works as expected while long term orders are active(ETH)", async function () {
         const amountIn = 10000;
-        await tokenB.safeTransfer(addr2.address, amountIn);
+        await tokenB.transfer(addr2.address, amountIn);
 
         //trigger long term order
         await WETH.connect(addr1).approve(pairETH, amountIn);
@@ -1081,7 +1081,7 @@ describe("TWAMM", function () {
       it("Order can be cancelled", async function () {
         const amountIn = 100000;
         await tokenA.approve(addr1.address, amountIn);
-        await tokenA.safeTransfer(addr1.address, amountIn);
+        await tokenA.transfer(addr1.address, amountIn);
         await tokenA.connect(addr1).approve(pair, amountIn);
 
         const amountABefore = await tokenA.balanceOf(addr1.address);
@@ -1153,10 +1153,10 @@ describe("TWAMM", function () {
     describe("partial withdrawal", function () {
       it("proceeds can be withdrawn while order is still active", async function () {
         const amountIn = 100000;
-        await tokenA.safeTransfer(addr1.address, amountIn);
+        await tokenA.transfer(addr1.address, amountIn);
         await tokenA.connect(addr1).approve(pair, amountIn);
 
-        await tokenB.safeTransfer(addr2.address, amountIn);
+        await tokenB.transfer(addr2.address, amountIn);
         await tokenB.connect(addr2).approve(pair, amountIn);
 
         //trigger long term order
@@ -1195,7 +1195,7 @@ describe("TWAMM", function () {
         const amountIn = 100000;
         await WETH.connect(addr1).approve(pairETH, amountIn);
 
-        await tokenB.safeTransfer(addr2.address, amountIn);
+        await tokenB.transfer(addr2.address, amountIn);
         await tokenB.connect(addr2).approve(pairETH, amountIn);
 
         //trigger long term order
