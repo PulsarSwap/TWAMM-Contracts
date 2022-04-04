@@ -2,6 +2,7 @@
 
 pragma solidity ^0.8.9;
 
+// import "hardhat/console.sol";
 import "./interfaces/IFactory.sol";
 import "./Pair.sol";
 

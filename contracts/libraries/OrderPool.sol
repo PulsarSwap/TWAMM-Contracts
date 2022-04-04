@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.9;
 
-import "hardhat/console.sol";
+// import "hardhat/console.sol";
 import "prb-math/contracts/PRBMathUD60x18.sol";
 
 ///@notice An Order Pool is an abstraction for a pool of long term orders that sells a token at a constant rate to the embedded AMM.
@@ -109,7 +109,7 @@ library OrderPoolLib {
         ];
 
         //if order has expired, we need to calculate the reward factor at expiry
-        if (block.number > orderExpiry) {
+        if (block.number >= orderExpiry) {
             uint256 rewardFactorAtExpiry = self.rewardFactorAtBlock[
                 orderExpiry
             ];

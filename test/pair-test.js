@@ -11,7 +11,7 @@ describe("Pair", function () {
   let addr2;
   let addrs;
 
-  const blockInterval = 10;
+  const blockInterval = 5;
 
   const initialLiquidityProvided = 100000000;
 
@@ -148,7 +148,7 @@ describe("Pair", function () {
     describe("Long Term Swap", function () {
       it("Single sided long term order behaves like normal swap", async function () {
         const amountInA = 10000;
-        await tokenA.transfer(addr1.address, amountInA);
+        await tokenA.safeTransfer(addr1.address, amountInA);
 
         //expected output
         const tokenAReserve = await pair.tokenAReserves();
@@ -186,8 +186,8 @@ describe("Pair", function () {
         const amountIn = ethers.BigNumber.from(10000);
         await tokenA.approve(addr1.address, amountIn);
         await tokenB.approve(addr2.address, amountIn);
-        await tokenA.transfer(addr1.address, amountIn);
-        await tokenB.transfer(addr2.address, amountIn);
+        await tokenA.safeTransfer(addr1.address, amountIn);
+        await tokenB.safeTransfer(addr2.address, amountIn);
 
         //trigger long term order
         await tokenA.connect(addr1).approve(pair.address, amountIn);
@@ -226,8 +226,8 @@ describe("Pair", function () {
         const tokenBIn = 2000;
         await tokenA.approve(addr1.address, tokenAIn);
         await tokenB.approve(addr2.address, tokenBIn);
-        await tokenA.transfer(addr1.address, tokenAIn);
-        await tokenB.transfer(addr2.address, tokenBIn);
+        await tokenA.safeTransfer(addr1.address, tokenAIn);
+        await tokenB.safeTransfer(addr2.address, tokenBIn);
         await tokenA.connect(addr1).approve(pair.address, tokenAIn);
         await tokenB.connect(addr2).approve(pair.address, tokenBIn);
 
@@ -306,8 +306,8 @@ describe("Pair", function () {
         const amountIn = 10000;
         await tokenA.approve(addr1.address, amountIn);
         await tokenB.approve(addr2.address, amountIn);
-        await tokenA.transfer(addr1.address, amountIn);
-        await tokenB.transfer(addr2.address, amountIn);
+        await tokenA.safeTransfer(addr1.address, amountIn);
+        await tokenB.safeTransfer(addr2.address, amountIn);
 
         //trigger long term order
         await tokenA.connect(addr1).approve(pair.address, amountIn);
@@ -357,8 +357,8 @@ describe("Pair", function () {
         const amountIn = 10000;
         await tokenA.approve(addr1.address, amountIn);
         await tokenB.approve(addr2.address, amountIn);
-        await tokenA.transfer(addr1.address, amountIn);
-        await tokenB.transfer(addr2.address, amountIn);
+        await tokenA.safeTransfer(addr1.address, amountIn);
+        await tokenB.safeTransfer(addr2.address, amountIn);
 
         //trigger long term order
         await tokenA.connect(addr1).approve(pair.address, amountIn);
@@ -397,7 +397,7 @@ describe("Pair", function () {
       it("Order can be cancelled", async function () {
         const amountIn = 100000;
         await tokenA.approve(addr1.address, amountIn);
-        await tokenA.transfer(addr1.address, amountIn);
+        await tokenA.safeTransfer(addr1.address, amountIn);
         await tokenA.connect(addr1).approve(pair.address, amountIn);
 
         const amountABefore = await tokenA.balanceOf(addr1.address);
@@ -425,10 +425,10 @@ describe("Pair", function () {
       it("Proceeds can be withdrawn while order is still active", async function () {
         const amountIn = 100000;
         await tokenA.approve(addr1.address, amountIn);
-        await tokenA.transfer(addr1.address, amountIn);
+        await tokenA.safeTransfer(addr1.address, amountIn);
         await tokenA.connect(addr1).approve(pair.address, amountIn);
 
-        await tokenB.transfer(addr2.address, amountIn);
+        await tokenB.safeTransfer(addr2.address, amountIn);
         await tokenA.approve(addr2.address, amountIn);
         await tokenB.connect(addr2).approve(pair.address, amountIn);
 
