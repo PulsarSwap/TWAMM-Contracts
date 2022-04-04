@@ -65,6 +65,7 @@ contract TWAMM is ITWAMM {
         IFactory(factory).createPair(token0, token1);
     }
 
+    // **** ADD LIQUIDITY ****
     function addInitialLiquidity(
         address token0,
         address token1,
@@ -78,12 +79,14 @@ contract TWAMM is ITWAMM {
         );
 
         address pair = Library.pairFor(factory, token0, token1);
-        (address tokenA, ) = Library.sortTokens(token0, token1);
+        (address tokenA, address tokenB) = Library.sortTokens(token0, token1);
         (uint256 amountA, uint256 amountB) = tokenA == token0
             ? (amount0, amount1)
             : (amount1, amount0);
 
-        IPair(pair).provideInitialLiquidity(msg.sender, amountA, amountB);
+        IERC20(tokenA).safeTransferFrom(msg.sender, pair, amountA);
+        IERC20(tokenB).safeTransferFrom(msg.sender, pair, amountB);
+        IPair(pair).provideInitialLiquidity(msg.sender);
     }
 
     function addInitialLiquidityETH(
@@ -102,7 +105,7 @@ contract TWAMM is ITWAMM {
             ? (amountToken, amountETH)
             : (amountETH, amountToken);
         IWETH10(WETH).depositTo{value: msg.value}(msg.sender);
-        IPair(pair).provideInitialLiquidity(msg.sender, amountA, amountB);
+        IPair(pair).provideInitialLiquidity(msg.sender);
         // refund dust eth, if any
         if (msg.value > amountETH) {
             TransferHelper.safeTransferETH(msg.sender, msg.value - amountETH);
@@ -116,7 +119,15 @@ contract TWAMM is ITWAMM {
         uint256 deadline
     ) external virtual override ensure(deadline) {
         address pair = Library.pairFor(factory, token0, token1);
-        IPair(pair).provideLiquidity(msg.sender, lpTokenAmount);
+        (address tokenA, address tokenB) = Library.sortTokens(token0, token1);
+        uint256 reserveTokenA = IPair(pair).tokenAReserves();
+        uint256 reserveTokenB = IPair(pair).tokenAReserves();
+        uint256 totalSupplyLP = IERC20(pair).totalSupply();
+        uint256 amountA = (lpTokenAmount * reserveTokenA) / totalSupplyLP;
+        uint256 amountB = (lpTokenAmount * reserveTokenB) / totalSupplyLP;
+        IERC20(tokenA).safeTransferFrom(msg.sender, pair, amountA);
+        IERC20(tokenB).safeTransferFrom(msg.sender, pair, amountB);
+        IPair(pair).provideLiquidity(msg.sender);
     }
 
     function addLiquidityETH(
@@ -142,7 +153,8 @@ contract TWAMM is ITWAMM {
         uint256 deadline
     ) external virtual override ensure(deadline) {
         address pair = Library.pairFor(factory, token0, token1);
-        IPair(pair).removeLiquidity(msg.sender, lpTokenAmount);
+        IERC20(pair).safeTransferFrom(msg.sender, pair, lpTokenAmount); // send liquidity to pair
+        IPair(pair).removeLiquidity(msg.sender);
     }
 
     function withdrawLiquidityETH(
@@ -151,7 +163,8 @@ contract TWAMM is ITWAMM {
         uint256 deadline
     ) external virtual override ensure(deadline) {
         address pair = Library.pairFor(factory, token, WETH);
-        IPair(pair).removeLiquidity(msg.sender, lpTokenAmount);
+        IERC20(pair).safeTransferFrom(msg.sender, pair, lpTokenAmount); // send liquidity to pair
+        IPair(pair).removeLiquidity(msg.sender);
         (, uint256 reserveETH) = Library.getReserves(factory, token, WETH);
         uint256 totalSupplyLP = IERC20(pair).totalSupply();
         uint256 amountETH = (reserveETH * lpTokenAmount) / totalSupplyLP;

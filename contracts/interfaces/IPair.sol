@@ -27,14 +27,29 @@ interface IPair {
 
     function getTotalSupply() external view returns (uint256);
 
-    event UpdatePrice(uint256 reserveA, uint256 reserveB);
+    function sync() external;
+
+    event UpdatePrice(
+        uint256 balanceA,
+        uint256 balanceB,
+        uint256 reserveA,
+        uint256 reserveB
+    );
     event InitialLiquidityProvided(
         address indexed addr,
-        uint256 amountA,
-        uint256 amountB
+        uint256 amountAIn,
+        uint256 amountBIn
     );
-    event LiquidityProvided(address indexed addr, uint256 lpTokens);
-    event LiquidityRemoved(address indexed addr, uint256 lpTokens);
+    event LiquidityProvided(
+        address indexed addr,
+        uint256 amountAIn,
+        uint256 amountBIn
+    );
+    event LiquidityRemoved(
+        address indexed addr,
+        uint256 amountAOut,
+        uint256 amountBOut
+    );
     event InstantSwapAToB(
         address indexed addr,
         uint256 amountAIn,
@@ -61,29 +76,23 @@ interface IPair {
         uint256 orderId
     );
 
-    function provideInitialLiquidity(
-        address to,
-        uint256 amountA,
-        uint256 amountB
-    ) external;
+    function provideInitialLiquidity(address to) external;
 
-    function provideLiquidity(address to, uint256 lptokenAmount) external;
+    function provideLiquidity(address to) external;
 
-    function removeLiquidity(address to, uint256 lptokenAmount) external;
+    function removeLiquidity(address to) external;
 
-    function instantSwapFromAToB(address sender, uint256 amountAIn) external;
+    function instantSwapFromAToB(address sender) external;
 
     function longTermSwapFromAToB(
         address sender,
-        uint256 amountAIn,
         uint256 numberOfBlockIntervals
     ) external;
 
-    function instantSwapFromBToA(address sender, uint256 amountBIn) external;
+    function instantSwapFromBToA(address sender) external;
 
     function longTermSwapFromBToA(
         address sender,
-        uint256 amountBIn,
         uint256 numberOfBlockIntervals
     ) external;
 
