@@ -111,12 +111,11 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     }
 
     ///@notice provide initial liquidity to the amm. This sets the relative price between tokens
-    function provideInitialLiquidity(uint256 amountA, uint256 amountB)
-        external
-        override
-        lock
-        nonReentrant
-    {
+    function provideInitialLiquidity(
+        address to,
+        uint256 amountA,
+        uint256 amountB
+    ) external override lock nonReentrant {
         require(amountA > 0 && amountB > 0, "Invalid Amount");
         require(
             totalSupply() == 0,
@@ -133,17 +132,18 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
             .mul(amountB.fromUint().sqrt())
             .toUint() - MINIMUM_LIQUIDITY;
         _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens
-        _mint(msg.sender, lpTokenAmount);
+        _mint(to, lpTokenAmount);
 
-        IERC20(tokenA).safeTransferFrom(msg.sender, address(this), amountA);
-        IERC20(tokenB).safeTransferFrom(msg.sender, address(this), amountB);
+        IERC20(tokenA).safeTransferFrom(to, address(this), amountA);
+        IERC20(tokenB).safeTransferFrom(to, address(this), amountB);
 
         updatePrice(amountA, amountB);
-        emit InitialLiquidityProvided(msg.sender, amountA, amountB);
+        emit InitialLiquidityProvided(to, amountA, amountB);
     }
 
     ///@notice provide liquidity to the AMM
-    function provideLiquidity(uint256 amountA, uint256 amountB)
+    ///@param lpTokenAmount number of lp tokens to mint with new liquidity
+    function provideLiquidity(address to, uint256 lpTokenAmount)
         external
         override
         lock
@@ -152,18 +152,14 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         //execute virtual orders
         longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
 
-        require(amountA > 0 && amountB > 0, "Invalid Amount");
+        require(lpTokenAmount > 0, "Invalid Amount");
         require(
             totalSupply() != 0,
             "No Liquidity Has Been Provided Yet, Need To Call provideInitialLiquidity()"
         );
         uint256 reserveA = reserveMap[tokenA];
         uint256 reserveB = reserveMap[tokenB];
-        uint256 lpTokenAmountA = (amountA * totalSupply()) / reserveA;
-        uint256 lpTokenAmountB = (amountB * totalSupply()) / reserveB;
-        uint256 lpTokenAmount = lpTokenAmountA < lpTokenAmountB
-            ? lpTokenAmountA
-            : lpTokenAmountB;
+
         //the ratio between the number of underlying tokens and the number of lp tokens must remain invariant after mint
         uint256 amountAIn = (lpTokenAmount * reserveA) / totalSupply();
         uint256 amountBIn = (lpTokenAmount * reserveB) / totalSupply();
@@ -171,18 +167,18 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         reserveMap[tokenA] += amountAIn;
         reserveMap[tokenB] += amountBIn;
 
-        _mint(msg.sender, lpTokenAmount);
+        _mint(to, lpTokenAmount);
 
-        IERC20(tokenA).safeTransferFrom(msg.sender, address(this), amountAIn);
-        IERC20(tokenB).safeTransferFrom(msg.sender, address(this), amountBIn);
+        IERC20(tokenA).safeTransferFrom(to, address(this), amountAIn);
+        IERC20(tokenB).safeTransferFrom(to, address(this), amountBIn);
 
         updatePrice(reserveA, reserveB);
-        emit LiquidityProvided(msg.sender, lpTokenAmount);
+        emit LiquidityProvided(to, lpTokenAmount);
     }
 
     ///@notice remove liquidity to the AMM
     ///@param lpTokenAmount number of lp tokens to burn
-    function removeLiquidity(uint256 lpTokenAmount)
+    function removeLiquidity(address to, uint256 lpTokenAmount)
         external
         override
         lock
@@ -206,96 +202,115 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         reserveMap[tokenA] -= amountAOut;
         reserveMap[tokenB] -= amountBOut;
 
-        _burn(msg.sender, lpTokenAmount);
+        _burn(to, lpTokenAmount);
 
-        IERC20(tokenA).safeTransfer(msg.sender, amountAOut);
-        IERC20(tokenB).safeTransfer(msg.sender, amountBOut);
+        IERC20(tokenA).safeTransfer(to, amountAOut);
+        IERC20(tokenB).safeTransfer(to, amountBOut);
         updatePrice(reserveA, reserveB);
-        emit LiquidityRemoved(msg.sender, lpTokenAmount);
+        emit LiquidityRemoved(to, lpTokenAmount);
     }
 
     ///@notice instant swap a given amount of tokenA against embedded amm
-    function instantSwapFromAToB(uint256 amountAIn)
+    function instantSwapFromAToB(address sender, uint256 amountAIn)
         external
         override
         lock
         nonReentrant
     {
-        uint256 amountBOut = performInstantSwap(tokenA, tokenB, amountAIn);
-        emit InstantSwapAToB(msg.sender, amountAIn, amountBOut);
+        uint256 amountBOut = performInstantSwap(
+            sender,
+            tokenA,
+            tokenB,
+            amountAIn
+        );
+        emit InstantSwapAToB(sender, amountAIn, amountBOut);
     }
 
     ///@notice create a long term order to swap from tokenA
     ///@param amountAIn total amount of token A to swap
     ///@param numberOfBlockIntervals number of block intervals over which to execute long term order
     function longTermSwapFromAToB(
+        address sender,
         uint256 amountAIn,
         uint256 numberOfBlockIntervals
     ) external override lock nonReentrant {
         require(amountAIn > 0, "Invalid Amount");
         uint256 orderId = longTermOrders.longTermSwapFromAToB(
+            sender,
             amountAIn,
             numberOfBlockIntervals,
             reserveMap
         );
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
-        emit LongTermSwapAToB(msg.sender, amountAIn, orderId);
+        emit LongTermSwapAToB(sender, amountAIn, orderId);
     }
 
     ///@notice instant swap a given amount of tokenB against embedded amm
-    function instantSwapFromBToA(uint256 amountBIn)
+    function instantSwapFromBToA(address sender, uint256 amountBIn)
         external
         override
         lock
         nonReentrant
     {
-        uint256 amountAOut = performInstantSwap(tokenB, tokenA, amountBIn);
-        emit InstantSwapBToA(msg.sender, amountBIn, amountAOut);
+        uint256 amountAOut = performInstantSwap(
+            sender,
+            tokenB,
+            tokenA,
+            amountBIn
+        );
+        emit InstantSwapBToA(sender, amountBIn, amountAOut);
     }
 
     ///@notice create a long term order to swap from tokenB
     ///@param amountBIn total amount of tokenB to swap
     ///@param numberOfBlockIntervals number of block intervals over which to execute long term order
     function longTermSwapFromBToA(
+        address sender,
         uint256 amountBIn,
         uint256 numberOfBlockIntervals
     ) external override lock nonReentrant {
         require(amountBIn > 0, "Invalid Amount");
         uint256 orderId = longTermOrders.longTermSwapFromBToA(
+            sender,
             amountBIn,
             numberOfBlockIntervals,
             reserveMap
         );
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
-        emit LongTermSwapBToA(msg.sender, amountBIn, orderId);
+        emit LongTermSwapBToA(sender, amountBIn, orderId);
     }
 
     ///@notice stop the execution of a long term order
-    function cancelLongTermSwap(uint256 orderId)
+    function cancelLongTermSwap(address sender, uint256 orderId)
         external
         override
         lock
         nonReentrant
     {
-        longTermOrders.cancelLongTermSwap(orderId, reserveMap);
+        longTermOrders.cancelLongTermSwap(sender, orderId, reserveMap);
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
-        emit CancelLongTermOrder(msg.sender, orderId);
+        emit CancelLongTermOrder(sender, orderId);
     }
 
     ///@notice withdraw proceeds from a long term swap
-    function withdrawProceedsFromLongTermSwap(uint256 orderId)
+    function withdrawProceedsFromLongTermSwap(address sender, uint256 orderId)
         external
         override
         lock
         nonReentrant
     {
-        longTermOrders.withdrawProceedsFromLongTermSwap(orderId, reserveMap);
+        longTermOrders.withdrawProceedsFromLongTermSwap(
+            sender,
+            orderId,
+            reserveMap
+        );
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
-        emit WithdrawProceedsFromLongTermOrder(msg.sender, orderId);
+        emit WithdrawProceedsFromLongTermOrder(sender, orderId);
     }
 
     ///@notice private function which implements instant swap logic
     function performInstantSwap(
+        address sender,
         address from,
         address to,
         uint256 amountIn
@@ -314,8 +329,8 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         reserveMap[from] += amountIn;
         reserveMap[to] -= amountOutMinusFee;
 
-        IERC20(from).safeTransferFrom(msg.sender, address(this), amountIn);
-        IERC20(to).safeTransfer(msg.sender, amountOutMinusFee);
+        IERC20(from).safeTransferFrom(sender, address(this), amountIn);
+        IERC20(to).safeTransfer(sender, amountOutMinusFee);
 
         (uint256 reserveA, uint256 reserveB) = from < to
             ? (reserveFrom, reserveTo)

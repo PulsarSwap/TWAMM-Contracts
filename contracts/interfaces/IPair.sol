@@ -33,8 +33,8 @@ interface IPair {
         uint256 amountA,
         uint256 amountB
     );
-    event LiquidityProvided(address indexed addr, uint256 lpTokens);
-    event LiquidityRemoved(address indexed addr, uint256 lpTokens);
+    event LiquidityProvided(address indexed addr, uint256 lpTokenAmount);
+    event LiquidityRemoved(address indexed addr, uint256 lpTokenAmount);
     event InstantSwapAToB(
         address indexed addr,
         uint256 amountAIn,
@@ -61,29 +61,36 @@ interface IPair {
         uint256 orderId
     );
 
-    function provideInitialLiquidity(uint256 amountA, uint256 amountB) external;
+    function provideInitialLiquidity(
+        address to,
+        uint256 amountA,
+        uint256 amountB
+    ) external;
 
-    function provideLiquidity(uint256 amountA, uint256 amountB) external;
+    function provideLiquidity(address to, uint256 lptokenAmount) external;
 
-    function removeLiquidity(uint256 lptokenAmount) external;
+    function removeLiquidity(address to, uint256 lptokenAmount) external;
 
-    function instantSwapFromAToB(uint256 amountAIn) external;
+    function instantSwapFromAToB(address sender, uint256 amountAIn) external;
 
     function longTermSwapFromAToB(
+        address sender,
         uint256 amountAIn,
         uint256 numberOfBlockIntervals
     ) external;
 
-    function instantSwapFromBToA(uint256 amountBIn) external;
+    function instantSwapFromBToA(address sender, uint256 amountBIn) external;
 
     function longTermSwapFromBToA(
+        address sender,
         uint256 amountBIn,
         uint256 numberOfBlockIntervals
     ) external;
 
-    function cancelLongTermSwap(uint256 orderId) external;
+    function cancelLongTermSwap(address sender, uint256 orderId) external;
 
-    function withdrawProceedsFromLongTermSwap(uint256 orderId) external;
+    function withdrawProceedsFromLongTermSwap(address sender, uint256 orderId)
+        external;
 
     function userIdsCheck(address userAddress)
         external
