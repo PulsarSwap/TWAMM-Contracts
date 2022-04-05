@@ -323,6 +323,8 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
 
         //constant product formula
         uint256 amountOut = (reserveTo * amountIn) / (reserveFrom + amountIn);
+        require(amountOut <= reserveTo, "Pair: Insufficient Liquidity");
+
         //charge LP fee
         amountOutMinusFee = (amountOut * (10000 - LP_FEE)) / 10000;
 
