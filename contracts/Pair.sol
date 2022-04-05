@@ -24,6 +24,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     address public override factory;
     address public override tokenA;
     address public override tokenB;
+    address private safeCaller;
 
     uint32 private blockTimestampLast;
     uint256 public override priceACumulativeLast;
@@ -58,8 +59,9 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         unlocked = 1; // unlock
     }
 
-    constructor(address _tokenA, address _tokenB) ERC20("Pulsar-LP", "PUL-LP") {
+    constructor(address _tokenA, address _tokenB, address _twamm) ERC20("Pulsar-LP", "PUL-LP") {
         factory = msg.sender;
+        safeCaller = _twamm;
         tokenA = _tokenA;
         tokenB = _tokenB;
         longTermOrders.initialize(
@@ -185,6 +187,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         nonReentrant
     {
         require(lpTokenAmount > 0, "Invalid Amount");
+        require(msg.sender == safeCaller, "Invalid Caller");
         require(
             lpTokenAmount <= totalSupply(),
             "Not Enough Lp Tokens Available"

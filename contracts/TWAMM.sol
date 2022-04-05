@@ -62,7 +62,7 @@ contract TWAMM is ITWAMM {
             IFactory(factory).getPair(token0, token1) == address(0),
             "Pair Existing Already!"
         );
-        IFactory(factory).createPair(token0, token1);
+        IFactory(factory).createPair(token0, token1, address(this));
     }
 
     function addInitialLiquidity(

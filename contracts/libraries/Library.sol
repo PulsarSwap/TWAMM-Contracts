@@ -3,6 +3,7 @@
 pragma solidity ^0.8.9;
 
 import "../interfaces/IPair.sol";
+import "../interfaces/IFactory.sol";
 import "./SafeMath.sol";
 import "../Pair.sol";
 
@@ -27,12 +28,13 @@ library Library {
         address factory,
         address token0,
         address token1
+        
     ) internal pure returns (address pair) {
         (address tokenA, address tokenB) = sortTokens(token0, token1);
         bytes memory bytecode = type(Pair).creationCode;
         bytes memory bytecodeArg = abi.encodePacked(
             bytecode,
-            abi.encode(tokenA, tokenB)
+            abi.encode(tokenA, tokenB, IFactory(factory).returnTwammAddress())
         );
         pair = address(
             uint160(
