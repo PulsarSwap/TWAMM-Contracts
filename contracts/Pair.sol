@@ -2,9 +2,6 @@
 
 pragma solidity ^0.8.9;
 
-// Inspired by https://www.paradigm.xyz/2021/07/twamm
-// https://github.com/para-dave/twamm
-
 // import "hardhat/console.sol";
 import "./interfaces/IPair.sol";
 import "./libraries/LongTermOrders.sol";
@@ -90,7 +87,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     // update price accumulators, on the first call per block
     function updatePrice(uint256 reserveA, uint256 reserveB) private {
         require(
-            reserveA <= type(uint256).max && reserveB <= type(uint256).max,
+            reserveA <= type(uint112).max && reserveB <= type(uint112).max,
             "Pair: Overflow"
         );
         uint32 blockTimestamp = uint32(block.timestamp % 2**32);
@@ -129,18 +126,18 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         reserveMap[tokenB] = amountB;
 
         //initial LP amount is the geometric mean of supplied tokens
-        uint256 lpAmount = amountA
+        uint256 lpTokenAmount = amountA
             .fromUint()
             .sqrt()
             .mul(amountB.fromUint().sqrt())
-            .toUint(); // - MINIMUM_LIQUIDITY;
-        // _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens // TODO: uncomment
-        _mint(to, lpAmount);
+            .toUint() - MINIMUM_LIQUIDITY;
 
         IERC20(tokenA).safeTransferFrom(to, address(this), amountA);
         IERC20(tokenB).safeTransferFrom(to, address(this), amountB);
+        _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens
+        _mint(to, lpTokenAmount);
 
-        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
+        updatePrice(amountA, amountB);
         emit InitialLiquidityProvided(to, amountA, amountB);
     }
 
@@ -152,57 +149,57 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         lock
         nonReentrant
     {
+        //execute virtual orders
+        longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
+
         require(lpTokenAmount > 0, "Invalid Amount");
         require(msg.sender == safeCaller, "Invalid Caller");
         require(
             totalSupply() != 0,
             "No Liquidity Has Been Provided Yet, Need To Call provideInitialLiquidity()"
         );
-
-        //execute virtual orders
-        longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
+        uint256 reserveA = reserveMap[tokenA];
+        uint256 reserveB = reserveMap[tokenB];
 
         //the ratio between the number of underlying tokens and the number of lp tokens must remain invariant after mint
-        uint256 amountAIn = (lpTokenAmount * reserveMap[tokenA]) /
-            totalSupply();
-        uint256 amountBIn = (lpTokenAmount * reserveMap[tokenB]) /
-            totalSupply();
+        uint256 amountAIn = (lpTokenAmount * reserveA) / totalSupply();
+        uint256 amountBIn = (lpTokenAmount * reserveB) / totalSupply();
 
         reserveMap[tokenA] += amountAIn;
         reserveMap[tokenB] += amountBIn;
 
-        _mint(to, lpTokenAmount);
-
         IERC20(tokenA).safeTransferFrom(to, address(this), amountAIn);
         IERC20(tokenB).safeTransferFrom(to, address(this), amountBIn);
+        _mint(to, lpTokenAmount);
 
-        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
+        updatePrice(reserveA, reserveB);
         emit LiquidityProvided(to, lpTokenAmount);
     }
 
     ///@notice remove liquidity to the AMM
     ///@param lpTokenAmount number of lp tokens to burn
+
     function removeLiquidity(address to, uint256 lpTokenAmount)
         external
         override
         lock
         nonReentrant
     {
+        //execute virtual orders
+        longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
+
         require(lpTokenAmount > 0, "Invalid Amount");
         require(msg.sender == safeCaller, "Invalid Caller");
         require(
             lpTokenAmount <= totalSupply(),
             "Not Enough Lp Tokens Available"
         );
-
-        //execute virtual orders
-        longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
+        uint256 reserveA = reserveMap[tokenA];
+        uint256 reserveB = reserveMap[tokenB];
 
         //the ratio between the number of underlying tokens and the number of lp tokens must remain invariant after burn
-        uint256 amountAOut = (reserveMap[tokenA] * lpTokenAmount) /
-            totalSupply();
-        uint256 amountBOut = (reserveMap[tokenB] * lpTokenAmount) /
-            totalSupply();
+        uint256 amountAOut = (reserveA * lpTokenAmount) / totalSupply();
+        uint256 amountBOut = (reserveB * lpTokenAmount) / totalSupply();
 
         reserveMap[tokenA] -= amountAOut;
         reserveMap[tokenB] -= amountBOut;
@@ -211,7 +208,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
 
         IERC20(tokenA).safeTransfer(to, amountAOut);
         IERC20(tokenB).safeTransfer(to, amountBOut);
-        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
+        updatePrice(reserveA, reserveB);
         emit LiquidityRemoved(to, lpTokenAmount);
     }
 
@@ -230,7 +227,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
             tokenB,
             amountAIn
         );
-        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         emit InstantSwapAToB(sender, amountAIn, amountBOut);
     }
 
@@ -269,7 +265,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
             tokenA,
             amountBIn
         );
-        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         emit InstantSwapBToA(sender, amountBIn, amountAOut);
     }
 
@@ -334,10 +329,14 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         require(msg.sender == safeCaller, "Invalid Caller");
         //execute virtual orders
         longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
+        require(amountIn > 0, "Swap Amount Must Be Positive");
+        uint256 reserveFrom = reserveMap[from];
+        uint256 reserveTo = reserveMap[to];
 
         //constant product formula
-        uint256 amountOut = (reserveMap[to] * amountIn) /
-            (reserveMap[from] + amountIn);
+        uint256 amountOut = (reserveTo * amountIn) / (reserveFrom + amountIn);
+        require(amountOut <= reserveTo, "Pair: Insufficient Liquidity");
+
         //charge LP fee
         amountOutMinusFee = (amountOut * (10000 - LP_FEE)) / 10000;
 
@@ -346,6 +345,11 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
 
         IERC20(from).safeTransferFrom(sender, address(this), amountIn);
         IERC20(to).safeTransfer(sender, amountOutMinusFee);
+
+        (uint256 reserveA, uint256 reserveB) = from < to
+            ? (reserveFrom, reserveTo)
+            : (reserveTo, reserveFrom);
+        updatePrice(reserveA, reserveB);
     }
 
     ///@notice get user order details

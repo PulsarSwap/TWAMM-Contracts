@@ -10,11 +10,9 @@ import "./libraries/Library.sol";
 import "./libraries/TransferHelper.sol";
 import "./interfaces/IWETH10.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract TWAMM is ITWAMM {
     using Library for address;
-    using SafeERC20 for IERC20;
 
     address public immutable override factory;
     address public immutable override WETH;
@@ -72,10 +70,10 @@ contract TWAMM is ITWAMM {
         uint256 amount1,
         uint256 deadline
     ) external virtual override ensure(deadline) {
-        require(
-            IFactory(factory).getPair(token0, token1) != address(0),
-            "No Existing Pair Found, Create Pair First!"
-        );
+        // create the pair if it doesn't exist yet
+        if (IFactory(factory).getPair(token0, token1) == address(0)) {
+            IFactory(factory).createPair(token0, token1);
+        }
 
         address pair = Library.pairFor(factory, token0, token1);
         (address tokenA, ) = Library.sortTokens(token0, token1);
@@ -92,17 +90,20 @@ contract TWAMM is ITWAMM {
         uint256 amountETH,
         uint256 deadline
     ) external payable virtual override ensure(deadline) {
-        require(
-            IFactory(factory).getPair(token, WETH) != address(0),
-            "No Existing Pair Found, Create Pair First!"
-        );
+        // create the pair if it doesn't exist yet
+        if (IFactory(factory).getPair(token, WETH) == address(0)) {
+            IFactory(factory).createPair(token, WETH);
+        }
+
         address pair = Library.pairFor(factory, token, WETH);
         (address tokenA, ) = Library.sortTokens(token, WETH);
         (uint256 amountA, uint256 amountB) = tokenA == token
             ? (amountToken, amountETH)
             : (amountETH, amountToken);
+
         IWETH10(WETH).depositTo{value: msg.value}(msg.sender);
         IPair(pair).provideInitialLiquidity(msg.sender, amountA, amountB);
+
         // refund dust eth, if any
         if (msg.value > amountETH) {
             TransferHelper.safeTransferETH(msg.sender, msg.value - amountETH);
@@ -125,11 +126,13 @@ contract TWAMM is ITWAMM {
         uint256 deadline
     ) external payable virtual override ensure(deadline) {
         address pair = Library.pairFor(factory, token, WETH);
+        IPair(pair).executeVirtualOrders();
         (, uint256 reserveETH) = Library.getReserves(factory, token, WETH);
         uint256 totalSupplyLP = IERC20(pair).totalSupply();
         uint256 amountETH = (lpTokenAmount * reserveETH) / totalSupplyLP;
         IWETH10(WETH).depositTo{value: msg.value}(msg.sender);
         IPair(pair).provideLiquidity(msg.sender, lpTokenAmount);
+
         // refund dust eth, if any
         if (msg.value > amountETH)
             TransferHelper.safeTransferETH(msg.sender, msg.value - amountETH);
@@ -150,12 +153,16 @@ contract TWAMM is ITWAMM {
         uint256 lpTokenAmount,
         uint256 deadline
     ) external virtual override ensure(deadline) {
+        uint256 balanceBeforeWETH = IWETH10(WETH).balanceOf(msg.sender);
         address pair = Library.pairFor(factory, token, WETH);
         IPair(pair).removeLiquidity(msg.sender, lpTokenAmount);
-        (, uint256 reserveETH) = Library.getReserves(factory, token, WETH);
-        uint256 totalSupplyLP = IERC20(pair).totalSupply();
-        uint256 amountETH = (reserveETH * lpTokenAmount) / totalSupplyLP;
-        IWETH10(WETH).withdrawFrom(msg.sender, payable(msg.sender), amountETH);
+        uint256 balanceAfterWETH = IWETH10(WETH).balanceOf(msg.sender);
+        uint256 amountETHWithdraw = balanceAfterWETH - balanceBeforeWETH;
+        IWETH10(WETH).withdrawFrom(
+            msg.sender,
+            payable(msg.sender),
+            amountETHWithdraw
+        );
     }
 
     function instantSwapTokenToToken(
@@ -179,6 +186,7 @@ contract TWAMM is ITWAMM {
         uint256 amountTokenIn,
         uint256 deadline
     ) external virtual override ensure(deadline) {
+        uint256 balanceBeforeWETH = IWETH10(WETH).balanceOf(msg.sender);
         address pair = Library.pairFor(factory, token, WETH);
         (address tokenA, ) = Library.sortTokens(token, WETH);
 
@@ -188,19 +196,12 @@ contract TWAMM is ITWAMM {
             IPair(pair).instantSwapFromBToA(msg.sender, amountTokenIn);
         }
 
-        (uint256 reserveToken, uint256 reserveETH) = Library.getReserves(
-            factory,
-            token,
-            WETH
-        );
-        uint256 amountETHOut = (reserveETH * amountTokenIn) /
-            (reserveToken + amountTokenIn);
-        //minus LP fee
-        uint256 amountETHOutMinusFee = (amountETHOut * 997) / 1000;
+        uint256 balanceAfterWETH = IWETH10(WETH).balanceOf(msg.sender);
+        uint256 amountETHWithdraw = balanceAfterWETH - balanceBeforeWETH;
         IWETH10(WETH).withdrawFrom(
             msg.sender,
             payable(msg.sender),
-            amountETHOutMinusFee
+            amountETHWithdraw
         );
     }
 
@@ -232,6 +233,7 @@ contract TWAMM is ITWAMM {
     ) external virtual override ensure(deadline) {
         address pair = Library.pairFor(factory, token0, token1);
         (address tokenA, ) = Library.sortTokens(token0, token1);
+
         if (tokenA == token0) {
             IPair(pair).longTermSwapFromAToB(
                 msg.sender,
@@ -277,10 +279,6 @@ contract TWAMM is ITWAMM {
         uint256 numberOfBlockIntervals,
         uint256 deadline
     ) external payable virtual override ensure(deadline) {
-        require(
-            IFactory(factory).getPair(token, WETH) != address(0),
-            "Liquidity Not Provided. Provide It First."
-        );
         address pair = Library.pairFor(factory, token, WETH);
         (address tokenA, ) = Library.sortTokens(WETH, token);
         IWETH10(WETH).depositTo{value: msg.value}(msg.sender);
@@ -298,6 +296,7 @@ contract TWAMM is ITWAMM {
                 numberOfBlockIntervals
             );
         }
+
         // refund dust eth, if any
         if (msg.value > amountETHIn)
             TransferHelper.safeTransferETH(msg.sender, msg.value - amountETHIn);
@@ -310,7 +309,6 @@ contract TWAMM is ITWAMM {
         uint256 deadline
     ) external virtual override ensure(deadline) {
         address pair = Library.pairFor(factory, token0, token1);
-
         IPair(pair).cancelLongTermSwap(msg.sender, orderId);
     }
 
@@ -322,7 +320,6 @@ contract TWAMM is ITWAMM {
         uint256 balanceBeforeWETH = IWETH10(WETH).balanceOf(msg.sender);
         address pair = Library.pairFor(factory, token, WETH);
         IPair(pair).cancelLongTermSwap(msg.sender, orderId);
-
         uint256 balanceAfterWETH = IWETH10(WETH).balanceOf(msg.sender);
         uint256 amountETHWithdraw = balanceAfterWETH - balanceBeforeWETH;
         IWETH10(WETH).withdrawFrom(
@@ -340,7 +337,6 @@ contract TWAMM is ITWAMM {
         uint256 balanceBeforeWETH = IWETH10(WETH).balanceOf(msg.sender);
         address pair = Library.pairFor(factory, WETH, token);
         IPair(pair).cancelLongTermSwap(msg.sender, orderId);
-
         uint256 balanceAfterWETH = IWETH10(WETH).balanceOf(msg.sender);
         uint256 amountETHWithdraw = balanceAfterWETH - balanceBeforeWETH;
         IWETH10(WETH).withdrawFrom(
@@ -368,7 +364,6 @@ contract TWAMM is ITWAMM {
         uint256 balanceBeforeWETH = IWETH10(WETH).balanceOf(msg.sender);
         address pair = Library.pairFor(factory, token, WETH);
         IPair(pair).withdrawProceedsFromLongTermSwap(msg.sender, orderId);
-
         uint256 balanceAfterWETH = IWETH10(WETH).balanceOf(msg.sender);
         uint256 amountETHWithdraw = balanceAfterWETH - balanceBeforeWETH;
         IWETH10(WETH).withdrawFrom(

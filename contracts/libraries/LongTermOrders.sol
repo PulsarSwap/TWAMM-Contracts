@@ -180,9 +180,8 @@ library LongTermOrdersLib {
         IERC20(order.buyTokenId).transfer(sender, purchasedAmountMinusFee);
         IERC20(order.sellTokenId).transfer(sender, unsoldAmount);
 
-        // console.log(IERC20(order.buyTokenId).balanceOf(msg.sender));
         // delete orderId from account list
-        // removeOrderId(self, orderId, msg.sender);
+        // removeOrderId(self, orderId, sender);
         self.orderIdStatusMap[orderId] = false;
     }
 
@@ -329,12 +328,14 @@ library LongTermOrdersLib {
             //constant product formula
             tokenAOut = (tokenAStart * tokenBIn) / (tokenBStart + tokenBIn);
             tokenBOut = 0;
+            require(tokenAOut <= tokenAStart, "Insufficient Liquidity");
             ammEndTokenA = tokenAStart - tokenAOut;
             ammEndTokenB = tokenBStart + tokenBIn;
         } else if (tokenBIn == 0) {
             tokenAOut = 0;
             //contant product formula
             tokenBOut = (tokenBStart * tokenAIn) / (tokenAStart + tokenAIn);
+            require(tokenBOut <= tokenBStart, "Insufficient Liquidity");
             ammEndTokenA = tokenAStart + tokenAIn;
             ammEndTokenB = tokenBStart - tokenBOut;
         }
@@ -353,6 +354,10 @@ library LongTermOrdersLib {
 
             int256 outA = aStart + aIn - endA;
             int256 outB = bStart + bIn - endB;
+            require(
+                outA <= aStart + aIn && outB <= bStart + bIn,
+                "Insufficient Liquidity"
+            );
 
             return (
                 uint256(outA.toInt()),
@@ -394,6 +399,7 @@ library LongTermOrdersLib {
             .sqrt();
         int256 eDenominator = aStart.sqrt().mul(bStart.sqrt()).inv();
         int256 exponent = eNumerator.mul(eDenominator).exp();
+        require(exponent > c.abs(), "Invalid Amount");
         int256 fraction = (exponent + c).div(exponent - c);
         int256 scaling = k.div(tokenBIn).sqrt().mul(tokenAIn.sqrt());
         ammEndTokenA = fraction.mul(scaling);

@@ -33,8 +33,8 @@ interface IPair {
         uint256 amountA,
         uint256 amountB
     );
-    event LiquidityProvided(address indexed addr, uint256 lpTokens);
-    event LiquidityRemoved(address indexed addr, uint256 lpTokens);
+    event LiquidityProvided(address indexed addr, uint256 lpTokenAmount);
+    event LiquidityRemoved(address indexed addr, uint256 lpTokenAmount);
     event InstantSwapAToB(
         address indexed addr,
         uint256 amountAIn,
@@ -67,9 +67,9 @@ interface IPair {
         uint256 amountB
     ) external;
 
-    function provideLiquidity(address to, uint256 lptokenAmount) external;
+    function provideLiquidity(address to, uint256 lpTokenAmount) external;
 
-    function removeLiquidity(address to, uint256 lptokenAmount) external;
+    function removeLiquidity(address to, uint256 lpTokenAmount) external;
 
     function instantSwapFromAToB(address sender, uint256 amountAIn) external;
 
