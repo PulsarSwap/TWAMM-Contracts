@@ -2,9 +2,6 @@
 
 pragma solidity ^0.8.9;
 
-// Inspired by https://www.paradigm.xyz/2021/07/twamm
-// https://github.com/para-dave/twamm
-
 // import "hardhat/console.sol";
 import "./interfaces/IPair.sol";
 import "./libraries/LongTermOrders.sol";
