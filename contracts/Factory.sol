@@ -9,8 +9,8 @@ import "./Pair.sol";
 contract Factory is IFactory {
     mapping(address => mapping(address => address)) public override getPair;
     address[] public override allPairs;
-    // bool private isInitialized = false;
-    address public override twammTheOnlyCaller = address(0);
+    bool private isInitialized = false;
+    address private twammTheOnlyCaller = address(0);
 
     function allPairsLength() external view override returns (uint256) {
         return allPairs.length;
@@ -23,16 +23,20 @@ contract Factory is IFactory {
 //     safeCaller = twamm;
 //   }
     
-    function returnTwammAddress() external pure returns (address) {
+    function returnTwammAddress() external view returns (address) {
         return twammTheOnlyCaller;
   }
 
-    function createPair(address token0, address token1, address twammTheOnlyCaller)
+    function createPair(address token0, address token1, address caller)
         external
         override
         returns (address pair)
     {
         require(token0 != token1, "Factory: Identical_Addresses");
+        if (isInitialized != true) {
+            twammTheOnlyCaller = caller;
+            isInitialized = false;
+        }
         require(twammTheOnlyCaller != address(0), "Invalid TWAMM Caller");
         (address tokenA, address tokenB) = token0 < token1
             ? (token0, token1)

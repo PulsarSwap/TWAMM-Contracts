@@ -119,6 +119,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         uint256 amountB
     ) external override lock nonReentrant {
         require(amountA > 0 && amountB > 0, "Invalid Amount");
+        require(msg.sender == safeCaller, "Invalid Caller");
         require(
             totalSupply() == 0,
             "Liquidity Has Already Been Provided, Need To Call provideLiquidity()"
@@ -152,6 +153,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         nonReentrant
     {
         require(lpTokenAmount > 0, "Invalid Amount");
+        require(msg.sender == safeCaller, "Invalid Caller");
         require(
             totalSupply() != 0,
             "No Liquidity Has Been Provided Yet, Need To Call provideInitialLiquidity()"
@@ -221,6 +223,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         nonReentrant
     {
         require(amountAIn > 0, "Invalid Amount");
+        require(msg.sender == safeCaller, "Invalid Caller");
         uint256 amountBOut = performInstantSwap(
             sender,
             tokenA,
@@ -240,6 +243,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         uint256 numberOfBlockIntervals
     ) external override lock nonReentrant {
         require(amountAIn > 0, "Invalid Amount");
+        require(msg.sender == safeCaller, "Invalid Caller");
         uint256 orderId = longTermOrders.longTermSwapFromAToB(
             sender,
             amountAIn,
@@ -258,6 +262,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         nonReentrant
     {
         require(amountBIn > 0, "Invalid Amount");
+        require(msg.sender == safeCaller, "Invalid Caller");
         uint256 amountAOut = performInstantSwap(
             sender,
             tokenB,
@@ -277,6 +282,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         uint256 numberOfBlockIntervals
     ) external override lock nonReentrant {
         require(amountBIn > 0, "Invalid Amount");
+        require(msg.sender == safeCaller, "Invalid Caller");
         uint256 orderId = longTermOrders.longTermSwapFromBToA(
             sender,
             amountBIn,
@@ -294,6 +300,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         lock
         nonReentrant
     {
+        require(msg.sender == safeCaller, "Invalid Caller");
         longTermOrders.cancelLongTermSwap(sender, orderId, reserveMap);
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         emit CancelLongTermOrder(sender, orderId);
@@ -306,6 +313,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         lock
         nonReentrant
     {
+        require(msg.sender == safeCaller, "Invalid Caller");
         longTermOrders.withdrawProceedsFromLongTermSwap(
             sender,
             orderId,

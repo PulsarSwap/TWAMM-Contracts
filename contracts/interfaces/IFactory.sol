@@ -23,5 +23,5 @@ interface IFactory {
         external
         returns (address pair);
 
-    function returnTwammAddress() external pure returns (address);
+    function returnTwammAddress() external view returns (address);
 }
