@@ -131,7 +131,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
             .sqrt()
             .mul(amountB.fromUint().sqrt())
             .toUint() - MINIMUM_LIQUIDITY;
-        
+
         IERC20(tokenA).safeTransferFrom(to, address(this), amountA);
         IERC20(tokenB).safeTransferFrom(to, address(this), amountB);
         _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens
@@ -177,7 +177,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
 
     ///@notice remove liquidity to the AMM
     ///@param lpTokenAmount number of lp tokens to burn
-    
+
     function removeLiquidity(address to, uint256 lpTokenAmount)
         external
         override
