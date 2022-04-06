@@ -85,7 +85,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     // update price accumulators, on the first call per block
     function updatePrice(uint256 reserveA, uint256 reserveB) private {
         require(
-            reserveA <= type(uint256).max && reserveB <= type(uint256).max,
+            reserveA <= type(uint112).max && reserveB <= type(uint112).max,
             "Pair: Overflow"
         );
         uint32 blockTimestamp = uint32(block.timestamp % 2**32);
