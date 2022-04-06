@@ -331,7 +331,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         uint256 amountIn
     ) private returns (uint256 amountOutMinusFee) {
         require(amountIn > 0, "Swap Amount Must Be Positive");
-
+        require(msg.sender == safeCaller, "Invalid Caller");
         //execute virtual orders
         longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
 
