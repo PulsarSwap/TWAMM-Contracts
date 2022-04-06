@@ -170,12 +170,14 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         IERC20(tokenA).safeTransferFrom(to, address(this), amountAIn);
         IERC20(tokenB).safeTransferFrom(to, address(this), amountBIn);
         _mint(to, lpTokenAmount);
+
         updatePrice(reserveA, reserveB);
         emit LiquidityProvided(to, lpTokenAmount);
     }
 
     ///@notice remove liquidity to the AMM
     ///@param lpTokenAmount number of lp tokens to burn
+    
     function removeLiquidity(address to, uint256 lpTokenAmount)
         external
         override
