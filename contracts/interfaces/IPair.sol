@@ -69,7 +69,7 @@ interface IPair {
 
     function provideLiquidity(address to, uint256 lptokenAmount) external;
 
-    function removeLiquidity(address to, uint256 lptokenAmount) external;
+    function removeLiquidity(address to) external;
 
     function instantSwapFromAToB(address sender, uint256 amountAIn) external;
 

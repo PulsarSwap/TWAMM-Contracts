@@ -131,11 +131,11 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
             .sqrt()
             .mul(amountB.fromUint().sqrt())
             .toUint() - MINIMUM_LIQUIDITY;
-        _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens
-        _mint(to, lpTokenAmount);
-
+        
         IERC20(tokenA).safeTransferFrom(to, address(this), amountA);
         IERC20(tokenB).safeTransferFrom(to, address(this), amountB);
+        _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens
+        _mint(to, lpTokenAmount);
 
         updatePrice(amountA, amountB);
         emit InitialLiquidityProvided(to, amountA, amountB);
@@ -167,18 +167,17 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         reserveMap[tokenA] += amountAIn;
         reserveMap[tokenB] += amountBIn;
 
-        _mint(to, lpTokenAmount);
-
         IERC20(tokenA).safeTransferFrom(to, address(this), amountAIn);
         IERC20(tokenB).safeTransferFrom(to, address(this), amountBIn);
+        _mint(to, lpTokenAmount);
 
         updatePrice(reserveA, reserveB);
         emit LiquidityProvided(to, lpTokenAmount);
     }
 
     ///@notice remove liquidity to the AMM
-    ///@param lpTokenAmount number of lp tokens to burn
-    function removeLiquidity(address to, uint256 lpTokenAmount)
+    
+    function removeLiquidity(address to)
         external
         override
         lock
@@ -186,6 +185,8 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     {
         //execute virtual orders
         longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
+
+        uint256 lpTokenAmount = balanceOf(address(this));
 
         require(lpTokenAmount > 0, "Invalid Amount");
         require(
@@ -202,7 +203,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         reserveMap[tokenA] -= amountAOut;
         reserveMap[tokenB] -= amountBOut;
 
-        _burn(to, lpTokenAmount);
+        _burn(address(this), lpTokenAmount);
 
         IERC20(tokenA).safeTransfer(to, amountAOut);
         IERC20(tokenB).safeTransfer(to, amountBOut);

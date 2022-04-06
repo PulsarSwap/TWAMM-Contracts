@@ -147,7 +147,8 @@ contract TWAMM is ITWAMM {
         uint256 deadline
     ) external virtual override ensure(deadline) {
         address pair = Library.pairFor(factory, token0, token1);
-        IPair(pair).removeLiquidity(msg.sender, lpTokenAmount);
+        IERC20(pair).safeTransferFrom(msg.sender, pair, lpTokenAmount); // send liquidity to pair
+        IPair(pair).removeLiquidity(msg.sender);
     }
 
     function withdrawLiquidityETH(
@@ -157,7 +158,8 @@ contract TWAMM is ITWAMM {
     ) external virtual override ensure(deadline) {
         uint256 balanceBeforeWETH = IWETH10(WETH).balanceOf(msg.sender);
         address pair = Library.pairFor(factory, token, WETH);
-        IPair(pair).removeLiquidity(msg.sender, lpTokenAmount);
+        IERC20(pair).safeTransferFrom(msg.sender, pair, lpTokenAmount); // send liquidity to pair
+        IPair(pair).removeLiquidity(msg.sender);
         uint256 balanceAfterWETH = IWETH10(WETH).balanceOf(msg.sender);
         uint256 amountETHWithdraw = balanceAfterWETH - balanceBeforeWETH;
         IWETH10(WETH).withdrawFrom(
