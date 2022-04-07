@@ -202,7 +202,9 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         _mint(to, lpTokenAmount);
 
         updatePrice(reserveA, reserveB);
+
         if (feeOn) kLast = reserveMap[tokenA] * reserveMap[tokenB];
+
         emit LiquidityProvided(to, lpTokenAmount);
     }
 
@@ -239,6 +241,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         IERC20(tokenA).safeTransfer(to, amountAOut);
         IERC20(tokenB).safeTransfer(to, amountBOut);
         updatePrice(reserveA, reserveB);
+
         if (feeOn) kLast = reserveMap[tokenA] * reserveMap[tokenB];
         emit LiquidityRemoved(to, lpTokenAmount);
     }
