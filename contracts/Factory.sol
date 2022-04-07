@@ -7,8 +7,8 @@ import "./interfaces/IFactory.sol";
 import "./Pair.sol";
 
 contract Factory is IFactory {
-    address public feeTo;
-    address public feeToSetter;
+    address public override feeTo;
+    address public override feeToSetter;
     mapping(address => mapping(address => address)) public override getPair;
     address[] public override allPairs;
 
@@ -47,12 +47,12 @@ contract Factory is IFactory {
         emit PairCreated(tokenA, tokenB, pair, allPairs.length);
     }
 
-    function setFeeTo(address _feeTo) external {
+    function setFeeTo(address _feeTo) external override {
         require(msg.sender == feeToSetter, "Factory: Forbidden");
         feeTo = _feeTo;
     }
 
-    function setFeeToSetter(address _feeToSetter) external {
+    function setFeeToSetter(address _feeToSetter) external override {
         require(msg.sender == feeToSetter, "Factory: Forbidden");
         feeToSetter = _feeToSetter;
     }

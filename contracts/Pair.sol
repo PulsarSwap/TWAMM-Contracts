@@ -26,7 +26,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     uint32 private blockTimestampLast;
     uint256 public override priceACumulativeLast;
     uint256 public override priceBCumulativeLast;
-    uint256 public kLast; // reserveA * reserveB, as of immediately after the most recent liquidity event
+    uint256 public override kLast; // reserveA * reserveB, as of immediately after the most recent liquidity event
 
     uint256 public constant MINIMUM_LIQUIDITY = 10**3;
 
