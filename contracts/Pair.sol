@@ -4,6 +4,7 @@ pragma solidity ^0.8.9;
 
 // import "hardhat/console.sol";
 import "./interfaces/IPair.sol";
+import "./interfaces/IFactory.sol";
 import "./libraries/LongTermOrders.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -25,6 +26,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     uint32 private blockTimestampLast;
     uint256 public override priceACumulativeLast;
     uint256 public override priceBCumulativeLast;
+    uint256 public kLast; // reserveA * reserveB, as of immediately after the most recent liquidity event
 
     uint256 public constant MINIMUM_LIQUIDITY = 10**3;
 
@@ -107,6 +109,33 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         emit UpdatePrice(reserveA, reserveB);
     }
 
+    // if fee is on, mint liquidity equivalent to 1/6th of the growth in sqrt(k)
+    function mintFee(uint256 reserveA, uint256 reserveB)
+        private
+        returns (bool feeOn)
+    {
+        address feeTo = IFactory(factory).feeTo();
+        feeOn = feeTo != address(0);
+        if (feeOn) {
+            if (kLast != 0) {
+                uint256 rootK = reserveA
+                    .fromUint()
+                    .sqrt()
+                    .mul(reserveB.fromUint().sqrt())
+                    .toUint();
+                uint256 rootKLast = kLast.fromUint().sqrt().toUint();
+                if (rootK > rootKLast) {
+                    uint256 numerator = totalSupply() * (rootK - rootKLast);
+                    uint256 denominator = rootK * 5 + rootKLast;
+                    uint256 liquidity = numerator / denominator;
+                    if (liquidity > 0) _mint(feeTo, liquidity);
+                }
+            }
+        } else if (kLast != 0) {
+            kLast = 0;
+        }
+    }
+
     ///@notice provide initial liquidity to the amm. This sets the relative price between tokens
     function provideInitialLiquidity(
         address to,
@@ -135,6 +164,8 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         _mint(to, lpTokenAmount);
 
         updatePrice(amountA, amountB);
+        bool feeOn = mintFee(amountA, amountB);
+        if (feeOn) kLast = amountA * amountB;
         emit InitialLiquidityProvided(to, amountA, amountB);
     }
 
@@ -157,6 +188,8 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         uint256 reserveA = reserveMap[tokenA];
         uint256 reserveB = reserveMap[tokenB];
 
+        bool feeOn = mintFee(reserveA, reserveB);
+
         //the ratio between the number of underlying tokens and the number of lp tokens must remain invariant after mint
         uint256 amountAIn = (lpTokenAmount * reserveA) / totalSupply();
         uint256 amountBIn = (lpTokenAmount * reserveB) / totalSupply();
@@ -169,6 +202,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         _mint(to, lpTokenAmount);
 
         updatePrice(reserveA, reserveB);
+        if (feeOn) kLast = reserveMap[tokenA] * reserveMap[tokenA];
         emit LiquidityProvided(to, lpTokenAmount);
     }
 
@@ -191,6 +225,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         );
         uint256 reserveA = reserveMap[tokenA];
         uint256 reserveB = reserveMap[tokenB];
+        bool feeOn = mintFee(reserveA, reserveB);
 
         //the ratio between the number of underlying tokens and the number of lp tokens must remain invariant after burn
         uint256 amountAOut = (reserveA * lpTokenAmount) / totalSupply();
@@ -204,6 +239,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         IERC20(tokenA).safeTransfer(to, amountAOut);
         IERC20(tokenB).safeTransfer(to, amountBOut);
         updatePrice(reserveA, reserveB);
+        if (feeOn) kLast = reserveMap[tokenA] * reserveMap[tokenA];
         emit LiquidityRemoved(to, lpTokenAmount);
     }
 

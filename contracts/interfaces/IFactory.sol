@@ -10,6 +10,10 @@ interface IFactory {
         uint256
     );
 
+    function feeTo() external view returns (address);
+
+    function feeToSetter() external view returns (address);
+
     function getPair(address token0, address token1)
         external
         view
@@ -22,4 +26,8 @@ interface IFactory {
     function createPair(address token0, address token1)
         external
         returns (address pair);
+
+    function setFeeTo(address) external;
+
+    function setFeeToSetter(address) external;
 }
