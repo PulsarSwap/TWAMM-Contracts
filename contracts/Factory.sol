@@ -7,11 +7,17 @@ import "./interfaces/IFactory.sol";
 import "./Pair.sol";
 
 contract Factory is IFactory {
+    address public override feeTo;
+    address public override feeToSetter;
     mapping(address => mapping(address => address)) public override getPair;
     address[] public override allPairs;
 
     function allPairsLength() external view override returns (uint256) {
         return allPairs.length;
+    }
+
+    constructor(address _feeToSetter) {
+        feeToSetter = _feeToSetter;
     }
 
     function createPair(address token0, address token1)
@@ -39,5 +45,15 @@ contract Factory is IFactory {
         getPair[tokenB][tokenA] = pair; // populate mapping in the reverse direction
         allPairs.push(pair);
         emit PairCreated(tokenA, tokenB, pair, allPairs.length);
+    }
+
+    function setFeeTo(address _feeTo) external override {
+        require(msg.sender == feeToSetter, "Factory: Forbidden");
+        feeTo = _feeTo;
+    }
+
+    function setFeeToSetter(address _feeToSetter) external override {
+        require(msg.sender == feeToSetter, "Factory: Forbidden");
+        feeToSetter = _feeToSetter;
     }
 }
