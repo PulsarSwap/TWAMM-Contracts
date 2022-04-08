@@ -14,14 +14,6 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   }
 });
 
-// task("accounts", "Prints the list of accounts", async () => {
-//     const accounts = await ethers.getSigners();
-
-//     for (const account of accounts) {
-//         console.log(account.address);
-//     }
-// });
-
 const INFURA_API_KEY = process.env.INFURA_API_KEY;
 const PRIVATE_KEY_TEST = process.env.PRIVATE_KEY_TEST;
 const PRIVATE_KEY_MAINNET = process.env.PRIVATE_KEY_MAINNET;
