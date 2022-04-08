@@ -16,23 +16,23 @@ contract Factory is IFactory {
         return allPairs.length;
     }
 
-//     function initialize(address twamm
-//   ) public {
-//     require(!isInitialized, 'Contract is already initialized!');
-//     isInitialized = true;
-//     safeCaller = twamm;
-//   }
-    
+    //     function initialize(address twamm
+    //   ) public {
+    //     require(!isInitialized, 'Contract is already initialized!');
+    //     isInitialized = true;
+    //     safeCaller = twamm;
+    //   }
+
     function returnTwammAddress() external view returns (address) {
         return twammTheOnlyCaller;
-  }
+    }
 
-    function createPair(address token0, address token1, address caller)
-        external
-        override
-        returns (address pair)
-    {
-        require(token0 != token1, "Factory: Identical_Addresses");
+    function createPair(
+        address token0,
+        address token1,
+        address caller
+    ) external override returns (address pair) {
+        require(token0 != token1, "Factory: Identical Addresses");
         if (isInitialized != true) {
             twammTheOnlyCaller = caller;
             isInitialized = false;
@@ -41,9 +41,9 @@ contract Factory is IFactory {
         (address tokenA, address tokenB) = token0 < token1
             ? (token0, token1)
             : (token1, token0);
-        require(tokenA != address(0), "Factory: Zero_Address");
+        require(tokenA != address(0), "Factory: Zero Address");
         // require(safeCaller != address(0), "Please Initialize Facotry First");
-        require(getPair[tokenA][tokenB] == address(0), "Factory: Pair_Exists"); // single check is sufficient
+        require(getPair[tokenA][tokenB] == address(0), "Factory: Pair Exists"); // single check is sufficient
         bytes memory bytecode = type(Pair).creationCode;
         bytes memory bytecodeArg = abi.encodePacked(
             bytecode,

@@ -27,8 +27,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     uint256 public override priceACumulativeLast;
     uint256 public override priceBCumulativeLast;
 
-    uint256 public constant MINIMUM_LIQUIDITY = 10**3;
-
     ///@notice fee for LP providers, 4 decimal places, i.e. 30 = 0.3%
     uint256 public constant LP_FEE = 30;
 
@@ -56,7 +54,11 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         unlocked = 1; // unlock
     }
 
-    constructor(address _tokenA, address _tokenB, address _twamm) ERC20("Pulsar-LP", "PUL-LP") {
+    constructor(
+        address _tokenA,
+        address _tokenB,
+        address _twamm
+    ) ERC20("Pulsar-LP", "PUL-LP") {
         factory = msg.sender;
         safeCaller = _twamm;
         tokenA = _tokenA;
@@ -130,11 +132,11 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
             .fromUint()
             .sqrt()
             .mul(amountB.fromUint().sqrt())
-            .toUint(); // - MINIMUM_LIQUIDITY;
+            .toUint();
 
         IERC20(tokenA).safeTransferFrom(to, address(this), amountA);
         IERC20(tokenB).safeTransferFrom(to, address(this), amountB);
-        // _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens
+
         _mint(to, lpTokenAmount);
 
         updatePrice(amountA, amountB);
@@ -325,14 +327,10 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         address to,
         uint256 amountIn
     ) private returns (uint256 amountOutMinusFee) {
-        require(amountIn > 0, "Swap Amount Must Be Positive");
-        require(msg.sender == safeCaller, "Invalid Caller");
         //execute virtual orders
         longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
-        require(amountIn > 0, "Swap Amount Must Be Positive");
         uint256 reserveFrom = reserveMap[from];
         uint256 reserveTo = reserveMap[to];
-
         //constant product formula
         uint256 amountOut = (reserveTo * amountIn) / (reserveFrom + amountIn);
         require(amountOut <= reserveTo, "Pair: Insufficient Liquidity");

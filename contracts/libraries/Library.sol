@@ -16,11 +16,11 @@ library Library {
         pure
         returns (address tokenA, address tokenB)
     {
-        require(token0 != token1, "Library: Identical_Addresses");
+        require(token0 != token1, "Library: Identical Addresses");
         (tokenA, tokenB) = token0 < token1
             ? (token0, token1)
             : (token1, token0);
-        require(tokenA != address(0), "Library: Zero_Address");
+        require(tokenA != address(0), "Library: Zero Address");
     }
 
     // calculates the CREATE2 address for a pair without making any external calls
@@ -28,7 +28,6 @@ library Library {
         address factory,
         address token0,
         address token1
-        
     ) internal view returns (address pair) {
         (address tokenA, address tokenB) = sortTokens(token0, token1);
         bytes memory bytecode = type(Pair).creationCode;
@@ -74,7 +73,7 @@ library Library {
         uint256 reserve0,
         uint256 reserve1
     ) internal pure returns (uint256 amount1) {
-        require(amount0 > 0, "Library: Insufficient_Amount");
+        require(amount0 > 0, "Library: Insufficient Amount");
         require(
             reserve0 > 0 && reserve1 > 0,
             "Library: Insufficient_Liquidity"

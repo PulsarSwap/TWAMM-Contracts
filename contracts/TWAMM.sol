@@ -279,7 +279,7 @@ contract TWAMM is ITWAMM {
         uint256 numberOfBlockIntervals,
         uint256 deadline
     ) external payable virtual override ensure(deadline) {
-        address pair = Library.pairFor(factory, token, WETH);
+        address pair = Library.pairFor(factory, WETH, token);
         (address tokenA, ) = Library.sortTokens(WETH, token);
         IWETH10(WETH).depositTo{value: msg.value}(msg.sender);
 

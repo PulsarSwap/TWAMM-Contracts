@@ -3,6 +3,7 @@ pragma solidity ^0.8.9;
 
 // import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "prb-math/contracts/PRBMathSD59x18.sol";
 import "./OrderPool.sol";
 
@@ -10,6 +11,7 @@ import "./OrderPool.sol";
 library LongTermOrdersLib {
     using PRBMathSD59x18 for int256;
     using OrderPoolLib for OrderPoolLib.OrderPool;
+    using SafeERC20 for IERC20;
 
     ///@notice fee for LP providers, 4 decimal places, i.e. 30 = 0.3%
     uint256 public constant LP_FEE = 30;
@@ -114,7 +116,7 @@ library LongTermOrdersLib {
         executeVirtualOrdersUntilCurrentBlock(self, reserveMap);
 
         // transfer sale amount to contract
-        IERC20(from).transferFrom(sender, address(this), amount);
+        IERC20(from).safeTransferFrom(sender, address(this), amount);
 
         //determine the selling rate based on number of blocks to expiry and total amount
         uint256 currentBlock = block.number;
@@ -177,8 +179,8 @@ library LongTermOrdersLib {
             "No Proceeds To Withdraw"
         );
         //transfer to owner
-        IERC20(order.buyTokenId).transfer(sender, purchasedAmountMinusFee);
-        IERC20(order.sellTokenId).transfer(sender, unsoldAmount);
+        IERC20(order.buyTokenId).safeTransfer(sender, purchasedAmountMinusFee);
+        IERC20(order.sellTokenId).safeTransfer(sender, unsoldAmount);
 
         // delete orderId from account list
         // removeOrderId(self, orderId, sender);
@@ -208,12 +210,12 @@ library LongTermOrdersLib {
 
         require(proceedsMinusFee > 0, "No Proceeds To Withdraw");
         //transfer to owner
-        IERC20(order.buyTokenId).transfer(sender, proceedsMinusFee);
+        IERC20(order.buyTokenId).safeTransfer(sender, proceedsMinusFee);
 
         // delete orderId from account list
-        // removeOrderId(self, orderId, msg.sender);
+        // removeOrderId(self, orderId, sender);
         if (order.expirationBlock >= block.number) {
-            self.orderIdStatusMap[orderId] = false; 
+            self.orderIdStatusMap[orderId] = false;
         }
     }
 
