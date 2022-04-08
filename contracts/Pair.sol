@@ -27,8 +27,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     uint256 public override priceACumulativeLast;
     uint256 public override priceBCumulativeLast;
 
-    uint256 public constant MINIMUM_LIQUIDITY = 10**3;
-
     ///@notice fee for LP providers, 4 decimal places, i.e. 30 = 0.3%
     uint256 public constant LP_FEE = 30;
 
@@ -130,11 +128,10 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
             .fromUint()
             .sqrt()
             .mul(amountB.fromUint().sqrt())
-            .toUint(); // - MINIMUM_LIQUIDITY;
+            .toUint(); 
 
         IERC20(tokenA).safeTransferFrom(to, address(this), amountA);
         IERC20(tokenB).safeTransferFrom(to, address(this), amountB);
-        // _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens
         _mint(to, lpTokenAmount);
 
         updatePrice(amountA, amountB);
