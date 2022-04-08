@@ -51,7 +51,6 @@ describe("TWAMM", function () {
     });
     twamm = await TWAMM.deploy(factory.address, WETH.address);
 
-    
     // create pair and initialize liquidity for the pair
     blockNumber = await ethers.provider.getBlockNumber();
     timeStamp = (await ethers.provider.getBlock(blockNumber)).timestamp;
@@ -434,7 +433,7 @@ describe("TWAMM", function () {
             amountInA,
             2,
             timeStamp + 100000,
-            {value: amountInA}
+            { value: amountInA }
           );
 
         //move blocks forward, and execute virtual orders

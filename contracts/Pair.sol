@@ -47,6 +47,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
 
     ///@notice reentrancy guard
     modifier lock() {
+        require(msg.sender == safeCaller, "Invalid Caller");
         require(unlocked == 1, "Locked");
 
         unlocked = 0; // lock
@@ -136,7 +137,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
 
         IERC20(tokenA).safeTransferFrom(to, address(this), amountA);
         IERC20(tokenB).safeTransferFrom(to, address(this), amountB);
-
 
         _mint(to, lpTokenAmount);
 

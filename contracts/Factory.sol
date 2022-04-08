@@ -17,11 +17,9 @@ contract Factory is IFactory, Initializable {
         return allPairs.length;
     }
 
-
     function initialize(address twammAdd) public initializer {
         twammTheOnlyCaller = twammAdd;
     }
-
 
     function returnTwammAddress() external view returns (address) {
         return twammTheOnlyCaller;
@@ -31,11 +29,10 @@ contract Factory is IFactory, Initializable {
         external
         override
         returns (address pair)
-
     {
         require(
             msg.sender == twammTheOnlyCaller,
-            "Invalid user. Only TWAMM can create pair!"
+            "Invalid user, Only TWAMM can create pair!"
         );
         require(
             twammTheOnlyCaller != address(0),
