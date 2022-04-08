@@ -17,9 +17,11 @@ contract Factory is IFactory, Initializable {
         return allPairs.length;
     }
 
+
     function initialize(address twammAdd) public initializer {
         twammTheOnlyCaller = twammAdd;
     }
+
 
     function returnTwammAddress() external view returns (address) {
         return twammTheOnlyCaller;
@@ -29,6 +31,7 @@ contract Factory is IFactory, Initializable {
         external
         override
         returns (address pair)
+
     {
         require(
             msg.sender == twammTheOnlyCaller,
@@ -47,6 +50,7 @@ contract Factory is IFactory, Initializable {
         require(tokenA != address(0), "Factory: Zero Address");
 
         require(getPair[tokenA][tokenB] == address(0), "Factory: Pair Exists"); // single check is sufficient
+
         bytes memory bytecode = type(Pair).creationCode;
         bytes memory bytecodeArg = abi.encodePacked(
             bytecode,

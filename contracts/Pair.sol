@@ -137,6 +137,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         IERC20(tokenA).safeTransferFrom(to, address(this), amountA);
         IERC20(tokenB).safeTransferFrom(to, address(this), amountB);
 
+
         _mint(to, lpTokenAmount);
 
         updatePrice(amountA, amountB);

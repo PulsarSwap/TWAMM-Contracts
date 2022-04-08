@@ -51,6 +51,7 @@ describe("TWAMM", function () {
     });
     twamm = await TWAMM.deploy(factory.address, WETH.address);
 
+    
     // create pair and initialize liquidity for the pair
     blockNumber = await ethers.provider.getBlockNumber();
     timeStamp = (await ethers.provider.getBlock(blockNumber)).timestamp;
@@ -153,8 +154,8 @@ describe("TWAMM", function () {
         const initialTokenAPerLP = tokenAReserve / totalSupply;
         const initialTokenBPerLP = tokenBReserve / totalSupply;
         const newLPTokens = 10000;
-        await WETH.approve(pairETH, newLPTokens); //owner calls it
-        await tokenB.approve(pairETH, newLPTokens);
+        await WETH.approve(pairETH, newLPTokens * initialTokenAPerLP); //owner calls it
+        await tokenB.approve(pairETH, newLPTokens * initialTokenBPerLP);
 
         await twamm.addLiquidityETH(
           tokenB.address,
@@ -432,7 +433,8 @@ describe("TWAMM", function () {
             tokenB.address,
             amountInA,
             2,
-            timeStamp + 100000
+            timeStamp + 100000,
+            {value: amountInA}
           );
 
         //move blocks forward, and execute virtual orders
