@@ -25,6 +25,7 @@ contract TWAMM is ITWAMM {
     constructor(address _factory, address _WETH) {
         factory = _factory;
         WETH = _WETH;
+        IFactory(factory).initialize(address(this));
     }
 
     receive() external payable {
@@ -60,7 +61,7 @@ contract TWAMM is ITWAMM {
             IFactory(factory).getPair(token0, token1) == address(0),
             "Pair Existing Already!"
         );
-        IFactory(factory).createPair(token0, token1, address(this));
+        IFactory(factory).createPair(token0, token1);
     }
 
     function addInitialLiquidity(
@@ -72,7 +73,7 @@ contract TWAMM is ITWAMM {
     ) external virtual override ensure(deadline) {
         // create the pair if it doesn't exist yet
         if (IFactory(factory).getPair(token0, token1) == address(0)) {
-            IFactory(factory).createPair(token0, token1, address(this));
+            IFactory(factory).createPair(token0, token1);
         }
 
         address pair = Library.pairFor(factory, token0, token1);
@@ -92,7 +93,7 @@ contract TWAMM is ITWAMM {
     ) external payable virtual override ensure(deadline) {
         // create the pair if it doesn't exist yet
         if (IFactory(factory).getPair(token, WETH) == address(0)) {
-            IFactory(factory).createPair(token, WETH, address(this));
+            IFactory(factory).createPair(token, WETH);
         }
 
         address pair = Library.pairFor(factory, token, WETH);

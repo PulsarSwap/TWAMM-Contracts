@@ -19,11 +19,11 @@ interface IFactory {
 
     function allPairsLength() external view returns (uint256);
 
-    function createPair(
-        address token0,
-        address token1,
-        address twammTheOnlyCaller
-    ) external returns (address pair);
+    function initialize(address twammAdd) external;
 
     function returnTwammAddress() external view returns (address);
+
+    function createPair(address token0, address token1)
+        external
+        returns (address pair);
 }
