@@ -19,7 +19,7 @@ contract Factory is IFactory, Initializable {
     }
 
     function initialize(address twammAdd
-  ) public initializer {
+  ) external initializer {
     twammTheOnlyCaller = twammAdd;
   }
     

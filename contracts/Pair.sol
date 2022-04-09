@@ -54,6 +54,12 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         unlocked = 1; // unlock
     }
 
+    ///@notice pair contract caller check
+    modifier checkCaller() {
+        require(msg.sender == safeCaller, "Invalid Caller");
+        _;
+    }
+
     constructor(address _tokenA, address _tokenB, address _twamm) ERC20("Pulsar-LP", "PUL-LP") {
         factory = msg.sender;
         safeCaller = _twamm;
@@ -112,9 +118,8 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         address to,
         uint256 amountA,
         uint256 amountB
-    ) external override lock nonReentrant {
+    ) external override checkCaller lock nonReentrant {
         require(amountA > 0 && amountB > 0, "Invalid Amount");
-        require(msg.sender == safeCaller, "Invalid Caller");
         require(
             totalSupply() == 0,
             "Liquidity Has Already Been Provided, Need To Call provideLiquidity()"
@@ -143,6 +148,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     function provideLiquidity(address to, uint256 lpTokenAmount)
         external
         override
+        checkCaller
         lock
         nonReentrant
     {
@@ -150,7 +156,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
 
         require(lpTokenAmount > 0, "Invalid Amount");
-        require(msg.sender == safeCaller, "Invalid Caller");
         require(
             totalSupply() != 0,
             "No Liquidity Has Been Provided Yet, Need To Call provideInitialLiquidity()"
@@ -179,6 +184,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     function removeLiquidity(address to, uint256 lpTokenAmount)
         external
         override
+        checkCaller
         lock
         nonReentrant
     {
@@ -186,7 +192,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
 
         require(lpTokenAmount > 0, "Invalid Amount");
-        require(msg.sender == safeCaller, "Invalid Caller");
         require(
             lpTokenAmount <= totalSupply(),
             "Not Enough Lp Tokens Available"
@@ -213,11 +218,11 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     function instantSwapFromAToB(address sender, uint256 amountAIn)
         external
         override
+        checkCaller
         lock
         nonReentrant
     {
         require(amountAIn > 0, "Invalid Amount");
-        require(msg.sender == safeCaller, "Invalid Caller");
         uint256 amountBOut = performInstantSwap(
             sender,
             tokenA,
@@ -234,9 +239,8 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         address sender,
         uint256 amountAIn,
         uint256 numberOfBlockIntervals
-    ) external override lock nonReentrant {
+    ) external override checkCaller lock nonReentrant {
         require(amountAIn > 0, "Invalid Amount");
-        require(msg.sender == safeCaller, "Invalid Caller");
         uint256 orderId = longTermOrders.longTermSwapFromAToB(
             sender,
             amountAIn,
@@ -251,11 +255,11 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     function instantSwapFromBToA(address sender, uint256 amountBIn)
         external
         override
+        checkCaller
         lock
         nonReentrant
     {
         require(amountBIn > 0, "Invalid Amount");
-        require(msg.sender == safeCaller, "Invalid Caller");
         uint256 amountAOut = performInstantSwap(
             sender,
             tokenB,
@@ -272,9 +276,8 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         address sender,
         uint256 amountBIn,
         uint256 numberOfBlockIntervals
-    ) external override lock nonReentrant {
+    ) external override checkCaller lock nonReentrant {
         require(amountBIn > 0, "Invalid Amount");
-        require(msg.sender == safeCaller, "Invalid Caller");
         uint256 orderId = longTermOrders.longTermSwapFromBToA(
             sender,
             amountBIn,
@@ -289,10 +292,10 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     function cancelLongTermSwap(address sender, uint256 orderId)
         external
         override
+        checkCaller
         lock
         nonReentrant
     {
-        require(msg.sender == safeCaller, "Invalid Caller");
         longTermOrders.cancelLongTermSwap(sender, orderId, reserveMap);
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         emit CancelLongTermOrder(sender, orderId);
@@ -302,10 +305,10 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     function withdrawProceedsFromLongTermSwap(address sender, uint256 orderId)
         external
         override
+        checkCaller
         lock
         nonReentrant
     {
-        require(msg.sender == safeCaller, "Invalid Caller");
         longTermOrders.withdrawProceedsFromLongTermSwap(
             sender,
             orderId,
@@ -321,9 +324,8 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         address from,
         address to,
         uint256 amountIn
-    ) private returns (uint256 amountOutMinusFee) {
+    ) private checkCaller returns (uint256 amountOutMinusFee) {
         require(amountIn > 0, "Swap Amount Must Be Positive");
-        require(msg.sender == safeCaller, "Invalid Caller");
         //execute virtual orders
         longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
         require(amountIn > 0, "Swap Amount Must Be Positive");
