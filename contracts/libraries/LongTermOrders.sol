@@ -373,14 +373,12 @@ library LongTermOrdersLib {
             //constant product formula
             tokenAOut = (tokenAStart * tokenBIn) / (tokenBStart + tokenBIn);
             tokenBOut = 0;
-            require(tokenAOut <= tokenAStart, "Insufficient Liquidity");
             ammEndTokenA = tokenAStart - tokenAOut;
             ammEndTokenB = tokenBStart + tokenBIn;
         } else if (tokenBIn == 0) {
             tokenAOut = 0;
             //contant product formula
             tokenBOut = (tokenBStart * tokenAIn) / (tokenAStart + tokenAIn);
-            require(tokenBOut <= tokenBStart, "Insufficient Liquidity");
             ammEndTokenA = tokenAStart + tokenAIn;
             ammEndTokenB = tokenBStart - tokenBOut;
         }
@@ -399,10 +397,6 @@ library LongTermOrdersLib {
 
             int256 outA = aStart + aIn - endA;
             int256 outB = bStart + bIn - endB;
-            require(
-                outA <= aStart + aIn && outB <= bStart + bIn,
-                "Insufficient Liquidity"
-            );
 
             return (
                 uint256(outA.toInt()),

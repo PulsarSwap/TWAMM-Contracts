@@ -173,7 +173,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         IERC20(tokenB).safeTransferFrom(to, address(this), amountBIn);
         _mint(to, lpTokenAmount);
 
-        updatePrice(reserveA, reserveB);
+        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         emit LiquidityProvided(to, lpTokenAmount);
     }
 
@@ -208,7 +208,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
 
         IERC20(tokenA).safeTransfer(to, amountAOut);
         IERC20(tokenB).safeTransfer(to, amountBOut);
-        updatePrice(reserveA, reserveB);
+        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         emit LiquidityRemoved(to, lpTokenAmount);
     }
 
@@ -327,7 +327,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         uint256 reserveTo = reserveMap[to];
         //constant product formula
         uint256 amountOut = (reserveTo * amountIn) / (reserveFrom + amountIn);
-        require(amountOut <= reserveTo, "Pair: Insufficient Liquidity");
 
         //charge LP fee
         amountOutMinusFee = (amountOut * (10000 - LP_FEE)) / 10000;
