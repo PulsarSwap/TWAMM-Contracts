@@ -291,47 +291,57 @@ library LongTermOrdersLib {
             );
         //iterate through blocks eligible for order expiries, moving state forward
         // optimization for skipping blocks with no expiry
-        for (uint256 i = 0; i < n - 1; i++) {
-            uint256 iExpiryBlock = lastExpiryBlock +
-                (i + 1) *
-                self.orderBlockInterval;
+        if (n >= 2) {
+            for (uint256 i = 0; i < n - 1; i++) {
+                uint256 iExpiryBlock = lastExpiryBlock +
+                    (i + 1) *
+                    self.orderBlockInterval;
 
-            uint256 beforSalesRateA = self
-                .OrderPoolMap[self.tokenA]
-                .salesRateEndingPerBlock[iExpiryBlock];
-            uint256 beforSalesRateB = self
-                .OrderPoolMap[self.tokenB]
-                .salesRateEndingPerBlock[iExpiryBlock];
+                uint256 beforSalesRateA = self
+                    .OrderPoolMap[self.tokenA]
+                    .salesRateEndingPerBlock[iExpiryBlock];
+                uint256 beforSalesRateB = self
+                    .OrderPoolMap[self.tokenB]
+                    .salesRateEndingPerBlock[iExpiryBlock];
 
-            uint256 afterSalesRateA = self
-                .OrderPoolMap[self.tokenA]
-                .salesRateEndingPerBlock[
-                    iExpiryBlock + self.orderBlockInterval
-                ];
-            uint256 afterSalesRateB = self
-                .OrderPoolMap[self.tokenB]
-                .salesRateEndingPerBlock[
-                    iExpiryBlock + self.orderBlockInterval
-                ];
+                uint256 afterSalesRateA = self
+                    .OrderPoolMap[self.tokenA]
+                    .salesRateEndingPerBlock[
+                        iExpiryBlock + self.orderBlockInterval
+                    ];
+                uint256 afterSalesRateB = self
+                    .OrderPoolMap[self.tokenB]
+                    .salesRateEndingPerBlock[
+                        iExpiryBlock + self.orderBlockInterval
+                    ];
 
-            if (
-                beforSalesRateA != afterSalesRateA ||
-                beforSalesRateB != afterSalesRateB
-            ) {
+                if (
+                    beforSalesRateA != afterSalesRateA ||
+                    beforSalesRateB != afterSalesRateB
+                ) {
+                    executeVirtualTradesAndOrderExpiries(
+                        self,
+                        reserveMap,
+                        iExpiryBlock
+                    );
+                }
+            }
+            //finally, move state to current block if necessary
+            if (self.lastVirtualOrderBlock < block.number) {
                 executeVirtualTradesAndOrderExpiries(
                     self,
                     reserveMap,
-                    iExpiryBlock
+                    block.number
                 );
             }
-        }
-        //finally, move state to current block if necessary
-        if (self.lastVirtualOrderBlock != block.number) {
-            executeVirtualTradesAndOrderExpiries(
-                self,
-                reserveMap,
-                block.number
-            );
+        } else {
+            if (self.lastVirtualOrderBlock < block.number) {
+                executeVirtualTradesAndOrderExpiries(
+                    self,
+                    reserveMap,
+                    block.number
+                );
+            }
         }
     }
 
