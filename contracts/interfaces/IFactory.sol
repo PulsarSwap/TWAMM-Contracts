@@ -17,6 +17,8 @@ interface IFactory {
 
     function allPairs(uint256) external view returns (address pair);
 
+    function twammTheOnlyCaller() external view returns (address);
+
     function allPairsLength() external view returns (uint256);
 
     function initialize(address twammAdd) external;

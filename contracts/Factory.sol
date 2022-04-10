@@ -10,14 +10,13 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 contract Factory is IFactory, Initializable {
     mapping(address => mapping(address => address)) public override getPair;
     address[] public override allPairs;
-    // bool private isInitialized = false;
-    address private twammTheOnlyCaller = address(0);
+    address public override twammTheOnlyCaller = address(0);
 
     function allPairsLength() external view override returns (uint256) {
         return allPairs.length;
     }
 
-    function initialize(address twammAdd) public initializer {
+    function initialize(address twammAdd) external initializer {
         twammTheOnlyCaller = twammAdd;
     }
 
@@ -32,11 +31,11 @@ contract Factory is IFactory, Initializable {
     {
         require(
             msg.sender == twammTheOnlyCaller,
-            "Invalid user, Only TWAMM can create pair!"
+            "Invalid User, Only TWAMM Can Create Pair"
         );
         require(
             twammTheOnlyCaller != address(0),
-            "Factory not initialized by TWAMM yet."
+            "Factory Not Initialized By TWAMM Yet"
         );
 
         require(token0 != token1, "Factory: Identical Addresses");

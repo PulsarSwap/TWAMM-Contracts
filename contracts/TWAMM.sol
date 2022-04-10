@@ -102,7 +102,7 @@ contract TWAMM is ITWAMM {
         (uint256 amountA, uint256 amountB) = tokenA == token
             ? (amountToken, amountETH)
             : (amountETH, amountToken);
-        require(amountETH == msg.value, "Specified amount does not match.");
+        require(amountETH == msg.value, "Specified Amount Does Not Match");
         IWETH10(WETH).depositTo{value: msg.value}(msg.sender);
         IPair(pair).provideInitialLiquidity(msg.sender, amountA, amountB);
 
@@ -132,7 +132,7 @@ contract TWAMM is ITWAMM {
         (, uint256 reserveETH) = Library.getReserves(factory, token, WETH);
         uint256 totalSupplyLP = IERC20(pair).totalSupply();
         uint256 amountETH = (lpTokenAmount * reserveETH) / totalSupplyLP;
-        require(amountETH == msg.value, "Specified amount does not match.");
+        require(amountETH == msg.value, "Specified Amount Does Not Match");
         IWETH10(WETH).depositTo{value: msg.value}(msg.sender);
         IPair(pair).provideLiquidity(msg.sender, lpTokenAmount);
 
@@ -215,7 +215,7 @@ contract TWAMM is ITWAMM {
     ) external payable virtual override ensure(deadline) {
         address pair = Library.pairFor(factory, WETH, token);
         (address tokenA, ) = Library.sortTokens(WETH, token);
-        require(amountETHIn == msg.value, "Specified amount does not match.");
+        require(amountETHIn == msg.value, "Specified Amount Does Not Match");
         IWETH10(WETH).depositTo{value: msg.value}(msg.sender);
 
         if (tokenA == WETH) {
@@ -285,7 +285,7 @@ contract TWAMM is ITWAMM {
     ) external payable virtual override ensure(deadline) {
         address pair = Library.pairFor(factory, WETH, token);
         (address tokenA, ) = Library.sortTokens(WETH, token);
-        require(amountETHIn == msg.value, "Specified amount does not match.");
+        require(amountETHIn == msg.value, "Specified Amount Does Not Match");
         IWETH10(WETH).depositTo{value: msg.value}(msg.sender);
 
         if (tokenA == WETH) {
