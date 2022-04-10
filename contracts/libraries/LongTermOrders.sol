@@ -5,11 +5,13 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "prb-math/contracts/PRBMathSD59x18.sol";
+import "prb-math/contracts/PRBMathUD60x18.sol";
 import "./OrderPool.sol";
 
 ///@notice This library handles the state and execution of long term orders.
 library LongTermOrdersLib {
     using PRBMathSD59x18 for int256;
+    using PRBMathUD60x18 for uint256;
     using OrderPoolLib for OrderPoolLib.OrderPool;
     using SafeERC20 for IERC20;
 
@@ -280,17 +282,48 @@ library LongTermOrdersLib {
         LongTermOrders storage self,
         mapping(address => uint256) storage reserveMap
     ) internal {
-        uint256 nextExpiryBlock = self.lastVirtualOrderBlock -
-            (self.lastVirtualOrderBlock % self.orderBlockInterval) +
-            self.orderBlockInterval;
-        //iterate through blocks eligible for order expiries, moving state forward
-        while (nextExpiryBlock < block.number) {
-            executeVirtualTradesAndOrderExpiries(
-                self,
-                reserveMap,
-                nextExpiryBlock
+        uint256 lastExpiryBlock = self.lastVirtualOrderBlock -
+            (self.lastVirtualOrderBlock % self.orderBlockInterval);
+
+        uint256 n = 1 +
+            PRBMathUD60x18.floor(
+                (block.number - lastExpiryBlock) / self.orderBlockInterval
             );
-            nextExpiryBlock += self.orderBlockInterval;
+        //iterate through blocks eligible for order expiries, moving state forward
+        // optimization for skipping blocks with no expiry
+        for (uint256 i = 0; i < n - 1; i++) {
+            uint256 iExpiryBlock = lastExpiryBlock +
+                (i + 1) *
+                self.orderBlockInterval;
+
+            uint256 beforSalesRateA = self
+                .OrderPoolMap[self.tokenA]
+                .salesRateEndingPerBlock[iExpiryBlock];
+            uint256 beforSalesRateB = self
+                .OrderPoolMap[self.tokenB]
+                .salesRateEndingPerBlock[iExpiryBlock];
+
+            uint256 afterSalesRateA = self
+                .OrderPoolMap[self.tokenA]
+                .salesRateEndingPerBlock[
+                    iExpiryBlock + self.orderBlockInterval
+                ];
+            uint256 afterSalesRateB = self
+                .OrderPoolMap[self.tokenB]
+                .salesRateEndingPerBlock[
+                    iExpiryBlock + self.orderBlockInterval
+                ];
+
+            if (
+                beforSalesRateA != afterSalesRateA ||
+                beforSalesRateB != afterSalesRateB
+            ) {
+                executeVirtualTradesAndOrderExpiries(
+                    self,
+                    reserveMap,
+                    iExpiryBlock
+                );
+            }
         }
         //finally, move state to current block if necessary
         if (self.lastVirtualOrderBlock != block.number) {
@@ -401,7 +434,7 @@ library LongTermOrdersLib {
             .sqrt();
         int256 eDenominator = aStart.sqrt().mul(bStart.sqrt()).inv();
         int256 exponent = eNumerator.mul(eDenominator).exp();
-        require(exponent > c.abs(), "Invalid Amount");
+        require(exponent > PRBMathSD59x18.abs(c), "Invalid Amount");
         int256 fraction = (exponent + c).div(exponent - c);
         int256 scaling = k.div(tokenBIn).sqrt().mul(tokenAIn.sqrt());
         ammEndTokenA = fraction.mul(scaling);

@@ -73,17 +73,17 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     }
 
     ///@notice get tokenA reserves
-    function tokenAReserves() public view returns (uint256) {
+    function tokenAReserves() public view override returns (uint256) {
         return reserveMap[tokenA];
     }
 
     ///@notice get tokenB reserves
-    function tokenBReserves() public view returns (uint256) {
+    function tokenBReserves() public view override returns (uint256) {
         return reserveMap[tokenB];
     }
 
     ///@notice get LP total supply
-    function getTotalSupply() public view returns (uint256) {
+    function getTotalSupply() public view override returns (uint256) {
         return totalSupply();
     }
 
@@ -226,6 +226,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
             tokenB,
             amountAIn
         );
+        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         emit InstantSwapAToB(sender, amountAIn, amountBOut);
     }
 
@@ -262,6 +263,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
             tokenA,
             amountBIn
         );
+        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         emit InstantSwapBToA(sender, amountBIn, amountAOut);
     }
 
@@ -335,11 +337,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
 
         IERC20(from).safeTransferFrom(sender, address(this), amountIn);
         IERC20(to).safeTransfer(sender, amountOutMinusFee);
-
-        (uint256 reserveA, uint256 reserveB) = from < to
-            ? (reserveFrom, reserveTo)
-            : (reserveTo, reserveFrom);
-        updatePrice(reserveA, reserveB);
     }
 
     ///@notice get user order details
@@ -355,19 +352,25 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     function userIdsCheck(address userAddress)
         external
         view
+        override
         returns (uint256[] memory)
     {
         return longTermOrders.orderIdMap[userAddress];
     }
 
     ///@notice get user order Id status
-    function orderIdStatusCheck(uint256 orderId) external view returns (bool) {
+    function orderIdStatusCheck(uint256 orderId)
+        external
+        view
+        override
+        returns (bool)
+    {
         return longTermOrders.orderIdStatusMap[orderId];
     }
 
     ///@notice convenience function to execute virtual orders. Note that this already happens
     ///before most interactions with the AMM
-    function executeVirtualOrders() public {
+    function executeVirtualOrders() public override {
         longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
     }

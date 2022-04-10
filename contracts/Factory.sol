@@ -16,11 +16,11 @@ contract Factory is IFactory, Initializable {
         return allPairs.length;
     }
 
-    function initialize(address twammAdd) external initializer {
+    function initialize(address twammAdd) external override initializer {
         twammTheOnlyCaller = twammAdd;
     }
 
-    function returnTwammAddress() external view returns (address) {
+    function returnTwammAddress() external view override returns (address) {
         return twammTheOnlyCaller;
     }
 

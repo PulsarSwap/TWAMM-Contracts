@@ -25,7 +25,6 @@ contract TWAMM is ITWAMM {
     constructor(address _factory, address _WETH) {
         factory = _factory;
         WETH = _WETH;
-
         IFactory(factory).initialize(address(this));
     }
 
@@ -33,21 +32,27 @@ contract TWAMM is ITWAMM {
         assert(msg.sender == WETH); // only accept ETH via fallback from the WETH contract
     }
 
-    function reserveA(address pair) external view returns (uint256) {
+    function reserveA(address pair) external view override returns (uint256) {
         return IPair(pair).tokenAReserves();
     }
 
-    function reserveB(address pair) external view returns (uint256) {
+    function reserveB(address pair) external view override returns (uint256) {
         return IPair(pair).tokenBReserves();
     }
 
-    function totalSupply(address pair) external view returns (uint256) {
+    function totalSupply(address pair)
+        external
+        view
+        override
+        returns (uint256)
+    {
         return IPair(pair).getTotalSupply();
     }
 
     function obtainPairAddress(address token0, address token1)
         external
         view
+        override
         returns (address)
     {
         return IFactory(factory).getPair(token0, token1);
