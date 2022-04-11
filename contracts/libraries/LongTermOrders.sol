@@ -297,28 +297,14 @@ library LongTermOrdersLib {
                     (i + 1) *
                     self.orderBlockInterval;
 
-                uint256 beforeSalesRateA = self
+                uint256 iSalesRateEndingA = self
                     .OrderPoolMap[self.tokenA]
                     .salesRateEndingPerBlock[iExpiryBlock];
-                uint256 beforeSalesRateB = self
+                uint256 iSalesRateEndingB = self
                     .OrderPoolMap[self.tokenB]
                     .salesRateEndingPerBlock[iExpiryBlock];
 
-                uint256 afterSalesRateA = self
-                    .OrderPoolMap[self.tokenA]
-                    .salesRateEndingPerBlock[
-                        iExpiryBlock + self.orderBlockInterval
-                    ];
-                uint256 afterSalesRateB = self
-                    .OrderPoolMap[self.tokenB]
-                    .salesRateEndingPerBlock[
-                        iExpiryBlock + self.orderBlockInterval
-                    ];
-
-                if (
-                    beforeSalesRateA != afterSalesRateA ||
-                    beforeSalesRateB != afterSalesRateB
-                ) {
+                if (iSalesRateEndingA > 0 || iSalesRateEndingB > 0) {
                     executeVirtualTradesAndOrderExpiries(
                         self,
                         reserveMap,
