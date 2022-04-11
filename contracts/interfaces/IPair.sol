@@ -19,6 +19,8 @@ interface IPair {
 
     function reserveMap(address) external view returns (uint256);
 
+    function tmpMapWETH(address) external view returns (uint256);
+
     function tokenAReserves() external view returns (uint256);
 
     function tokenBReserves() external view returns (uint256);

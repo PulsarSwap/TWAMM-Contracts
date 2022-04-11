@@ -33,6 +33,9 @@ library LongTermOrdersLib {
         ///@notice token pair being traded in embedded amm
         address tokenA;
         address tokenB;
+        ///@notice useful addresses for WETH transactions
+        address refTWAMM;
+        address refWETH;
         ///@notice mapping from token address to pool that is selling that token
         ///we maintain two order pools, one for each token that is tradable in the AMM
         mapping(address => OrderPoolLib.OrderPool) OrderPoolMap;
@@ -52,10 +55,14 @@ library LongTermOrdersLib {
         address tokenA,
         address tokenB,
         uint256 lastVirtualOrderBlock,
-        uint256 orderBlockInterval
+        uint256 orderBlockInterval,
+        address refTWAMM,
+        address refWETH
     ) internal {
         self.tokenA = tokenA;
         self.tokenB = tokenB;
+        self.refTWAMM = refTWAMM;
+        self.refWETH = refWETH;
         self.lastVirtualOrderBlock = lastVirtualOrderBlock;
         self.orderBlockInterval = orderBlockInterval;
     }
@@ -153,7 +160,7 @@ library LongTermOrdersLib {
         address sender,
         uint256 orderId,
         mapping(address => uint256) storage reserveMap
-    ) internal {
+    ) internal returns(uint256) {
         //update virtual order state
         executeVirtualOrdersUntilCurrentBlock(self, reserveMap);
 
@@ -176,13 +183,30 @@ library LongTermOrdersLib {
             unsoldAmount > 0 || purchasedAmountMinusFee > 0,
             "No Proceeds To Withdraw"
         );
-        //transfer to owner
-        IERC20(order.buyTokenId).transfer(sender, purchasedAmountMinusFee);
-        IERC20(order.sellTokenId).transfer(sender, unsoldAmount);
 
         // delete orderId from account list
-        // removeOrderId(self, orderId, sender);
         self.orderIdStatusMap[orderId] = false;
+
+        //transfer to owner
+        if (order.buyTokenId == self.refWETH) {
+            IERC20(order.buyTokenId).transfer(self.refTWAMM, purchasedAmountMinusFee);
+            return purchasedAmountMinusFee;
+        } else {
+            IERC20(order.buyTokenId).transfer(sender, purchasedAmountMinusFee);
+            return 0;
+        }
+
+        if (order.sellTokenId == self.refWETH) {
+            IERC20(order.sellTokenId).transfer(self.refTWAMM, unsoldAmount);
+            return unsoldAmount;
+        } else {
+            IERC20(order.sellTokenId).transfer(sender, unsoldAmount);
+            return 0;
+        }
+        
+        
+
+        
     }
 
     ///@notice withdraw proceeds from a long term swap (can be expired or ongoing)
@@ -191,7 +215,7 @@ library LongTermOrdersLib {
         address sender,
         uint256 orderId,
         mapping(address => uint256) storage reserveMap
-    ) internal {
+    ) internal returns(uint256) {
         //update virtual order state
         executeVirtualOrdersUntilCurrentBlock(self, reserveMap);
 
@@ -207,14 +231,24 @@ library LongTermOrdersLib {
         uint256 proceedsMinusFee = (proceeds * (10000 - LP_FEE)) / 10000;
 
         require(proceedsMinusFee > 0, "No Proceeds To Withdraw");
-        //transfer to owner
-        IERC20(order.buyTokenId).transfer(sender, proceedsMinusFee);
 
         // delete orderId from account list
-        // removeOrderId(self, orderId, msg.sender);
         if (order.expirationBlock >= block.number) {
             self.orderIdStatusMap[orderId] = false;
         }
+
+        //transfer to owner
+        if (order.buyTokenId == self.refWETH) {
+            IERC20(order.buyTokenId).transfer(self.refTWAMM, proceedsMinusFee);
+            return proceedsMinusFee;
+        } else {
+            IERC20(order.buyTokenId).transfer(sender, proceedsMinusFee);
+            return 0;
+        }
+
+
+
+        
     }
 
     ///@notice executes all virtual orders between current lastVirtualOrderBlock and blockNumber
@@ -298,6 +332,61 @@ library LongTermOrdersLib {
                 block.number
             );
         }
+        // uint256 lastExpiryBlock = self.lastVirtualOrderBlock -
+        //     (self.lastVirtualOrderBlock % self.orderBlockInterval);
+
+        // uint256 n = 1 +
+        //     PRBMathUD60x18.floor(
+        //         (block.number - lastExpiryBlock) / self.orderBlockInterval
+        //     );
+        // //iterate through blocks eligible for order expiries, moving state forward
+        // // optimization for skipping blocks with no expiry
+        // if (n >= 2) {
+        //     for (uint256 i = 1; i <= n - 1; i++) {
+        //         require(1==0, 'tt');
+        //         uint256 iExpiryBlock = lastExpiryBlock +
+        //             i *
+        //             self.orderBlockInterval;
+
+        //         uint256 beforeSalesRateA = self
+        //             .OrderPoolMap[self.tokenA]
+        //             .salesRateEndingPerBlock[iExpiryBlock];
+        //         uint256 beforeSalesRateB = self
+        //             .OrderPoolMap[self.tokenB]
+        //             .salesRateEndingPerBlock[iExpiryBlock];
+
+        //         uint256 afterSalesRateA = self
+        //             .OrderPoolMap[self.tokenA]
+        //             .salesRateEndingPerBlock[
+        //                 iExpiryBlock + self.orderBlockInterval
+        //             ];
+        //         uint256 afterSalesRateB = self
+        //             .OrderPoolMap[self.tokenB]
+        //             .salesRateEndingPerBlock[
+        //                 iExpiryBlock + self.orderBlockInterval
+        //             ];
+                
+        //         if (
+        //             beforeSalesRateA != afterSalesRateA ||
+        //             beforeSalesRateB != afterSalesRateB
+        //         ) {
+        //             executeVirtualTradesAndOrderExpiries(
+        //                 self,
+        //                 reserveMap,
+        //                 iExpiryBlock
+        //             );
+        //         }
+        //     }
+        // }
+
+        // //finally, move state to current block if necessary
+        // if (self.lastVirtualOrderBlock != block.number) {
+        //     executeVirtualTradesAndOrderExpiries(
+        //         self,
+        //         reserveMap,
+        //         block.number
+        //     );
+        // }
     }
 
     ///@notice computes the result of virtual trades by the token pools
