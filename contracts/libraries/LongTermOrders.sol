@@ -284,10 +284,10 @@ library LongTermOrdersLib {
             (self.lastVirtualOrderBlock % self.orderBlockInterval) +
             self.orderBlockInterval;
 
-        OrderPoolLib.OrderPool storage orderPoolA = self.OrderPoolMap[
+        OrderPoolLib.OrderPool storage OrderPoolA = self.OrderPoolMap[
             self.tokenA
         ];
-        OrderPoolLib.OrderPool storage orderPoolB = self.OrderPoolMap[
+        OrderPoolLib.OrderPool storage OrderPoolB = self.OrderPoolMap[
             self.tokenB
         ];
 
@@ -295,8 +295,8 @@ library LongTermOrdersLib {
         while (nextExpiryBlock < block.number) {
             // Optimization for skipping blocks with no expiry
             if (
-                orderPoolA.salesRateEndingPerBlock[nextExpiryBlock] > 0 ||
-                orderPoolB.salesRateEndingPerBlock[nextExpiryBlock] > 0
+                OrderPoolA.salesRateEndingPerBlock[nextExpiryBlock] > 0 ||
+                OrderPoolB.salesRateEndingPerBlock[nextExpiryBlock] > 0
             ) {
                 executeVirtualTradesAndOrderExpiries(
                     self,
