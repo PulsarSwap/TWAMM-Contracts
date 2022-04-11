@@ -16,7 +16,7 @@ contract Factory is IFactory, Initializable {
         return allPairs.length;
     }
 
-    function initialize(address twammAdd) external initializer {
+    function initialize(address twammAdd) external override initializer {
         twammTheOnlyCaller = twammAdd;
     }
 
