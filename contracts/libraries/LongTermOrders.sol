@@ -293,7 +293,7 @@ library LongTermOrdersLib {
 
         //iterate through blocks eligible for order expiries, moving state forward
         while (nextExpiryBlock < block.number) {
-            // Optimization for skipping blocks with no expiry
+            // optimization for skipping blocks with no expiry
             if (
                 OrderPoolA.salesRateEndingPerBlock[nextExpiryBlock] > 0 ||
                 OrderPoolB.salesRateEndingPerBlock[nextExpiryBlock] > 0
