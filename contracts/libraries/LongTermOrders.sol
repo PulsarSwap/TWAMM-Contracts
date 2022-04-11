@@ -160,7 +160,7 @@ library LongTermOrdersLib {
         address sender,
         uint256 orderId,
         mapping(address => uint256) storage reserveMap
-    ) internal returns(uint256) {
+    ) internal returns (uint256) {
         //update virtual order state
         executeVirtualOrdersUntilCurrentBlock(self, reserveMap);
 
@@ -189,7 +189,10 @@ library LongTermOrdersLib {
 
         //transfer to owner
         if (order.buyTokenId == self.refWETH) {
-            IERC20(order.buyTokenId).transfer(self.refTWAMM, purchasedAmountMinusFee);
+            IERC20(order.buyTokenId).transfer(
+                self.refTWAMM,
+                purchasedAmountMinusFee
+            );
             return purchasedAmountMinusFee;
         } else {
             IERC20(order.buyTokenId).transfer(sender, purchasedAmountMinusFee);
@@ -203,10 +206,6 @@ library LongTermOrdersLib {
             IERC20(order.sellTokenId).transfer(sender, unsoldAmount);
             return 0;
         }
-        
-        
-
-        
     }
 
     ///@notice withdraw proceeds from a long term swap (can be expired or ongoing)
@@ -215,7 +214,7 @@ library LongTermOrdersLib {
         address sender,
         uint256 orderId,
         mapping(address => uint256) storage reserveMap
-    ) internal returns(uint256) {
+    ) internal returns (uint256) {
         //update virtual order state
         executeVirtualOrdersUntilCurrentBlock(self, reserveMap);
 
@@ -226,7 +225,7 @@ library LongTermOrdersLib {
             order.sellTokenId
         ];
         uint256 proceeds = OrderPool.withdrawProceeds(orderId);
-        
+
         //charge LP fee
         uint256 proceedsMinusFee = (proceeds * (10000 - LP_FEE)) / 10000;
 
@@ -245,10 +244,6 @@ library LongTermOrdersLib {
             IERC20(order.buyTokenId).transfer(sender, proceedsMinusFee);
             return 0;
         }
-
-
-
-        
     }
 
     ///@notice executes all virtual orders between current lastVirtualOrderBlock and blockNumber
@@ -365,7 +360,7 @@ library LongTermOrdersLib {
         //             .salesRateEndingPerBlock[
         //                 iExpiryBlock + self.orderBlockInterval
         //             ];
-                
+
         //         if (
         //             beforeSalesRateA != afterSalesRateA ||
         //             beforeSalesRateB != afterSalesRateB

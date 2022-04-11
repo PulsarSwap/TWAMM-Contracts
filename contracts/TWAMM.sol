@@ -159,8 +159,11 @@ contract TWAMM is ITWAMM {
         address pair = Library.pairFor(factory, token, WETH);
         IPair(pair).removeLiquidity(msg.sender, lpTokenAmount);
         // uint256 balanceAfterWETH = IWETH10(WETH).balanceOf(msg.sender);
-        uint256 amountETHWithdraw = IPair(pair).tmpMapWETH(msg.sender);//balanceAfterWETH - balanceBeforeWETH;
-        require(IWETH10(WETH).balanceOf(address(this)) == amountETHWithdraw, "Inaccurate Amount for WETH.");
+        uint256 amountETHWithdraw = IPair(pair).tmpMapWETH(msg.sender); //balanceAfterWETH - balanceBeforeWETH;
+        require(
+            IWETH10(WETH).balanceOf(address(this)) == amountETHWithdraw,
+            "Inaccurate Amount for WETH."
+        );
         IWETH10(WETH).withdrawFrom(
             address(this),
             payable(msg.sender),
@@ -203,7 +206,10 @@ contract TWAMM is ITWAMM {
 
         // uint256 amountETHWithdraw = balanceAfterWETH - balanceBeforeWETH;
         uint256 amountETHWithdraw = IPair(pair).tmpMapWETH(msg.sender);
-        require(IWETH10(WETH).balanceOf(address(this)) == amountETHWithdraw, "Inaccurate Amount for WETH.");
+        require(
+            IWETH10(WETH).balanceOf(address(this)) == amountETHWithdraw,
+            "Inaccurate Amount for WETH."
+        );
         IWETH10(WETH).withdrawFrom(
             address(this),
             payable(msg.sender),
@@ -330,7 +336,10 @@ contract TWAMM is ITWAMM {
         IPair(pair).cancelLongTermSwap(msg.sender, orderId);
         // uint256 balanceAfterWETH = IWETH10(WETH).balanceOf(msg.sender);
         uint256 amountETHWithdraw = IPair(pair).tmpMapWETH(msg.sender);
-        require(IWETH10(WETH).balanceOf(address(this)) == amountETHWithdraw, "Inaccurate Amount for WETH.");
+        require(
+            IWETH10(WETH).balanceOf(address(this)) == amountETHWithdraw,
+            "Inaccurate Amount for WETH."
+        );
         IWETH10(WETH).withdrawFrom(
             address(this),
             payable(msg.sender),
@@ -348,7 +357,10 @@ contract TWAMM is ITWAMM {
         IPair(pair).cancelLongTermSwap(msg.sender, orderId);
         // uint256 balanceAfterWETH = IWETH10(WETH).balanceOf(msg.sender);
         uint256 amountETHWithdraw = IPair(pair).tmpMapWETH(msg.sender);
-        require(IWETH10(WETH).balanceOf(address(this)) == amountETHWithdraw, "Inaccurate Amount for WETH.");
+        require(
+            IWETH10(WETH).balanceOf(address(this)) == amountETHWithdraw,
+            "Inaccurate Amount for WETH."
+        );
         IWETH10(WETH).withdrawFrom(
             address(this),
             payable(msg.sender),
@@ -377,7 +389,10 @@ contract TWAMM is ITWAMM {
         // uint256 balanceAfterWETH = IWETH10(WETH).balanceOf(msg.sender);
         // uint256 amountETHWithdraw = balanceAfterWETH - balanceBeforeWETH;
         uint256 amountETHWithdraw = IPair(pair).tmpMapWETH(msg.sender);
-        require(IWETH10(WETH).balanceOf(address(this)) == amountETHWithdraw, "Inaccurate Amount for WETH.");
+        require(
+            IWETH10(WETH).balanceOf(address(this)) == amountETHWithdraw,
+            "Inaccurate Amount for WETH."
+        );
         IWETH10(WETH).withdrawFrom(
             address(this),
             payable(msg.sender),

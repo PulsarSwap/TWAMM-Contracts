@@ -217,19 +217,19 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         reserveMap[tokenB] -= amountBOut;
 
         _burn(to, lpTokenAmount);
-        if (ITWAMM(safeCaller).WETH() == tokenA ) {
+        if (ITWAMM(safeCaller).WETH() == tokenA) {
             IERC20(tokenA).safeTransfer(safeCaller, amountAOut);
             IERC20(tokenB).safeTransfer(to, amountBOut);
             tmpMapWETH[to] = amountAOut;
         } else if (ITWAMM(safeCaller).WETH() == tokenB) {
             IERC20(tokenA).safeTransfer(to, amountAOut);
-        IERC20(tokenB).safeTransfer(safeCaller, amountBOut);
-        tmpMapWETH[to] = amountBOut;
+            IERC20(tokenB).safeTransfer(safeCaller, amountBOut);
+            tmpMapWETH[to] = amountBOut;
         } else {
-        IERC20(tokenA).safeTransfer(to, amountAOut);
-        IERC20(tokenB).safeTransfer(to, amountBOut);
+            IERC20(tokenA).safeTransfer(to, amountAOut);
+            IERC20(tokenB).safeTransfer(to, amountBOut);
         }
-        
+
         updatePrice(reserveA, reserveB);
         emit LiquidityRemoved(to, lpTokenAmount);
     }
@@ -316,7 +316,11 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         lock
         nonReentrant
     {
-        tmpMapWETH[sender] = longTermOrders.cancelLongTermSwap(sender, orderId, reserveMap);
+        tmpMapWETH[sender] = longTermOrders.cancelLongTermSwap(
+            sender,
+            orderId,
+            reserveMap
+        );
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         emit CancelLongTermOrder(sender, orderId);
     }
@@ -361,13 +365,12 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         reserveMap[to] -= amountOutMinusFee;
 
         IERC20(from).safeTransferFrom(sender, address(this), amountIn);
-        if (ITWAMM(safeCaller).WETH() == to ) {
+        if (ITWAMM(safeCaller).WETH() == to) {
             IERC20(to).safeTransfer(safeCaller, amountOutMinusFee);
             tmpMapWETH[sender] = amountOutMinusFee;
         } else {
-        IERC20(to).safeTransfer(sender, amountOutMinusFee);
+            IERC20(to).safeTransfer(sender, amountOutMinusFee);
         }
-        
 
         (uint256 reserveA, uint256 reserveB) = from < to
             ? (reserveFrom, reserveTo)
