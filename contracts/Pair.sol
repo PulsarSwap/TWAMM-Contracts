@@ -60,7 +60,11 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         _;
     }
 
-    constructor(address _tokenA, address _tokenB, address _twamm) ERC20("Pulsar-LP", "PUL-LP") {
+    constructor(
+        address _tokenA,
+        address _tokenB,
+        address _twamm
+    ) ERC20("Pulsar-LP", "PUL-LP") {
         factory = msg.sender;
         safeCaller = _twamm;
         tokenA = _tokenA;
@@ -133,7 +137,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
             .fromUint()
             .sqrt()
             .mul(amountB.fromUint().sqrt())
-            .toUint(); 
+            .toUint();
 
         IERC20(tokenA).safeTransferFrom(to, address(this), amountA);
         IERC20(tokenB).safeTransferFrom(to, address(this), amountB);
@@ -325,10 +329,8 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         address to,
         uint256 amountIn
     ) private checkCaller returns (uint256 amountOutMinusFee) {
-        require(amountIn > 0, "Swap Amount Must Be Positive");
         //execute virtual orders
         longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
-        require(amountIn > 0, "Swap Amount Must Be Positive");
         uint256 reserveFrom = reserveMap[from];
         uint256 reserveTo = reserveMap[to];
 

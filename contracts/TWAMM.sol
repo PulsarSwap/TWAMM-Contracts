@@ -25,9 +25,7 @@ contract TWAMM is ITWAMM {
     constructor(address _factory, address _WETH) {
         factory = _factory;
         WETH = _WETH;
-        IFactory(factory).initialize(
-            address(this)
-        );
+        IFactory(factory).initialize(address(this));
     }
 
     receive() external payable {
@@ -218,7 +216,7 @@ contract TWAMM is ITWAMM {
         (address tokenA, ) = Library.sortTokens(WETH, token);
         require(amountETHIn == msg.value, "Specified amount does not match.");
         IWETH10(WETH).depositTo{value: msg.value}(msg.sender);
-        
+
         if (tokenA == WETH) {
             IPair(pair).instantSwapFromAToB(msg.sender, amountETHIn);
         } else {

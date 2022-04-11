@@ -28,7 +28,6 @@ library Library {
         address factory,
         address token0,
         address token1
-        
     ) internal view returns (address pair) {
         (address tokenA, address tokenB) = sortTokens(token0, token1);
         bytes memory bytecode = type(Pair).creationCode;

@@ -18,29 +18,34 @@ contract Factory is IFactory, Initializable {
         return allPairs.length;
     }
 
-    function initialize(address twammAdd
-  ) external initializer {
-    twammTheOnlyCaller = twammAdd;
-  }
-    
+    function initialize(address twammAdd) external initializer {
+        twammTheOnlyCaller = twammAdd;
+    }
+
     function returnTwammAddress() external view returns (address) {
         return twammTheOnlyCaller;
-  }
+    }
 
     function createPair(address token0, address token1)
         external
         override
         returns (address pair)
-    {   
+    {
         require(token0 != token1, "Factory: Identical_Addresses");
-        require(msg.sender == twammTheOnlyCaller, "Invalid user. Only TWAMM can create pair!");
-        require(twammTheOnlyCaller != address(0), "Factory not initialized by TWAMM yet.");
+        require(
+            msg.sender == twammTheOnlyCaller,
+            "Invalid user. Only TWAMM can create pair!"
+        );
+        require(
+            twammTheOnlyCaller != address(0),
+            "Factory not initialized by TWAMM yet."
+        );
         (address tokenA, address tokenB) = token0 < token1
             ? (token0, token1)
             : (token1, token0);
         require(tokenA != address(0), "Factory: Zero_Address");
         require(getPair[tokenA][tokenB] == address(0), "Factory: Pair_Exists"); // single check is sufficient
-        
+
         bytes memory bytecode = type(Pair).creationCode;
         bytes memory bytecodeArg = abi.encodePacked(
             bytecode,

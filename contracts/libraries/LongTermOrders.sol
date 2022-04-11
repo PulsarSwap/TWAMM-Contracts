@@ -213,7 +213,7 @@ library LongTermOrdersLib {
         // delete orderId from account list
         // removeOrderId(self, orderId, msg.sender);
         if (order.expirationBlock >= block.number) {
-            self.orderIdStatusMap[orderId] = false; 
+            self.orderIdStatusMap[orderId] = false;
         }
     }
 
