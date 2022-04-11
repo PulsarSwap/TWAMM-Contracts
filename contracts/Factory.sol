@@ -10,13 +10,13 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 contract Factory is IFactory, Initializable {
     mapping(address => mapping(address => address)) public override getPair;
     address[] public override allPairs;
-    address public override twammTheOnlyCaller = address(0);
+    address private twammTheOnlyCaller = address(0);
 
     function allPairsLength() external view override returns (uint256) {
         return allPairs.length;
     }
 
-    function initialize(address twammAdd) external override initializer {
+    function initialize(address twammAdd) external initializer {
         twammTheOnlyCaller = twammAdd;
     }
 

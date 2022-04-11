@@ -326,22 +326,14 @@ library LongTermOrdersLib {
                     );
                 }
             }
-            //finally, move state to current block if necessary
-            if (self.lastVirtualOrderBlock < block.number) {
-                executeVirtualTradesAndOrderExpiries(
-                    self,
-                    reserveMap,
-                    block.number
-                );
-            }
-        } else {
-            if (self.lastVirtualOrderBlock < block.number) {
-                executeVirtualTradesAndOrderExpiries(
-                    self,
-                    reserveMap,
-                    block.number
-                );
-            }
+        }
+        //finally, move state to current block if necessary
+        if (self.lastVirtualOrderBlock < block.number) {
+            executeVirtualTradesAndOrderExpiries(
+                self,
+                reserveMap,
+                block.number
+            );
         }
     }
 
