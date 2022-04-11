@@ -274,10 +274,6 @@ contract TWAMM is ITWAMM {
         uint256 numberOfBlockIntervals,
         uint256 deadline
     ) external payable virtual override ensure(deadline) {
-        require(
-            IFactory(factory).getPair(token, WETH) != address(0),
-            "Liquidity Not Provided. Provide It First."
-        );
         address pair = Library.pairFor(factory, token, WETH);
         (address tokenA, ) = Library.sortTokens(WETH, token);
         IWETH10(WETH).depositTo{value: msg.value}(msg.sender);
