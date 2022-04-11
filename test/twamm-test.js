@@ -573,11 +573,12 @@ describe("TWAMM", function () {
           );
 
         const amountABought = await WETH.balanceOf(addr2.address);
+        const amountABoughtReverseWETH = await WETH.connect(addr2).deposit({value: amountABought});
         const amountBBought = await tokenB.balanceOf(addr1.address);
 
         //pool is balanced, and both orders execute same amount in opposite directions,
         //so we expect final balances to be roughly equal
-        expect(amountABought).to.be.closeTo(amountBBought, amountIn / 100);
+        expect(amountABoughtReverseWETH).to.be.closeTo(amountBBought, amountIn / 100);
       });
 
       it("Swap amounts are consistent with twamm formula", async function () {
