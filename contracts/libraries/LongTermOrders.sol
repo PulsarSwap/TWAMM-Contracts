@@ -5,13 +5,11 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "prb-math/contracts/PRBMathSD59x18.sol";
-import "prb-math/contracts/PRBMathUD60x18.sol";
 import "./OrderPool.sol";
 
 ///@notice This library handles the state and execution of long term orders.
 library LongTermOrdersLib {
     using PRBMathSD59x18 for int256;
-    using PRBMathUD60x18 for uint256;
     using OrderPoolLib for OrderPoolLib.OrderPool;
     using SafeERC20 for IERC20;
 
@@ -282,35 +280,30 @@ library LongTermOrdersLib {
         LongTermOrders storage self,
         mapping(address => uint256) storage reserveMap
     ) internal {
-        uint256 lastExpiryBlock = self.lastVirtualOrderBlock -
-            (self.lastVirtualOrderBlock % self.orderBlockInterval);
+        uint256 nextExpiryBlock = self.lastVirtualOrderBlock -
+            (self.lastVirtualOrderBlock % self.orderBlockInterval) +
+            self.orderBlockInterval;
 
-        uint256 n = 1 +
-            PRBMathUD60x18.floor(
-                (block.number - lastExpiryBlock) / self.orderBlockInterval
-            );
+        OrderPoolLib.OrderPool storage orderPoolA = self.OrderPoolMap[
+            self.tokenA
+        ];
+        OrderPoolLib.OrderPool storage orderPoolB = self.OrderPoolMap[
+            self.tokenB
+        ];
+
         //iterate through blocks eligible for order expiries, moving state forward
-        // optimization for skipping blocks with no expiry
-        if (n >= 2) {
-            for (uint256 i = 0; i < n - 1; i++) {
-                uint256 iExpiryBlock = lastExpiryBlock +
-                    (i + 1) *
-                    self.orderBlockInterval;
-
-                uint256 iSalesRateEndingA = self
-                    .OrderPoolMap[self.tokenA]
-                    .salesRateEndingPerBlock[iExpiryBlock];
-                uint256 iSalesRateEndingB = self
-                    .OrderPoolMap[self.tokenB]
-                    .salesRateEndingPerBlock[iExpiryBlock];
-
-                if (iSalesRateEndingA > 0 || iSalesRateEndingB > 0) {
-                    executeVirtualTradesAndOrderExpiries(
-                        self,
-                        reserveMap,
-                        iExpiryBlock
-                    );
-                }
+        while (nextExpiryBlock < block.number) {
+            // Optimization for skipping blocks with no expiry
+            if (
+                orderPoolA.salesRateEndingPerBlock[nextExpiryBlock] > 0 ||
+                orderPoolB.salesRateEndingPerBlock[nextExpiryBlock] > 0
+            ) {
+                executeVirtualTradesAndOrderExpiries(
+                    self,
+                    reserveMap,
+                    nextExpiryBlock
+                );
+                nextExpiryBlock += self.orderBlockInterval;
             }
         }
         //finally, move state to current block if necessary
