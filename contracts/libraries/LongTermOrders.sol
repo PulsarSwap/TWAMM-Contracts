@@ -202,7 +202,7 @@ library LongTermOrdersLib {
             order.sellTokenId
         ];
         uint256 proceeds = OrderPool.withdrawProceeds(orderId);
-
+        
         //charge LP fee
         uint256 proceedsMinusFee = (proceeds * (10000 - LP_FEE)) / 10000;
 
