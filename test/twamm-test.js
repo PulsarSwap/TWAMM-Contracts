@@ -40,14 +40,10 @@ describe("TWAMM", function () {
     const Weth = await ethers.getContractFactory("WETH10");
     WETH = await Weth.deploy();
     expect(await WETH.symbol()).to.equal("WETH10");
-    await WETH.deposit({ value: ethers.utils.parseUnits("10", "ether") });
-    await WETH.connect(addr1).deposit({
-      value: ethers.utils.parseUnits("10", "ether"),
-    });
 
     // TWAMM init
     const TWAMM = await ethers.getContractFactory("TWAMM", {
-      gasLimit: "1000000000",
+      gasLimit: "8000000",
     });
     twamm = await TWAMM.deploy(factory.address, WETH.address);
 
@@ -324,15 +320,15 @@ describe("TWAMM", function () {
         //adjust for LP fee of 0.3%
         const expectedOutput = expectedOutBeforeFees.mul(1000 - 3).div(1000);
         await tokenB.approve(pairETH, amountInB); //owner calls it
-        const beforeBalanceA = await WETH.balanceOf(owner.address);
+        const beforeBalanceA = await ethers.provider.getBalance(owner.address); //await WETH.balanceOf(owner.address);
         await twamm.instantSwapTokenToETH(
           tokenB.address,
           amountInB,
           timeStamp + 100000
         );
-        const afterBalanceA = await WETH.balanceOf(owner.address);
-        const actualOutput = afterBalanceA.sub(beforeBalanceA);
-
+        const afterBalanceA = await ethers.provider.getBalance(owner.address); //await WETH.balanceOf(owner.address);
+        const actualOutput = afterBalanceA - beforeBalanceA; //afterBalanceA.sub(beforeBalanceA);
+        expect(beforeBalanceA).to.gt(afterBalanceA);
         expect(actualOutput).to.eq(expectedOutput);
       });
 
@@ -573,11 +569,17 @@ describe("TWAMM", function () {
           );
 
         const amountABought = await WETH.balanceOf(addr2.address);
+        const amountABoughtReverseWETH = await WETH.connect(addr2).deposit({
+          value: amountABought,
+        });
         const amountBBought = await tokenB.balanceOf(addr1.address);
 
         //pool is balanced, and both orders execute same amount in opposite directions,
         //so we expect final balances to be roughly equal
-        expect(amountABought).to.be.closeTo(amountBBought, amountIn / 100);
+        expect(amountABoughtReverseWETH).to.be.closeTo(
+          amountBBought,
+          amountIn / 100
+        );
       });
 
       it("Swap amounts are consistent with twamm formula", async function () {
@@ -880,7 +882,8 @@ describe("TWAMM", function () {
         const amountIn = 10000;
         await tokenB.approve(addr2.address, amountIn);
         await tokenB.transfer(addr2.address, amountIn);
-
+        // const preCheckAddr2Balance = await WETH.balanceOf(addr2.address);
+        // expect(preCheckAddr2Balance).to.eq(0);
         //trigger long term order
         await WETH.connect(addr1).approve(pairETH, amountIn);
         await tokenB.connect(addr2).approve(pairETH, amountIn);
@@ -957,10 +960,11 @@ describe("TWAMM", function () {
 
         const amountABought = await WETH.balanceOf(addr2.address);
         const amountBBought = await tokenB.balanceOf(addr1.address);
+        const balanceInWei = await ethers.provider.getBalance(addr2.address);
 
         //pool is balanced, and orders execute same amount in opposite directions,
         //so we expect final balances to be roughly equal
-        expect(amountABought).to.be.closeTo(amountBBought, amountIn / 100);
+        expect(balanceInWei).to.be.closeTo(amountBBought, amountIn / 100);
       });
 
       it("Normal swap works as expected while long term orders are active", async function () {

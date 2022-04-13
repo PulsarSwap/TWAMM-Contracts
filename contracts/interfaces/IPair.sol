@@ -19,11 +19,15 @@ interface IPair {
 
     function reserveMap(address) external view returns (uint256);
 
+    function tmpMapWETH(address) external view returns (uint256);
+
     function tokenAReserves() external view returns (uint256);
 
     function tokenBReserves() external view returns (uint256);
 
     function getTotalSupply() external view returns (uint256);
+
+    function resetMapWETH(address to) external;
 
     event UpdatePrice(uint256 reserveA, uint256 reserveB);
     event InitialLiquidityProvided(

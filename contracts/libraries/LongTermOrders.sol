@@ -35,6 +35,9 @@ library LongTermOrdersLib {
         ///@notice token pair being traded in embedded amm
         address tokenA;
         address tokenB;
+        ///@notice useful addresses for WETH transactions
+        address refTWAMM;
+        address refWETH;
         ///@notice mapping from token address to pool that is selling that token
         ///we maintain two order pools, one for each token that is tradable in the AMM
         mapping(address => OrderPoolLib.OrderPool) OrderPoolMap;
@@ -53,11 +56,15 @@ library LongTermOrdersLib {
         LongTermOrders storage self,
         address tokenA,
         address tokenB,
+        address refTWAMM,
+        address refWETH,
         uint256 lastVirtualOrderBlock,
         uint256 orderBlockInterval
     ) internal {
         self.tokenA = tokenA;
         self.tokenB = tokenB;
+        self.refTWAMM = refTWAMM;
+        self.refWETH = refWETH;
         self.lastVirtualOrderBlock = lastVirtualOrderBlock;
         self.orderBlockInterval = orderBlockInterval;
     }
@@ -155,7 +162,7 @@ library LongTermOrdersLib {
         address sender,
         uint256 orderId,
         mapping(address => uint256) storage reserveMap
-    ) internal {
+    ) internal returns (uint256) {
         //update virtual order state
         executeVirtualOrdersUntilCurrentBlock(self, reserveMap);
 
@@ -178,13 +185,29 @@ library LongTermOrdersLib {
             unsoldAmount > 0 || purchasedAmountMinusFee > 0,
             "No Proceeds To Withdraw"
         );
-        //transfer to owner
-        IERC20(order.buyTokenId).safeTransfer(sender, purchasedAmountMinusFee);
-        IERC20(order.sellTokenId).safeTransfer(sender, unsoldAmount);
 
         // delete orderId from account list
-        // removeOrderId(self, orderId, sender);
         self.orderIdStatusMap[orderId] = false;
+
+        //transfer to owner
+        if (order.buyTokenId == self.refWETH) {
+            IERC20(order.buyTokenId).transfer(
+                self.refTWAMM,
+                purchasedAmountMinusFee
+            );
+            return purchasedAmountMinusFee;
+        } else {
+            IERC20(order.buyTokenId).transfer(sender, purchasedAmountMinusFee);
+            return 0;
+        }
+
+        if (order.sellTokenId == self.refWETH) {
+            IERC20(order.sellTokenId).transfer(self.refTWAMM, unsoldAmount);
+            return unsoldAmount;
+        } else {
+            IERC20(order.sellTokenId).transfer(sender, unsoldAmount);
+            return 0;
+        }
     }
 
     ///@notice withdraw proceeds from a long term swap (can be expired or ongoing)
@@ -193,7 +216,7 @@ library LongTermOrdersLib {
         address sender,
         uint256 orderId,
         mapping(address => uint256) storage reserveMap
-    ) internal {
+    ) internal returns (uint256) {
         //update virtual order state
         executeVirtualOrdersUntilCurrentBlock(self, reserveMap);
 
@@ -209,13 +232,19 @@ library LongTermOrdersLib {
         uint256 proceedsMinusFee = (proceeds * (10000 - LP_FEE)) / 10000;
 
         require(proceedsMinusFee > 0, "No Proceeds To Withdraw");
-        //transfer to owner
-        IERC20(order.buyTokenId).safeTransfer(sender, proceedsMinusFee);
 
         // delete orderId from account list
-        // removeOrderId(self, orderId, sender);
         if (order.expirationBlock >= block.number) {
             self.orderIdStatusMap[orderId] = false;
+        }
+
+        //transfer to owner
+        if (order.buyTokenId == self.refWETH) {
+            IERC20(order.buyTokenId).transfer(self.refTWAMM, proceedsMinusFee);
+            return proceedsMinusFee;
+        } else {
+            IERC20(order.buyTokenId).transfer(sender, proceedsMinusFee);
+            return 0;
         }
     }
 
