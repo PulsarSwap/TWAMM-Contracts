@@ -169,6 +169,7 @@ contract TWAMM is ITWAMM {
             payable(msg.sender),
             amountETHWithdraw
         );
+        IPair(pair).resetMapWETH(msg.sender);
     }
 
     function instantSwapTokenToToken(
@@ -215,6 +216,7 @@ contract TWAMM is ITWAMM {
             payable(msg.sender),
             amountETHWithdraw
         );
+        IPair(pair).resetMapWETH(msg.sender);
     }
 
     function instantSwapETHToToken(
@@ -345,6 +347,7 @@ contract TWAMM is ITWAMM {
             payable(msg.sender),
             amountETHWithdraw
         );
+        IPair(pair).resetMapWETH(msg.sender);
     }
 
     function cancelTermSwapETHToToken(
@@ -366,6 +369,7 @@ contract TWAMM is ITWAMM {
             payable(msg.sender),
             amountETHWithdraw
         );
+        IPair(pair).resetMapWETH(msg.sender);
     }
 
     function withdrawProceedsFromTermSwapTokenToToken(
@@ -398,6 +402,7 @@ contract TWAMM is ITWAMM {
             payable(msg.sender),
             amountETHWithdraw
         );
+        IPair(pair).resetMapWETH(msg.sender);
     }
 
     function withdrawProceedsFromTermSwapETHToToken(

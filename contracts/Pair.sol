@@ -98,6 +98,11 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         return totalSupply();
     }
 
+    ///@notice update MapWETH reserve
+    function resetMapWETH(address sender) external checkCaller {
+        tmpMapWETH[sender] = 0;
+    }
+
     // update price accumulators, on the first call per block
     function updatePrice(uint256 reserveA, uint256 reserveB) private {
         require(

@@ -327,6 +327,44 @@ library LongTermOrdersLib {
                 block.number
             );
         }
+        // uint256 nextExpiryBlock = self.lastVirtualOrderBlock -
+        //     (self.lastVirtualOrderBlock % self.orderBlockInterval) +
+        //     self.orderBlockInterval;
+
+        // OrderPoolLib.OrderPool storage OrderPoolA = self.OrderPoolMap[
+        //     self.tokenA
+        // ];
+        // OrderPoolLib.OrderPool storage OrderPoolB = self.OrderPoolMap[
+        //     self.tokenB
+        // ];
+
+        // //iterate through blocks eligible for order expiries, moving state forward
+        // while (nextExpiryBlock < block.number) {
+        //     // optimization for skipping blocks with no expiry
+        //     if (
+        //         OrderPoolA.salesRateEndingPerBlock[nextExpiryBlock] > 0 ||
+        //         OrderPoolB.salesRateEndingPerBlock[nextExpiryBlock] > 0
+        //     ) {
+        //         executeVirtualTradesAndOrderExpiries(
+        //             self,
+        //             reserveMap,
+        //             nextExpiryBlock
+        //         );
+        //         nextExpiryBlock += self.orderBlockInterval;
+        //     }
+        // }
+        // //finally, move state to current block if necessary
+        // if (self.lastVirtualOrderBlock < block.number) {
+        //     executeVirtualTradesAndOrderExpiries(
+        //         self,
+        //         reserveMap,
+        //         block.number
+        //     );
+        // }
+        
+
+
+        
         // uint256 lastExpiryBlock = self.lastVirtualOrderBlock -
         //     (self.lastVirtualOrderBlock % self.orderBlockInterval);
 
