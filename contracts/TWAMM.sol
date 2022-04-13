@@ -155,11 +155,9 @@ contract TWAMM is ITWAMM {
         uint256 lpTokenAmount,
         uint256 deadline
     ) external virtual override ensure(deadline) {
-        // uint256 balanceBeforeWETH = IWETH10(WETH).balanceOf(msg.sender);
         address pair = Library.pairFor(factory, token, WETH);
         IPair(pair).removeLiquidity(msg.sender, lpTokenAmount);
-        // uint256 balanceAfterWETH = IWETH10(WETH).balanceOf(msg.sender);
-        uint256 amountETHWithdraw = IPair(pair).tmpMapWETH(msg.sender); //balanceAfterWETH - balanceBeforeWETH;
+        uint256 amountETHWithdraw = IPair(pair).tmpMapWETH(msg.sender); 
         require(
             IWETH10(WETH).balanceOf(address(this)) == amountETHWithdraw,
             "Inaccurate Amount for WETH."
@@ -193,7 +191,6 @@ contract TWAMM is ITWAMM {
         uint256 amountTokenIn,
         uint256 deadline
     ) external virtual override ensure(deadline) {
-        uint256 balanceBeforeWETH = IWETH10(WETH).balanceOf(msg.sender);
         address pair = Library.pairFor(factory, token, WETH);
         (address tokenA, ) = Library.sortTokens(token, WETH);
 
@@ -203,9 +200,6 @@ contract TWAMM is ITWAMM {
             IPair(pair).instantSwapFromBToA(msg.sender, amountTokenIn);
         }
 
-        // uint256 balanceAfterWETH = IWETH10(WETH).balanceOf(msg.sender);
-
-        // uint256 amountETHWithdraw = balanceAfterWETH - balanceBeforeWETH;
         uint256 amountETHWithdraw = IPair(pair).tmpMapWETH(msg.sender);
         require(
             IWETH10(WETH).balanceOf(address(this)) == amountETHWithdraw,
@@ -333,10 +327,8 @@ contract TWAMM is ITWAMM {
         uint256 orderId,
         uint256 deadline
     ) external virtual override ensure(deadline) {
-        // uint256 balanceBeforeWETH = IWETH10(WETH).balanceOf(msg.sender);
         address pair = Library.pairFor(factory, token, WETH);
         IPair(pair).cancelLongTermSwap(msg.sender, orderId);
-        // uint256 balanceAfterWETH = IWETH10(WETH).balanceOf(msg.sender);
         uint256 amountETHWithdraw = IPair(pair).tmpMapWETH(msg.sender);
         require(
             IWETH10(WETH).balanceOf(address(this)) == amountETHWithdraw,
@@ -355,10 +347,8 @@ contract TWAMM is ITWAMM {
         uint256 orderId,
         uint256 deadline
     ) external virtual override ensure(deadline) {
-        // uint256 balanceBeforeWETH = IWETH10(WETH).balanceOf(msg.sender);
         address pair = Library.pairFor(factory, WETH, token);
         IPair(pair).cancelLongTermSwap(msg.sender, orderId);
-        // uint256 balanceAfterWETH = IWETH10(WETH).balanceOf(msg.sender);
         uint256 amountETHWithdraw = IPair(pair).tmpMapWETH(msg.sender);
         require(
             IWETH10(WETH).balanceOf(address(this)) == amountETHWithdraw,
@@ -387,11 +377,8 @@ contract TWAMM is ITWAMM {
         uint256 orderId,
         uint256 deadline
     ) external virtual override ensure(deadline) {
-        // uint256 balanceBeforeWETH = IWETH10(WETH).balanceOf(msg.sender);
         address pair = Library.pairFor(factory, token, WETH);
         IPair(pair).withdrawProceedsFromLongTermSwap(msg.sender, orderId);
-        // uint256 balanceAfterWETH = IWETH10(WETH).balanceOf(msg.sender);
-        // uint256 amountETHWithdraw = balanceAfterWETH - balanceBeforeWETH;
         uint256 amountETHWithdraw = IPair(pair).tmpMapWETH(msg.sender);
         require(
             IWETH10(WETH).balanceOf(address(this)) == amountETHWithdraw,
