@@ -361,10 +361,7 @@ library LongTermOrdersLib {
         //         block.number
         //     );
         // }
-        
 
-
-        
         // uint256 lastExpiryBlock = self.lastVirtualOrderBlock -
         //     (self.lastVirtualOrderBlock % self.orderBlockInterval);
 

@@ -2,7 +2,6 @@ const { expect } = require("chai");
 const { parseUnits } = require("ethers/lib/utils");
 const { ethers } = require("hardhat");
 
-
 describe("TWAMM", function () {
   let tokenA;
   let tokenB;
@@ -112,8 +111,6 @@ describe("TWAMM", function () {
     // console.log(afterBalanceA);
     // const actualOutput = afterBalanceA.sub(beforeBalanceA);
     // console.log(actualOutput);
-
-
   });
 
   describe("Basic AMM", function () {
@@ -367,7 +364,7 @@ describe("TWAMM", function () {
         );
         const afterBalanceA = await ethers.provider.getBalance(owner.address); //await WETH.balanceOf(owner.address);
         const actualOutput = afterBalanceA - beforeBalanceA; //afterBalanceA.sub(beforeBalanceA);
-        expect(beforeBalanceA).to.gt(afterBalanceA)
+        expect(beforeBalanceA).to.gt(afterBalanceA);
         expect(actualOutput).to.eq(expectedOutput);
       });
 
@@ -608,12 +605,17 @@ describe("TWAMM", function () {
           );
 
         const amountABought = await WETH.balanceOf(addr2.address);
-        const amountABoughtReverseWETH = await WETH.connect(addr2).deposit({value: amountABought});
+        const amountABoughtReverseWETH = await WETH.connect(addr2).deposit({
+          value: amountABought,
+        });
         const amountBBought = await tokenB.balanceOf(addr1.address);
 
         //pool is balanced, and both orders execute same amount in opposite directions,
         //so we expect final balances to be roughly equal
-        expect(amountABoughtReverseWETH).to.be.closeTo(amountBBought, amountIn / 100);
+        expect(amountABoughtReverseWETH).to.be.closeTo(
+          amountBBought,
+          amountIn / 100
+        );
       });
 
       it("Swap amounts are consistent with twamm formula", async function () {
