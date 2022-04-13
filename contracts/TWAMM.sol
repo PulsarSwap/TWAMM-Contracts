@@ -157,7 +157,7 @@ contract TWAMM is ITWAMM {
     ) external virtual override ensure(deadline) {
         address pair = Library.pairFor(factory, token, WETH);
         IPair(pair).removeLiquidity(msg.sender, lpTokenAmount);
-        uint256 amountETHWithdraw = IPair(pair).tmpMapWETH(msg.sender); 
+        uint256 amountETHWithdraw = IPair(pair).tmpMapWETH(msg.sender);
         require(
             IWETH10(WETH).balanceOf(address(this)) == amountETHWithdraw,
             "Inaccurate Amount for WETH."

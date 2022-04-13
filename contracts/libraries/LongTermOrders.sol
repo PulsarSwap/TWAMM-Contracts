@@ -361,62 +361,6 @@ library LongTermOrdersLib {
                 block.number
             );
         }
-
-        // uint256 lastExpiryBlock = self.lastVirtualOrderBlock -
-        //     (self.lastVirtualOrderBlock % self.orderBlockInterval);
-
-        // uint256 n = 1 +
-        //     PRBMathUD60x18.floor(
-        //         (block.number - lastExpiryBlock) / self.orderBlockInterval
-        //     );
-        // //iterate through blocks eligible for order expiries, moving state forward
-        // // optimization for skipping blocks with no expiry
-        // if (n >= 2) {
-        //     for (uint256 i = 1; i <= n - 1; i++) {
-        //         require(1==0, 'tt');
-        //         uint256 iExpiryBlock = lastExpiryBlock +
-        //             i *
-        //             self.orderBlockInterval;
-
-        //         uint256 beforeSalesRateA = self
-        //             .OrderPoolMap[self.tokenA]
-        //             .salesRateEndingPerBlock[iExpiryBlock];
-        //         uint256 beforeSalesRateB = self
-        //             .OrderPoolMap[self.tokenB]
-        //             .salesRateEndingPerBlock[iExpiryBlock];
-
-        //         uint256 afterSalesRateA = self
-        //             .OrderPoolMap[self.tokenA]
-        //             .salesRateEndingPerBlock[
-        //                 iExpiryBlock + self.orderBlockInterval
-        //             ];
-        //         uint256 afterSalesRateB = self
-        //             .OrderPoolMap[self.tokenB]
-        //             .salesRateEndingPerBlock[
-        //                 iExpiryBlock + self.orderBlockInterval
-        //             ];
-
-        //         if (
-        //             beforeSalesRateA != afterSalesRateA ||
-        //             beforeSalesRateB != afterSalesRateB
-        //         ) {
-        //             executeVirtualTradesAndOrderExpiries(
-        //                 self,
-        //                 reserveMap,
-        //                 iExpiryBlock
-        //             );
-        //         }
-        //     }
-        // }
-
-        // //finally, move state to current block if necessary
-        // if (self.lastVirtualOrderBlock != block.number) {
-        //     executeVirtualTradesAndOrderExpiries(
-        //         self,
-        //         reserveMap,
-        //         block.number
-        //     );
-        // }
     }
 
     ///@notice computes the result of virtual trades by the token pools
