@@ -349,7 +349,7 @@ library LongTermOrdersLib {
                     self,
                     reserveMap,
                     nextExpiryBlock
-                ); 
+                );
             }
             nextExpiryBlock += self.orderBlockInterval;
         }
