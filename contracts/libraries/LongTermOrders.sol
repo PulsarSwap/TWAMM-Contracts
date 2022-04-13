@@ -303,8 +303,8 @@ library LongTermOrdersLib {
                     reserveMap,
                     nextExpiryBlock
                 );
-                nextExpiryBlock += self.orderBlockInterval;
             }
+            nextExpiryBlock += self.orderBlockInterval;
         }
         //finally, move state to current block if necessary
         if (self.lastVirtualOrderBlock < block.number) {
