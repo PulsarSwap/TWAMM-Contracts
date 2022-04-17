@@ -140,10 +140,9 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
 
         IERC20(tokenA).safeTransferFrom(to, address(this), amountA);
         IERC20(tokenB).safeTransferFrom(to, address(this), amountB);
-
         _mint(to, lpTokenAmount);
 
-        updatePrice(amountA, amountB);
+        updatePrice(0, 0);
         emit InitialLiquidityProvided(to, amountA, amountB);
     }
 
@@ -155,6 +154,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         checkCaller
         nonReentrant
     {
+        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         //execute virtual orders
         longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
 
@@ -177,7 +177,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         IERC20(tokenB).safeTransferFrom(to, address(this), amountBIn);
         _mint(to, lpTokenAmount);
 
-        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         emit LiquidityProvided(to, lpTokenAmount);
     }
 
@@ -190,6 +189,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         checkCaller
         nonReentrant
     {
+        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         //execute virtual orders
         longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
 
@@ -222,7 +222,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
             IERC20(tokenB).safeTransfer(to, amountBOut);
         }
 
-        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         emit LiquidityRemoved(to, lpTokenAmount);
     }
 
@@ -233,6 +232,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         checkCaller
         nonReentrant
     {
+        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         require(amountAIn > 0, "Invalid Amount");
         uint256 amountBOut = performInstantSwap(
             sender,
@@ -240,7 +240,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
             tokenB,
             amountAIn
         );
-        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
+
         emit InstantSwapAToB(sender, amountAIn, amountBOut);
     }
 
@@ -252,6 +252,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         uint256 amountAIn,
         uint256 numberOfBlockIntervals
     ) external override checkCaller nonReentrant {
+        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         require(amountAIn > 0, "Invalid Amount");
         uint256 orderId = longTermOrders.longTermSwapFromAToB(
             sender,
@@ -259,7 +260,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
             numberOfBlockIntervals,
             reserveMap
         );
-        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
+
         emit LongTermSwapAToB(sender, amountAIn, orderId);
     }
 
@@ -270,6 +271,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         checkCaller
         nonReentrant
     {
+        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         require(amountBIn > 0, "Invalid Amount");
         uint256 amountAOut = performInstantSwap(
             sender,
@@ -277,7 +279,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
             tokenA,
             amountBIn
         );
-        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
+
         emit InstantSwapBToA(sender, amountBIn, amountAOut);
     }
 
@@ -289,6 +291,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         uint256 amountBIn,
         uint256 numberOfBlockIntervals
     ) external override checkCaller nonReentrant {
+        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         require(amountBIn > 0, "Invalid Amount");
         uint256 orderId = longTermOrders.longTermSwapFromBToA(
             sender,
@@ -296,7 +299,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
             numberOfBlockIntervals,
             reserveMap
         );
-        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
+
         emit LongTermSwapBToA(sender, amountBIn, orderId);
     }
 
@@ -307,13 +310,12 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         checkCaller
         nonReentrant
     {
+        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         tmpMapWETH[sender] = longTermOrders.cancelLongTermSwap(
             sender,
             orderId,
             reserveMap
         );
-
-        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         emit CancelLongTermOrder(sender, orderId);
     }
 
@@ -324,12 +326,13 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         checkCaller
         nonReentrant
     {
+        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         tmpMapWETH[sender] = longTermOrders.withdrawProceedsFromLongTermSwap(
             sender,
             orderId,
             reserveMap
         );
-        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
+
         emit WithdrawProceedsFromLongTermOrder(sender, orderId);
     }
 
@@ -395,7 +398,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     ///@notice convenience function to execute virtual orders. Note that this already happens
     ///before most interactions with the AMM
     function executeVirtualOrders() public override {
-        longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
+        longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
     }
 }

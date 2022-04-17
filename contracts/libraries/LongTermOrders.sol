@@ -191,21 +191,24 @@ library LongTermOrdersLib {
 
         //transfer to owner
         if (order.buyTokenId == self.refWETH) {
-            IERC20(order.buyTokenId).transfer(
+            IERC20(order.buyTokenId).safeTransfer(
                 self.refTWAMM,
                 purchasedAmountMinusFee
             );
             return purchasedAmountMinusFee;
         } else {
-            IERC20(order.buyTokenId).transfer(sender, purchasedAmountMinusFee);
+            IERC20(order.buyTokenId).safeTransfer(
+                sender,
+                purchasedAmountMinusFee
+            );
             return 0;
         }
 
         if (order.sellTokenId == self.refWETH) {
-            IERC20(order.sellTokenId).transfer(self.refTWAMM, unsoldAmount);
+            IERC20(order.sellTokenId).safeTransfer(self.refTWAMM, unsoldAmount);
             return unsoldAmount;
         } else {
-            IERC20(order.sellTokenId).transfer(sender, unsoldAmount);
+            IERC20(order.sellTokenId).safeTransfer(sender, unsoldAmount);
             return 0;
         }
     }
@@ -234,16 +237,19 @@ library LongTermOrdersLib {
         require(proceedsMinusFee > 0, "No Proceeds To Withdraw");
 
         // delete orderId from account list
-        if (order.expirationBlock >= block.number) {
+        if (order.expirationBlock <= block.number) {
             self.orderIdStatusMap[orderId] = false;
         }
 
         //transfer to owner
         if (order.buyTokenId == self.refWETH) {
-            IERC20(order.buyTokenId).transfer(self.refTWAMM, proceedsMinusFee);
+            IERC20(order.buyTokenId).safeTransfer(
+                self.refTWAMM,
+                proceedsMinusFee
+            );
             return proceedsMinusFee;
         } else {
-            IERC20(order.buyTokenId).transfer(sender, proceedsMinusFee);
+            IERC20(order.buyTokenId).safeTransfer(sender, proceedsMinusFee);
             return 0;
         }
     }
