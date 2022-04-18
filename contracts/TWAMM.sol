@@ -153,7 +153,7 @@ contract TWAMM is ITWAMM {
         uint256 deadline
     ) external virtual override ensure(deadline) {
         address pair = Library.pairFor(factory, token0, token1);
-        IPair(pair).removeLiquidity(msg.sender, lpTokenAmount);
+        IPair(pair).removeLiquidity(msg.sender, lpTokenAmount, false);
     }
 
     function withdrawLiquidityETH(
@@ -162,7 +162,7 @@ contract TWAMM is ITWAMM {
         uint256 deadline
     ) external virtual override ensure(deadline) {
         address pair = Library.pairFor(factory, token, WETH);
-        IPair(pair).removeLiquidity(msg.sender, lpTokenAmount);
+        IPair(pair).removeLiquidity(msg.sender, lpTokenAmount, true);
         uint256 amountETHWithdraw = IPair(pair).tmpMapWETH(msg.sender);
         require(
             IWETH10(WETH).balanceOf(address(this)) >= amountETHWithdraw,
@@ -186,9 +186,9 @@ contract TWAMM is ITWAMM {
         (address tokenA, ) = Library.sortTokens(token0, token1);
 
         if (tokenA == token0) {
-            IPair(pair).instantSwapFromAToB(msg.sender, amountIn);
+            IPair(pair).instantSwapFromAToB(msg.sender, amountIn, false);
         } else {
-            IPair(pair).instantSwapFromBToA(msg.sender, amountIn);
+            IPair(pair).instantSwapFromBToA(msg.sender, amountIn, false);
         }
     }
 
@@ -201,9 +201,9 @@ contract TWAMM is ITWAMM {
         (address tokenA, ) = Library.sortTokens(token, WETH);
 
         if (tokenA == token) {
-            IPair(pair).instantSwapFromAToB(msg.sender, amountTokenIn);
+            IPair(pair).instantSwapFromAToB(msg.sender, amountTokenIn, true);
         } else {
-            IPair(pair).instantSwapFromBToA(msg.sender, amountTokenIn);
+            IPair(pair).instantSwapFromBToA(msg.sender, amountTokenIn, true);
         }
 
         uint256 amountETHWithdraw = IPair(pair).tmpMapWETH(msg.sender);
@@ -230,9 +230,9 @@ contract TWAMM is ITWAMM {
         IWETH10(WETH).depositTo{value: msg.value}(msg.sender);
 
         if (tokenA == WETH) {
-            IPair(pair).instantSwapFromAToB(msg.sender, amountETHIn);
+            IPair(pair).instantSwapFromAToB(msg.sender, amountETHIn, true);
         } else {
-            IPair(pair).instantSwapFromBToA(msg.sender, amountETHIn);
+            IPair(pair).instantSwapFromBToA(msg.sender, amountETHIn, true);
         }
         // // refund dust eth, if any
         // if (msg.value > amountETHIn)
@@ -325,7 +325,7 @@ contract TWAMM is ITWAMM {
         uint256 deadline
     ) external virtual override ensure(deadline) {
         address pair = Library.pairFor(factory, token0, token1);
-        IPair(pair).cancelLongTermSwap(msg.sender, orderId);
+        IPair(pair).cancelLongTermSwap(msg.sender, orderId, false);
     }
 
     function cancelTermSwapTokenToETH(
@@ -334,7 +334,7 @@ contract TWAMM is ITWAMM {
         uint256 deadline
     ) external virtual override ensure(deadline) {
         address pair = Library.pairFor(factory, token, WETH);
-        IPair(pair).cancelLongTermSwap(msg.sender, orderId);
+        IPair(pair).cancelLongTermSwap(msg.sender, orderId, true);
         uint256 amountETHWithdraw = IPair(pair).tmpMapWETH(msg.sender);
         require(
             IWETH10(WETH).balanceOf(address(this)) >= amountETHWithdraw,
@@ -354,7 +354,7 @@ contract TWAMM is ITWAMM {
         uint256 deadline
     ) external virtual override ensure(deadline) {
         address pair = Library.pairFor(factory, WETH, token);
-        IPair(pair).cancelLongTermSwap(msg.sender, orderId);
+        IPair(pair).cancelLongTermSwap(msg.sender, orderId, true);
         uint256 amountETHWithdraw = IPair(pair).tmpMapWETH(msg.sender);
         require(
             IWETH10(WETH).balanceOf(address(this)) >= amountETHWithdraw,
@@ -375,7 +375,11 @@ contract TWAMM is ITWAMM {
         uint256 deadline
     ) external virtual override ensure(deadline) {
         address pair = Library.pairFor(factory, token0, token1);
-        IPair(pair).withdrawProceedsFromLongTermSwap(msg.sender, orderId);
+        IPair(pair).withdrawProceedsFromLongTermSwap(
+            msg.sender,
+            orderId,
+            false
+        );
     }
 
     function withdrawProceedsFromTermSwapTokenToETH(
@@ -384,7 +388,7 @@ contract TWAMM is ITWAMM {
         uint256 deadline
     ) external virtual override ensure(deadline) {
         address pair = Library.pairFor(factory, token, WETH);
-        IPair(pair).withdrawProceedsFromLongTermSwap(msg.sender, orderId);
+        IPair(pair).withdrawProceedsFromLongTermSwap(msg.sender, orderId, true);
         uint256 amountETHWithdraw = IPair(pair).tmpMapWETH(msg.sender);
         require(
             IWETH10(WETH).balanceOf(address(this)) >= amountETHWithdraw,
@@ -404,7 +408,7 @@ contract TWAMM is ITWAMM {
         uint256 deadline
     ) external virtual override ensure(deadline) {
         address pair = Library.pairFor(factory, WETH, token);
-        IPair(pair).withdrawProceedsFromLongTermSwap(msg.sender, orderId);
+        IPair(pair).withdrawProceedsFromLongTermSwap(msg.sender, orderId, true);
     }
 
     function executeVirtualOrdersWrapper(address pair)

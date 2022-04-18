@@ -161,6 +161,7 @@ library LongTermOrdersLib {
         LongTermOrders storage self,
         address sender,
         uint256 orderId,
+        bool proceedETH,
         mapping(address => uint256) storage reserveMap
     ) internal returns (uint256) {
         //update virtual order state
@@ -190,21 +191,25 @@ library LongTermOrdersLib {
         self.orderIdStatusMap[orderId] = false;
 
         //transfer to owner
-        if (order.buyTokenId == self.refWETH) {
-            IERC20(order.buyTokenId).transfer(
-                self.refTWAMM,
-                purchasedAmountMinusFee
-            );
-            return purchasedAmountMinusFee;
+
+        if (proceedETH) {
+            if (order.buyTokenId == self.refWETH) {
+                IERC20(order.buyTokenId).transfer(
+                    self.refTWAMM,
+                    purchasedAmountMinusFee
+                );
+                IERC20(order.sellTokenId).transfer(sender, unsoldAmount);
+                return purchasedAmountMinusFee;
+            } else {
+                IERC20(order.sellTokenId).transfer(self.refTWAMM, unsoldAmount);
+                IERC20(order.buyTokenId).transfer(
+                    sender,
+                    purchasedAmountMinusFee
+                );
+                return unsoldAmount;
+            }
         } else {
             IERC20(order.buyTokenId).transfer(sender, purchasedAmountMinusFee);
-            return 0;
-        }
-
-        if (order.sellTokenId == self.refWETH) {
-            IERC20(order.sellTokenId).transfer(self.refTWAMM, unsoldAmount);
-            return unsoldAmount;
-        } else {
             IERC20(order.sellTokenId).transfer(sender, unsoldAmount);
             return 0;
         }
@@ -215,6 +220,7 @@ library LongTermOrdersLib {
         LongTermOrders storage self,
         address sender,
         uint256 orderId,
+        bool proceedETH,
         mapping(address => uint256) storage reserveMap
     ) internal returns (uint256) {
         //update virtual order state
@@ -239,7 +245,7 @@ library LongTermOrdersLib {
         }
 
         //transfer to owner
-        if (order.buyTokenId == self.refWETH) {
+        if (proceedETH && order.buyTokenId == self.refWETH) {
             IERC20(order.buyTokenId).transfer(self.refTWAMM, proceedsMinusFee);
             return proceedsMinusFee;
         } else {

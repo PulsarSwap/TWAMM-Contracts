@@ -184,12 +184,11 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     ///@notice remove liquidity to the AMM
     ///@param lpTokenAmount number of lp tokens to burn
 
-    function removeLiquidity(address to, uint256 lpTokenAmount)
-        external
-        override
-        checkCaller
-        nonReentrant
-    {
+    function removeLiquidity(
+        address to,
+        uint256 lpTokenAmount,
+        bool proceedETH
+    ) external override checkCaller nonReentrant {
         //execute virtual orders
         longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
 
@@ -209,14 +208,16 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         reserveMap[tokenB] -= amountBOut;
 
         _burn(to, lpTokenAmount);
-        if (ITWAMM(safeCaller).WETH() == tokenA) {
-            IERC20(tokenA).safeTransfer(safeCaller, amountAOut);
-            IERC20(tokenB).safeTransfer(to, amountBOut);
-            tmpMapWETH[to] = amountAOut;
-        } else if (ITWAMM(safeCaller).WETH() == tokenB) {
-            IERC20(tokenA).safeTransfer(to, amountAOut);
-            IERC20(tokenB).safeTransfer(safeCaller, amountBOut);
-            tmpMapWETH[to] = amountBOut;
+        if (proceedETH) {
+            if (ITWAMM(safeCaller).WETH() == tokenA) {
+                IERC20(tokenA).safeTransfer(safeCaller, amountAOut);
+                IERC20(tokenB).safeTransfer(to, amountBOut);
+                tmpMapWETH[to] = amountAOut;
+            } else {
+                IERC20(tokenA).safeTransfer(to, amountAOut);
+                IERC20(tokenB).safeTransfer(safeCaller, amountBOut);
+                tmpMapWETH[to] = amountBOut;
+            }
         } else {
             IERC20(tokenA).safeTransfer(to, amountAOut);
             IERC20(tokenB).safeTransfer(to, amountBOut);
@@ -227,18 +228,18 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     }
 
     ///@notice instant swap a given amount of tokenA against embedded amm
-    function instantSwapFromAToB(address sender, uint256 amountAIn)
-        external
-        override
-        checkCaller
-        nonReentrant
-    {
+    function instantSwapFromAToB(
+        address sender,
+        uint256 amountAIn,
+        bool proceedETH
+    ) external override checkCaller nonReentrant {
         require(amountAIn > 0, "Invalid Amount");
         uint256 amountBOut = performInstantSwap(
             sender,
             tokenA,
             tokenB,
-            amountAIn
+            amountAIn,
+            proceedETH
         );
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         emit InstantSwapAToB(sender, amountAIn, amountBOut);
@@ -264,18 +265,18 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     }
 
     ///@notice instant swap a given amount of tokenB against embedded amm
-    function instantSwapFromBToA(address sender, uint256 amountBIn)
-        external
-        override
-        checkCaller
-        nonReentrant
-    {
+    function instantSwapFromBToA(
+        address sender,
+        uint256 amountBIn,
+        bool proceedETH
+    ) external override checkCaller nonReentrant {
         require(amountBIn > 0, "Invalid Amount");
         uint256 amountAOut = performInstantSwap(
             sender,
             tokenB,
             tokenA,
-            amountBIn
+            amountBIn,
+            proceedETH
         );
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         emit InstantSwapBToA(sender, amountBIn, amountAOut);
@@ -301,15 +302,15 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     }
 
     ///@notice stop the execution of a long term order
-    function cancelLongTermSwap(address sender, uint256 orderId)
-        external
-        override
-        checkCaller
-        nonReentrant
-    {
+    function cancelLongTermSwap(
+        address sender,
+        uint256 orderId,
+        bool proceedETH
+    ) external override checkCaller nonReentrant {
         tmpMapWETH[sender] = longTermOrders.cancelLongTermSwap(
             sender,
             orderId,
+            proceedETH,
             reserveMap
         );
 
@@ -318,15 +319,15 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     }
 
     ///@notice withdraw proceeds from a long term swap
-    function withdrawProceedsFromLongTermSwap(address sender, uint256 orderId)
-        external
-        override
-        checkCaller
-        nonReentrant
-    {
+    function withdrawProceedsFromLongTermSwap(
+        address sender,
+        uint256 orderId,
+        bool proceedETH
+    ) external override checkCaller nonReentrant {
         tmpMapWETH[sender] = longTermOrders.withdrawProceedsFromLongTermSwap(
             sender,
             orderId,
+            proceedETH,
             reserveMap
         );
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
@@ -338,7 +339,8 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         address sender,
         address from,
         address to,
-        uint256 amountIn
+        uint256 amountIn,
+        bool poceedETH
     ) private checkCaller returns (uint256 amountOutMinusFee) {
         //execute virtual orders
         longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
@@ -355,7 +357,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
 
         IERC20(from).safeTransferFrom(sender, address(this), amountIn);
 
-        if (ITWAMM(safeCaller).WETH() == to) {
+        if (poceedETH && ITWAMM(safeCaller).WETH() == to) {
             IERC20(to).safeTransfer(safeCaller, amountOutMinusFee);
             tmpMapWETH[sender] = amountOutMinusFee;
         } else {

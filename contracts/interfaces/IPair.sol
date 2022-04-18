@@ -71,9 +71,17 @@ interface IPair {
 
     function provideLiquidity(address to, uint256 lpTokenAmount) external;
 
-    function removeLiquidity(address to, uint256 lpTokenAmount) external;
+    function removeLiquidity(
+        address to,
+        uint256 lpTokenAmount,
+        bool proceedETH
+    ) external;
 
-    function instantSwapFromAToB(address sender, uint256 amountAIn) external;
+    function instantSwapFromAToB(
+        address sender,
+        uint256 amountAIn,
+        bool proceedETH
+    ) external;
 
     function longTermSwapFromAToB(
         address sender,
@@ -81,7 +89,11 @@ interface IPair {
         uint256 numberOfBlockIntervals
     ) external;
 
-    function instantSwapFromBToA(address sender, uint256 amountBIn) external;
+    function instantSwapFromBToA(
+        address sender,
+        uint256 amountBIn,
+        bool proceedETH
+    ) external;
 
     function longTermSwapFromBToA(
         address sender,
@@ -89,10 +101,17 @@ interface IPair {
         uint256 numberOfBlockIntervals
     ) external;
 
-    function cancelLongTermSwap(address sender, uint256 orderId) external;
+    function cancelLongTermSwap(
+        address sender,
+        uint256 orderId,
+        bool proceedETH
+    ) external;
 
-    function withdrawProceedsFromLongTermSwap(address sender, uint256 orderId)
-        external;
+    function withdrawProceedsFromLongTermSwap(
+        address sender,
+        uint256 orderId,
+        bool proceedETH
+    ) external;
 
     function userIdsCheck(address userAddress)
         external
