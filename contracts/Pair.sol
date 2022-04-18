@@ -226,7 +226,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     }
 
     ///@notice instant swap a given amount of tokenA against embedded amm
-
     function instantSwapFromAToB(
         address sender,
         uint256 amountAIn,
@@ -266,7 +265,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     }
 
     ///@notice instant swap a given amount of tokenB against embedded amm
-
     function instantSwapFromBToA(
         address sender,
         uint256 amountBIn,
@@ -306,7 +304,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     }
 
     ///@notice stop the execution of a long term order
-
     function cancelLongTermSwap(
         address sender,
         uint256 orderId,
@@ -323,7 +320,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     }
 
     ///@notice withdraw proceeds from a long term swap
-
     function withdrawProceedsFromLongTermSwap(
         address sender,
         uint256 orderId,
