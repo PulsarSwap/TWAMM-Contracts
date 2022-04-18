@@ -112,9 +112,9 @@ contract TWAMM is ITWAMM {
         IPair(pair).provideInitialLiquidity(msg.sender, amountA, amountB);
 
         // refund dust eth, if any
-        if (msg.value > amountETH) {
-            TransferHelper.safeTransferETH(msg.sender, msg.value - amountETH);
-        }
+        // if (msg.value > amountETH) {
+        //     TransferHelper.safeTransferETH(msg.sender, msg.value - amountETH);
+        // }
     }
 
     function addLiquidity(
@@ -142,8 +142,8 @@ contract TWAMM is ITWAMM {
         IPair(pair).provideLiquidity(msg.sender, lpTokenAmount);
 
         // refund dust eth, if any
-        if (msg.value > amountETH)
-            TransferHelper.safeTransferETH(msg.sender, msg.value - amountETH);
+        // if (msg.value > amountETH)
+        //     TransferHelper.safeTransferETH(msg.sender, msg.value - amountETH);
     }
 
     function withdrawLiquidity(
@@ -234,9 +234,9 @@ contract TWAMM is ITWAMM {
         } else {
             IPair(pair).instantSwapFromBToA(msg.sender, amountETHIn);
         }
-        // refund dust eth, if any
-        if (msg.value > amountETHIn)
-            TransferHelper.safeTransferETH(msg.sender, msg.value - amountETHIn);
+        // // refund dust eth, if any
+        // if (msg.value > amountETHIn)
+        //     TransferHelper.safeTransferETH(msg.sender, msg.value - amountETHIn);
     }
 
     function longTermSwapTokenToToken(
@@ -313,9 +313,9 @@ contract TWAMM is ITWAMM {
             );
         }
 
-        // refund dust eth, if any
-        if (msg.value > amountETHIn)
-            TransferHelper.safeTransferETH(msg.sender, msg.value - amountETHIn);
+        // // refund dust eth, if any
+        // if (msg.value > amountETHIn)
+        //     TransferHelper.safeTransferETH(msg.sender, msg.value - amountETHIn);
     }
 
     function cancelTermSwapTokenToToken(
