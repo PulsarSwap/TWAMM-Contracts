@@ -230,9 +230,9 @@ contract TWAMM is ITWAMM {
         IWETH10(WETH).depositTo{value: amountETHIn}(msg.sender);
 
         if (tokenA == WETH) {
-            IPair(pair).instantSwapFromAToB(msg.sender, amountETHIn, true);
+            IPair(pair).instantSwapFromAToB(msg.sender, amountETHIn, false);
         } else {
-            IPair(pair).instantSwapFromBToA(msg.sender, amountETHIn, true);
+            IPair(pair).instantSwapFromBToA(msg.sender, amountETHIn, false);
         }
         // refund dust eth, if any
         if (msg.value > amountETHIn)
@@ -408,7 +408,11 @@ contract TWAMM is ITWAMM {
         uint256 deadline
     ) external virtual override ensure(deadline) {
         address pair = Library.pairFor(factory, WETH, token);
-        IPair(pair).withdrawProceedsFromLongTermSwap(msg.sender, orderId, true);
+        IPair(pair).withdrawProceedsFromLongTermSwap(
+            msg.sender,
+            orderId,
+            false
+        );
     }
 
     function executeVirtualOrdersWrapper(address pair)

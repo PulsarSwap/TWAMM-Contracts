@@ -188,7 +188,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         bool proceedETH
     ) external override checkCaller nonReentrant {
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
-
         //execute virtual orders
         longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
 
@@ -234,7 +233,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         bool proceedETH
     ) external override checkCaller nonReentrant {
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
-
         require(amountAIn > 0, "Invalid Amount");
         uint256 amountBOut = performInstantSwap(
             sender,
@@ -275,7 +273,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         bool proceedETH
     ) external override checkCaller nonReentrant {
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
-
         require(amountBIn > 0, "Invalid Amount");
         uint256 amountAOut = performInstantSwap(
             sender,
@@ -316,7 +313,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         bool proceedETH
     ) external override checkCaller nonReentrant {
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
-
         tmpMapWETH[sender] = longTermOrders.cancelLongTermSwap(
             sender,
             orderId,
@@ -334,7 +330,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         bool proceedETH
     ) external override checkCaller nonReentrant {
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
-
         tmpMapWETH[sender] = longTermOrders.withdrawProceedsFromLongTermSwap(
             sender,
             orderId,
@@ -355,6 +350,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     ) private checkCaller returns (uint256 amountOutMinusFee) {
         //execute virtual orders
         longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
+
         uint256 reserveFrom = reserveMap[from];
         uint256 reserveTo = reserveMap[to];
         //constant product formula
@@ -367,7 +363,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         reserveMap[to] -= amountOutMinusFee;
 
         IERC20(from).safeTransferFrom(sender, address(this), amountIn);
-
         if (poceedETH && ITWAMM(safeCaller).WETH() == to) {
             IERC20(to).safeTransfer(safeCaller, amountOutMinusFee);
             tmpMapWETH[sender] = amountOutMinusFee;

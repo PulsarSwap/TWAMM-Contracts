@@ -200,7 +200,10 @@ library LongTermOrdersLib {
                 IERC20(order.sellTokenId).safeTransfer(sender, unsoldAmount);
                 return purchasedAmountMinusFee;
             } else {
-                IERC20(order.sellTokenId).safeTransfer(self.refTWAMM, unsoldAmount);
+                IERC20(order.sellTokenId).safeTransfer(
+                    self.refTWAMM,
+                    unsoldAmount
+                );
                 IERC20(order.buyTokenId).safeTransfer(
                     sender,
                     purchasedAmountMinusFee
@@ -208,7 +211,10 @@ library LongTermOrdersLib {
                 return unsoldAmount;
             }
         } else {
-            IERC20(order.buyTokenId).safeTransfer(sender, purchasedAmountMinusFee);
+            IERC20(order.buyTokenId).safeTransfer(
+                sender,
+                purchasedAmountMinusFee
+            );
             IERC20(order.sellTokenId).safeTransfer(sender, unsoldAmount);
             return 0;
         }
@@ -245,7 +251,10 @@ library LongTermOrdersLib {
 
         //transfer to owner
         if (proceedETH && order.buyTokenId == self.refWETH) {
-            IERC20(order.buyTokenId).safeTransfer(self.refTWAMM, proceedsMinusFee);
+            IERC20(order.buyTokenId).safeTransfer(
+                self.refTWAMM,
+                proceedsMinusFee
+            );
             return proceedsMinusFee;
         } else {
             IERC20(order.buyTokenId).safeTransfer(sender, proceedsMinusFee);
