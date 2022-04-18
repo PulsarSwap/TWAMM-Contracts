@@ -165,7 +165,7 @@ contract TWAMM is ITWAMM {
         IPair(pair).removeLiquidity(msg.sender, lpTokenAmount);
         uint256 amountETHWithdraw = IPair(pair).tmpMapWETH(msg.sender);
         require(
-            IWETH10(WETH).balanceOf(address(this)) == amountETHWithdraw,
+            IWETH10(WETH).balanceOf(address(this)) >= amountETHWithdraw,
             "Inaccurate Amount for WETH."
         );
         IWETH10(WETH).withdrawFrom(
@@ -208,7 +208,7 @@ contract TWAMM is ITWAMM {
 
         uint256 amountETHWithdraw = IPair(pair).tmpMapWETH(msg.sender);
         require(
-            IWETH10(WETH).balanceOf(address(this)) == amountETHWithdraw,
+            IWETH10(WETH).balanceOf(address(this)) >= amountETHWithdraw,
             "Inaccurate Amount for WETH."
         );
         IWETH10(WETH).withdrawFrom(
@@ -337,7 +337,7 @@ contract TWAMM is ITWAMM {
         IPair(pair).cancelLongTermSwap(msg.sender, orderId);
         uint256 amountETHWithdraw = IPair(pair).tmpMapWETH(msg.sender);
         require(
-            IWETH10(WETH).balanceOf(address(this)) == amountETHWithdraw,
+            IWETH10(WETH).balanceOf(address(this)) >= amountETHWithdraw,
             "Inaccurate Amount for WETH."
         );
         IWETH10(WETH).withdrawFrom(
@@ -357,7 +357,7 @@ contract TWAMM is ITWAMM {
         IPair(pair).cancelLongTermSwap(msg.sender, orderId);
         uint256 amountETHWithdraw = IPair(pair).tmpMapWETH(msg.sender);
         require(
-            IWETH10(WETH).balanceOf(address(this)) == amountETHWithdraw,
+            IWETH10(WETH).balanceOf(address(this)) >= amountETHWithdraw,
             "Inaccurate Amount for WETH."
         );
         IWETH10(WETH).withdrawFrom(
@@ -387,7 +387,7 @@ contract TWAMM is ITWAMM {
         IPair(pair).withdrawProceedsFromLongTermSwap(msg.sender, orderId);
         uint256 amountETHWithdraw = IPair(pair).tmpMapWETH(msg.sender);
         require(
-            IWETH10(WETH).balanceOf(address(this)) == amountETHWithdraw,
+            IWETH10(WETH).balanceOf(address(this)) >= amountETHWithdraw,
             "Inaccurate Amount for WETH."
         );
         IWETH10(WETH).withdrawFrom(

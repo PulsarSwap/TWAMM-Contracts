@@ -234,7 +234,7 @@ library LongTermOrdersLib {
         require(proceedsMinusFee > 0, "No Proceeds To Withdraw");
 
         // delete orderId from account list
-        if (order.expirationBlock >= block.number) {
+        if (order.expirationBlock <= block.number) {
             self.orderIdStatusMap[orderId] = false;
         }
 
