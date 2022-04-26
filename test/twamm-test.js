@@ -72,7 +72,8 @@ describe("TWAMM", function () {
       tokenB.address,
       initialLiquidityProvided,
       initialLiquidityProvided,
-      timeStamp + 100000
+      timeStamp + 100000,
+      { value: initialLiquidityProvided }
     );
     await console.log("Initial Setup Finished");
   });
@@ -101,7 +102,8 @@ describe("TWAMM", function () {
             tokenB.address,
             amount,
             amount,
-            timeStamp + 100000
+            timeStamp + 100000,
+            { value: amount }
           )
         ).to.be.revertedWith(
           "Liquidity Has Already Been Provided, Need To Call provideLiquidity()"

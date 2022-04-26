@@ -369,7 +369,10 @@ library LongTermOrdersLib {
             (self.lastVirtualOrderBlock % self.orderBlockInterval) +
             self.orderBlockInterval;
 
-        require(blockNumber <= block.number);
+        require(
+            blockNumber <= block.number,
+            "Specified Block Number Cannot Be Greater Than The Current Block Number!"
+        );
 
         OrderPoolLib.OrderPool storage OrderPoolA = self.OrderPoolMap[
             self.tokenA
