@@ -120,7 +120,7 @@ library LongTermOrdersLib {
         mapping(address => uint256) storage reserveMap
     ) private returns (uint256) {
         //update virtual order state
-        executeVirtualOrdersUntilSpecifiedBlock(self, block.number, reserveMap);
+        executeVirtualOrdersUntilSpecifiedBlock(self, reserveMap, block.number);
 
         // transfer sale amount to contract
         IERC20(from).safeTransferFrom(sender, address(this), amount);
@@ -165,7 +165,7 @@ library LongTermOrdersLib {
         mapping(address => uint256) storage reserveMap
     ) internal returns (uint256) {
         //update virtual order state
-        executeVirtualOrdersUntilSpecifiedBlock(self, block.number, reserveMap);
+        executeVirtualOrdersUntilSpecifiedBlock(self, reserveMap, block.number);
 
         Order storage order = self.orderMap[orderId];
 
@@ -229,7 +229,7 @@ library LongTermOrdersLib {
         mapping(address => uint256) storage reserveMap
     ) internal returns (uint256) {
         //update virtual order state
-        executeVirtualOrdersUntilSpecifiedBlock(self, block.number, reserveMap);
+        executeVirtualOrdersUntilSpecifiedBlock(self, reserveMap, block.number);
 
         Order storage order = self.orderMap[orderId];
         require(order.owner == sender, "Sender Must Be Order Owner");
@@ -318,13 +318,16 @@ library LongTermOrdersLib {
         self.lastVirtualOrderBlock = blockNumber;
     }
 
-    ///@notice executes all virtual orders until current block is reached.
+    ///@notice executes all virtual orders until specified block.
     function executeVirtualOrdersUntilSpecifiedBlock(
         LongTermOrders storage self,
-        uint256 blockNumber,
-        mapping(address => uint256) storage reserveMap
+        mapping(address => uint256) storage reserveMap,
+        uint256 blockNumber
     ) internal {
-        require(blockNumber <=  block.number, "Specified block number cannot be greater than the current block number!")
+        require(
+            blockNumber <= block.number,
+            "Specified Block Number Cannot Be Greater Than The Current Block Number!"
+        );
         uint256 nextExpiryBlock = self.lastVirtualOrderBlock -
             (self.lastVirtualOrderBlock % self.orderBlockInterval) +
             self.orderBlockInterval;

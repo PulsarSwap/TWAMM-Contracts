@@ -157,8 +157,8 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         //execute virtual orders
         longTermOrders.executeVirtualOrdersUntilSpecifiedBlock(
-            block.number,
-            reserveMap
+            reserveMap,
+            block.number
         );
 
         require(lpTokenAmount > 0, "Invalid Amount");
@@ -193,8 +193,8 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         //execute virtual orders
         longTermOrders.executeVirtualOrdersUntilSpecifiedBlock(
-            block.number,
-            reserveMap
+            reserveMap,
+            block.number
         );
 
         require(lpTokenAmount > 0, "Invalid Amount");
@@ -352,8 +352,8 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     ) private checkCaller returns (uint256 amountOutMinusFee) {
         //execute virtual orders
         longTermOrders.executeVirtualOrdersUntilSpecifiedBlock(
-            block.number,
-            reserveMap
+            reserveMap,
+            block.number
         );
 
         uint256 reserveFrom = reserveMap[from];
@@ -410,8 +410,8 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     function executeVirtualOrders(uint256 blockNumber) public override {
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         longTermOrders.executeVirtualOrdersUntilSpecifiedBlock(
-            blockNumber,
-            reserveMap
+            reserveMap,
+            blockNumber
         );
     }
 }
