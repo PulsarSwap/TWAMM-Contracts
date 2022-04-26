@@ -147,6 +147,6 @@ interface ITWAMM {
 
     function executeVirtualOrdersWithSpecifiedLoopsWrapper(
         address pair,
-        uint256 blocknumber
+        uint256 blockNumber
     ) external;
 }

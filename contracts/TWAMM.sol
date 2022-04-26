@@ -423,8 +423,8 @@ contract TWAMM is ITWAMM {
 
     function executeVirtualOrdersWithSpecifiedLoopsWrapper(
         address pair,
-        uint256 blocknumber
+        uint256 blockNumber
     ) external virtual override {
-        IPair(pair).executeVirtualOrdersWithSpecifiedLoops(blocknumber);
+        IPair(pair).executeVirtualOrdersWithSpecifiedLoops(blockNumber);
     }
 }

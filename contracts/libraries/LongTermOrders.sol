@@ -363,13 +363,13 @@ library LongTermOrdersLib {
     function executeVirtualOrdersExpiriesWithSpecifiedLoops(
         LongTermOrders storage self,
         mapping(address => uint256) storage reserveMap,
-        uint256 blocknumber
+        uint256 blockNumber
     ) internal {
         uint256 nextExpiryBlock = self.lastVirtualOrderBlock -
             (self.lastVirtualOrderBlock % self.orderBlockInterval) +
             self.orderBlockInterval;
 
-        require(blocknumber <= block.number);
+        require(blockNumber <= block.number);
 
         OrderPoolLib.OrderPool storage OrderPoolA = self.OrderPoolMap[
             self.tokenA
@@ -379,7 +379,7 @@ library LongTermOrdersLib {
         ];
 
         //iterate through blocks eligible for order expiries, moving state forward
-        while (nextExpiryBlock < blocknumber) {
+        while (nextExpiryBlock < blockNumber) {
             // optimization for skipping blocks with no expiry
             if (
                 OrderPoolA.salesRateEndingPerBlock[nextExpiryBlock] > 0 ||
@@ -394,8 +394,8 @@ library LongTermOrdersLib {
             nextExpiryBlock += self.orderBlockInterval;
         }
         //finally, move state to current block if necessary
-        if (self.lastVirtualOrderBlock < blocknumber) {
-            executeVirtualTradesAndOrderExpiries(self, reserveMap, blocknumber);
+        if (self.lastVirtualOrderBlock < blockNumber) {
+            executeVirtualTradesAndOrderExpiries(self, reserveMap, blockNumber);
         }
     }
 

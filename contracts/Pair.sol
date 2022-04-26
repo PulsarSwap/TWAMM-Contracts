@@ -409,14 +409,14 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
 
     ///@notice convenience function to execute virtual orders with specified loops when out of gas. Note that this already happens
     ///before most interactions with the AMM
-    function executeVirtualOrdersWithSpecifiedLoops(uint256 blocknumber)
+    function executeVirtualOrdersWithSpecifiedLoops(uint256 blockNumber)
         public
         override
     {
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         longTermOrders.executeVirtualOrdersExpiriesWithSpecifiedLoops(
             reserveMap,
-            blocknumber
+            blockNumber
         );
     }
 }

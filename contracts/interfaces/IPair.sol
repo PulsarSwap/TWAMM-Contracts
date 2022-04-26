@@ -122,6 +122,6 @@ interface IPair {
 
     function executeVirtualOrders() external;
 
-    function executeVirtualOrdersWithSpecifiedLoops(uint256 blocknumber)
+    function executeVirtualOrdersWithSpecifiedLoops(uint256 blockNumber)
         external;
 }
