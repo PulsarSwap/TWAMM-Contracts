@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+// Inspired by https://www.paradigm.xyz/2021/07/twamm
+// https://github.com/para-dave/twamm
+// FrankieIsLost MVP code implementation: https://github.com/FrankieIsLost
+
 pragma solidity ^0.8.9;
 
 // import "hardhat/console.sol";
@@ -401,5 +405,18 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     function executeVirtualOrders() public override {
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
+    }
+
+    ///@notice convenience function to execute virtual orders with specified loops when out of gas. Note that this already happens
+    ///before most interactions with the AMM
+    function executeVirtualOrdersWithSpecifiedLoops(uint256 blocknumber)
+        public
+        override
+    {
+        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
+        longTermOrders.executeVirtualOrdersExpiriesWithSpecifiedLoops(
+            reserveMap,
+            blocknumber
+        );
     }
 }

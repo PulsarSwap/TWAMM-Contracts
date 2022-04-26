@@ -420,4 +420,11 @@ contract TWAMM is ITWAMM {
     {
         IPair(pair).executeVirtualOrders();
     }
+
+    function executeVirtualOrdersWithSpecifiedLoopsWrapper(
+        address pair,
+        uint256 blocknumber
+    ) external virtual override {
+        IPair(pair).executeVirtualOrdersWithSpecifiedLoops(blocknumber);
+    }
 }

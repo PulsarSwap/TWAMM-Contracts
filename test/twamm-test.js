@@ -31,8 +31,9 @@ describe("TWAMM", function () {
     const Factory = await ethers.getContractFactory("Factory");
     factory = await Factory.deploy();
     const allpairLength = await factory.allPairsLength();
+    const twammAddress = await factory.returnTwammAddress();
 
-    //create two tokens for pair creation, and WETH
+    //deploy two tokens and WETH for pair creation
     const ERC20Factory = await ethers.getContractFactory("ERC20Mock");
 
     tokenA = await ERC20Factory.deploy("TokenA", "TokenA", ERC20Supply);
@@ -50,11 +51,11 @@ describe("TWAMM", function () {
     // create pair and initialize liquidity for the pair
     blockNumber = await ethers.provider.getBlockNumber();
     timeStamp = (await ethers.provider.getBlock(blockNumber)).timestamp;
+
     await twamm.createPair(tokenA.address, tokenB.address, timeStamp + 50000);
     pair = await twamm.obtainPairAddress(tokenA.address, tokenB.address);
     await tokenA.approve(pair, initialLiquidityProvided); //owner calls it
     await tokenB.approve(pair, initialLiquidityProvided);
-    // await console.log('pair pair add', tmpPairAdd)
     await twamm.addInitialLiquidity(
       tokenA.address,
       tokenB.address,
@@ -71,8 +72,7 @@ describe("TWAMM", function () {
       tokenB.address,
       initialLiquidityProvided,
       initialLiquidityProvided,
-      timeStamp + 100000,
-      { value: initialLiquidityProvided }
+      timeStamp + 100000
     );
     await console.log("Initial Setup Finished");
   });
@@ -101,8 +101,7 @@ describe("TWAMM", function () {
             tokenB.address,
             amount,
             amount,
-            timeStamp + 100000,
-            { value: amount }
+            timeStamp + 100000
           )
         ).to.be.revertedWith(
           "Liquidity Has Already Been Provided, Need To Call provideLiquidity()"

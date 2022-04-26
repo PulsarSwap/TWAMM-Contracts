@@ -359,6 +359,46 @@ library LongTermOrdersLib {
         }
     }
 
+    ///@notice executes all virtual orders with specified loops.
+    function executeVirtualOrdersExpiriesWithSpecifiedLoops(
+        LongTermOrders storage self,
+        mapping(address => uint256) storage reserveMap,
+        uint256 blocknumber
+    ) internal {
+        uint256 nextExpiryBlock = self.lastVirtualOrderBlock -
+            (self.lastVirtualOrderBlock % self.orderBlockInterval) +
+            self.orderBlockInterval;
+
+        require(blocknumber <= block.number);
+
+        OrderPoolLib.OrderPool storage OrderPoolA = self.OrderPoolMap[
+            self.tokenA
+        ];
+        OrderPoolLib.OrderPool storage OrderPoolB = self.OrderPoolMap[
+            self.tokenB
+        ];
+
+        //iterate through blocks eligible for order expiries, moving state forward
+        while (nextExpiryBlock < blocknumber) {
+            // optimization for skipping blocks with no expiry
+            if (
+                OrderPoolA.salesRateEndingPerBlock[nextExpiryBlock] > 0 ||
+                OrderPoolB.salesRateEndingPerBlock[nextExpiryBlock] > 0
+            ) {
+                executeVirtualTradesAndOrderExpiries(
+                    self,
+                    reserveMap,
+                    nextExpiryBlock
+                );
+            }
+            nextExpiryBlock += self.orderBlockInterval;
+        }
+        //finally, move state to current block if necessary
+        if (self.lastVirtualOrderBlock < blocknumber) {
+            executeVirtualTradesAndOrderExpiries(self, reserveMap, blocknumber);
+        }
+    }
+
     ///@notice computes the result of virtual trades by the token pools
     function computeVirtualBalances(
         uint256 tokenAStart,
