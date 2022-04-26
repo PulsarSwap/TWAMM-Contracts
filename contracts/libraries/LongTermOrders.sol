@@ -324,6 +324,7 @@ library LongTermOrdersLib {
         uint256 blockNumber,
         mapping(address => uint256) storage reserveMap
     ) internal {
+        require(blockNumber <=  block.number, "Specified block number cannot be greater than the current block number!")
         uint256 nextExpiryBlock = self.lastVirtualOrderBlock -
             (self.lastVirtualOrderBlock % self.orderBlockInterval) +
             self.orderBlockInterval;
