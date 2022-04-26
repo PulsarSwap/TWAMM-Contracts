@@ -120,7 +120,7 @@ library LongTermOrdersLib {
         mapping(address => uint256) storage reserveMap
     ) private returns (uint256) {
         //update virtual order state
-        executeVirtualOrdersUntilCurrentBlock(self, reserveMap);
+        executeVirtualOrdersUntilSpecifiedBlock(self, block.number, reserveMap);
 
         // transfer sale amount to contract
         IERC20(from).safeTransferFrom(sender, address(this), amount);
@@ -165,7 +165,7 @@ library LongTermOrdersLib {
         mapping(address => uint256) storage reserveMap
     ) internal returns (uint256) {
         //update virtual order state
-        executeVirtualOrdersUntilCurrentBlock(self, reserveMap);
+        executeVirtualOrdersUntilSpecifiedBlock(self, block.number, reserveMap);
 
         Order storage order = self.orderMap[orderId];
 
@@ -229,7 +229,7 @@ library LongTermOrdersLib {
         mapping(address => uint256) storage reserveMap
     ) internal returns (uint256) {
         //update virtual order state
-        executeVirtualOrdersUntilCurrentBlock(self, reserveMap);
+        executeVirtualOrdersUntilSpecifiedBlock(self, block.number, reserveMap);
 
         Order storage order = self.orderMap[orderId];
         require(order.owner == sender, "Sender Must Be Order Owner");
@@ -319,8 +319,9 @@ library LongTermOrdersLib {
     }
 
     ///@notice executes all virtual orders until current block is reached.
-    function executeVirtualOrdersUntilCurrentBlock(
+    function executeVirtualOrdersUntilSpecifiedBlock(
         LongTermOrders storage self,
+        uint256 blockNumber,
         mapping(address => uint256) storage reserveMap
     ) internal {
         uint256 nextExpiryBlock = self.lastVirtualOrderBlock -
@@ -335,7 +336,7 @@ library LongTermOrdersLib {
         ];
 
         //iterate through blocks eligible for order expiries, moving state forward
-        while (nextExpiryBlock < block.number) {
+        while (nextExpiryBlock < blockNumber) {
             // optimization for skipping blocks with no expiry
             if (
                 OrderPoolA.salesRateEndingPerBlock[nextExpiryBlock] > 0 ||
@@ -350,12 +351,8 @@ library LongTermOrdersLib {
             nextExpiryBlock += self.orderBlockInterval;
         }
         //finally, move state to current block if necessary
-        if (self.lastVirtualOrderBlock < block.number) {
-            executeVirtualTradesAndOrderExpiries(
-                self,
-                reserveMap,
-                block.number
-            );
+        if (self.lastVirtualOrderBlock < blockNumber) {
+            executeVirtualTradesAndOrderExpiries(self, reserveMap, blockNumber);
         }
     }
 

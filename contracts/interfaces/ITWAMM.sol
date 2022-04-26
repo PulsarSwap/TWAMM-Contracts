@@ -143,5 +143,6 @@ interface ITWAMM {
         uint256 deadline
     ) external;
 
-    function executeVirtualOrdersWrapper(address pair) external;
+    function executeVirtualOrdersWrapper(address pair, uint256 blockNumber)
+        external;
 }

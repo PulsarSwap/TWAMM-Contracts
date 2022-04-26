@@ -120,5 +120,5 @@ interface IPair {
 
     function orderIdStatusCheck(uint256 orderId) external view returns (bool);
 
-    function executeVirtualOrders() external;
+    function executeVirtualOrders(uint256 blockNumber) external;
 }

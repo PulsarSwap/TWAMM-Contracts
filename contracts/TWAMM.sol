@@ -133,7 +133,7 @@ contract TWAMM is ITWAMM {
         uint256 deadline
     ) external payable virtual override ensure(deadline) {
         address pair = Library.pairFor(factory, token, WETH);
-        IPair(pair).executeVirtualOrders();
+        IPair(pair).executeVirtualOrders(block.number);
         (, uint256 reserveETH) = Library.getReserves(factory, token, WETH);
         uint256 totalSupplyLP = IERC20(pair).totalSupply();
         uint256 amountETH = (lpTokenAmount * reserveETH) / totalSupplyLP;
@@ -413,11 +413,11 @@ contract TWAMM is ITWAMM {
         );
     }
 
-    function executeVirtualOrdersWrapper(address pair)
+    function executeVirtualOrdersWrapper(address pair, uint256 blockNumber)
         external
         virtual
         override
     {
-        IPair(pair).executeVirtualOrders();
+        IPair(pair).executeVirtualOrders(blockNumber);
     }
 }

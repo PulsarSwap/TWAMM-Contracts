@@ -386,7 +386,8 @@ describe("TWAMM", function () {
 
         //move blocks forward, and execute virtual orders
         await mineBlocks(3 * blockInterval);
-        await twamm.executeVirtualOrdersWrapper(pair);
+        blockNumber = await ethers.provider.getBlockNumber();
+        await twamm.executeVirtualOrdersWrapper(pair, blockNumber);
 
         //withdraw proceeds
         const beforeBalanceB = await tokenB.balanceOf(addr1.address);
@@ -434,7 +435,8 @@ describe("TWAMM", function () {
 
         //move blocks forward, and execute virtual orders
         await mineBlocks(3 * blockInterval);
-        await twamm.executeVirtualOrdersWrapper(pairETH);
+        blockNumber = await ethers.provider.getBlockNumber();
+        await twamm.executeVirtualOrdersWrapper(pairETH, blockNumber);
 
         //withdraw proceeds
         const beforeBalanceB = await tokenB.balanceOf(addr1.address);
@@ -490,7 +492,8 @@ describe("TWAMM", function () {
 
         //move blocks forward, and execute virtual orders
         await mineBlocks(3 * blockInterval);
-        await twamm.executeVirtualOrdersWrapper(pair);
+        blockNumber = await ethers.provider.getBlockNumber();
+        await twamm.executeVirtualOrdersWrapper(pair, blockNumber);
 
         // await twamm.userIdsCheck(addr2)
 
@@ -550,7 +553,8 @@ describe("TWAMM", function () {
 
         //move blocks forward, and execute virtual orders
         await mineBlocks(3 * blockInterval);
-        await twamm.executeVirtualOrdersWrapper(pairETH);
+        blockNumber = await ethers.provider.getBlockNumber();
+        await twamm.executeVirtualOrdersWrapper(pairETH, blockNumber);
 
         //withdraw proceeds
         await twamm
@@ -639,7 +643,8 @@ describe("TWAMM", function () {
 
         //move blocks forward, and execute virtual orders
         await mineBlocks(22 * blockInterval);
-        await twamm.executeVirtualOrdersWrapper(pair);
+        blockNumber = await ethers.provider.getBlockNumber();
+        await twamm.executeVirtualOrdersWrapper(pair, blockNumber);
 
         //withdraw proceeds
         await twamm
@@ -739,7 +744,8 @@ describe("TWAMM", function () {
 
         //move blocks forward, and execute virtual orders
         await mineBlocks(22 * blockInterval);
-        await twamm.executeVirtualOrdersWrapper(pairETH);
+        blockNumber = await ethers.provider.getBlockNumber();
+        await twamm.executeVirtualOrdersWrapper(pairETH, blockNumber);
 
         //withdraw proceeds
         await twamm
@@ -834,7 +840,8 @@ describe("TWAMM", function () {
 
         //move blocks forward, and execute virtual orders
         await mineBlocks(6 * blockInterval);
-        await twamm.executeVirtualOrdersWrapper(pair);
+        blockNumber = await ethers.provider.getBlockNumber();
+        await twamm.executeVirtualOrdersWrapper(pair, blockNumber);
 
         //withdraw proceeds
         await twamm
@@ -926,7 +933,8 @@ describe("TWAMM", function () {
 
         //move blocks forward, and execute virtual orders
         await mineBlocks(6 * blockInterval);
-        await twamm.executeVirtualOrdersWrapper(pairETH);
+        blockNumber = await ethers.provider.getBlockNumber();
+        await twamm.executeVirtualOrdersWrapper(pairETH, blockNumber);
 
         //withdraw proceeds
         await twamm
@@ -998,7 +1006,8 @@ describe("TWAMM", function () {
 
         //move blocks forward, and execute virtual orders
         await mineBlocks(3 * blockInterval);
-        await twamm.executeVirtualOrdersWrapper(pair);
+        blockNumber = await ethers.provider.getBlockNumber();
+        await twamm.executeVirtualOrdersWrapper(pair, blockNumber);
 
         //withdraw proceeds
         await twamm
@@ -1055,7 +1064,8 @@ describe("TWAMM", function () {
 
         //move blocks forward, and execute virtual orders
         await mineBlocks(3 * blockInterval);
-        await twamm.executeVirtualOrdersWrapper(pairETH);
+        blockNumber = await ethers.provider.getBlockNumber();
+        await twamm.executeVirtualOrdersWrapper(pairETH, blockNumber);
 
         //withdraw proceeds
         await twamm

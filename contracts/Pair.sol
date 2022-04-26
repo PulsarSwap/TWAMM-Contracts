@@ -156,7 +156,10 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     {
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         //execute virtual orders
-        longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
+        longTermOrders.executeVirtualOrdersUntilSpecifiedBlock(
+            block.number,
+            reserveMap
+        );
 
         require(lpTokenAmount > 0, "Invalid Amount");
         require(
@@ -189,7 +192,10 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     ) external override checkCaller nonReentrant {
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         //execute virtual orders
-        longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
+        longTermOrders.executeVirtualOrdersUntilSpecifiedBlock(
+            block.number,
+            reserveMap
+        );
 
         require(lpTokenAmount > 0, "Invalid Amount");
         require(
@@ -345,7 +351,10 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         bool poceedETH
     ) private checkCaller returns (uint256 amountOutMinusFee) {
         //execute virtual orders
-        longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
+        longTermOrders.executeVirtualOrdersUntilSpecifiedBlock(
+            block.number,
+            reserveMap
+        );
 
         uint256 reserveFrom = reserveMap[from];
         uint256 reserveTo = reserveMap[to];
@@ -398,8 +407,11 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
 
     ///@notice convenience function to execute virtual orders. Note that this already happens
     ///before most interactions with the AMM
-    function executeVirtualOrders() public override {
+    function executeVirtualOrders(uint256 blockNumber) public override {
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
-        longTermOrders.executeVirtualOrdersUntilCurrentBlock(reserveMap);
+        longTermOrders.executeVirtualOrdersUntilSpecifiedBlock(
+            blockNumber,
+            reserveMap
+        );
     }
 }
