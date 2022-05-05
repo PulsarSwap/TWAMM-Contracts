@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+// Inspired by https://www.paradigm.xyz/2021/07/twamm
+// https://github.com/para-dave/twamm
+// FrankieIsLost MVP code implementation: https://github.com/FrankieIsLost
+
 pragma solidity ^0.8.9;
 
 // import "hardhat/console.sol";

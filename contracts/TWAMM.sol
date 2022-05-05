@@ -32,15 +32,16 @@ contract TWAMM is ITWAMM {
         assert(msg.sender == WETH); // only accept ETH via fallback from the WETH contract
     }
 
-    function reserveA(address pair) external view override returns (uint256) {
-        return IPair(pair).tokenAReserves();
+    function obtainReserves(address token0, address token1)
+        external
+        view
+        override
+        returns (uint256 reserve0, uint256 reserve1)
+    {
+        (reserve0, reserve1) = Library.getReserves(factory, token0, token1);
     }
 
-    function reserveB(address pair) external view override returns (uint256) {
-        return IPair(pair).tokenBReserves();
-    }
-
-    function totalSupply(address pair)
+    function obtainTotalSupply(address pair)
         external
         view
         override
@@ -58,7 +59,7 @@ contract TWAMM is ITWAMM {
         return IFactory(factory).getPair(token0, token1);
     }
 
-    function createPair(
+    function createPairWrapper(
         address token0,
         address token1,
         uint256 deadline

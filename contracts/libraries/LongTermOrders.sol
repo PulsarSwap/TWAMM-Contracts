@@ -318,7 +318,7 @@ library LongTermOrdersLib {
         self.lastVirtualOrderBlock = blockNumber;
     }
 
-    ///@notice executes all virtual orders until specified block.
+    ///@notice executes all virtual orders until specified block, includ current block.
     function executeVirtualOrdersUntilSpecifiedBlock(
         LongTermOrders storage self,
         mapping(address => uint256) storage reserveMap,
@@ -412,6 +412,7 @@ library LongTermOrdersLib {
 
             int256 outA = aStart + aIn - endA;
             int256 outB = bStart + bIn - endB;
+            require(outA >= 0 && outB >= 0, "Invalid Amount");
 
             return (
                 uint256(outA.toInt()),

@@ -7,17 +7,17 @@ interface ITWAMM {
 
     function WETH() external view returns (address);
 
-    function reserveA(address pair) external returns (uint256);
+    function obtainReserves(address token0, address token1)
+        external
+        returns (uint256 reserve0, uint256 reserve1);
 
-    function reserveB(address pair) external returns (uint256);
-
-    function totalSupply(address pair) external returns (uint256);
+    function obtainTotalSupply(address pair) external returns (uint256);
 
     function obtainPairAddress(address token0, address token1)
         external
         returns (address);
 
-    function createPair(
+    function createPairWrapper(
         address token0,
         address token1,
         uint256 deadline
