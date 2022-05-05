@@ -340,7 +340,7 @@ describe("TWAMM", function () {
         const afterBalance = await ethers.provider.getBalance(owner.address);
         console.log(afterBalance);
 
-        const actualOutput = afterBalance  - beforeBalance;
+        const actualOutput = afterBalance - beforeBalance;
         console.log(actualOutput);
 
         expect(actualOutput).to.eq(expectedOutput);
@@ -700,12 +700,10 @@ describe("TWAMM", function () {
         const token1Out = (token1OutBeforeFees * 997) / 1000;
 
         const final0ReserveExpected =
-          final0ReserveExpectedBeforeFees +
-          (token0OutBeforeFees * 3) / 1000;
+          final0ReserveExpectedBeforeFees + (token0OutBeforeFees * 3) / 1000;
 
         const final1ReserveExpected =
-          final1ReserveExpectedBeforeFees +
-          (token1OutBeforeFees * 3) / 1000;
+          final1ReserveExpectedBeforeFees + (token1OutBeforeFees * 3) / 1000;
 
         //trigger long term orders
         await twamm
@@ -784,8 +782,8 @@ describe("TWAMM", function () {
         await token.connect(addr0).approve(pairETH, tokenIn);
         await WETH.connect(addr1).approve(pairETH, ethIn);
 
-        const [tokenReserveBeforeConvert, ethReserveBeforeConvert] = await twamm
-          .obtainReserves(token.address, WETH.address);
+        const [tokenReserveBeforeConvert, ethReserveBeforeConvert] =
+          await twamm.obtainReserves(token.address, WETH.address);
         const tokenReserve = tokenReserveBeforeConvert.toNumber();
         const ethReserve = ethReserveBeforeConvert.toNumber();
         const k = tokenReserve * ethReserve;
@@ -813,8 +811,7 @@ describe("TWAMM", function () {
         const ethOut = (ethOutBeforeFees * 997) / 1000;
 
         const finalTokenReserveExpected =
-          finalTokenReserveExpectedBeforeFees +
-          (tokenOutBeforeFees * 3) / 1000;
+          finalTokenReserveExpectedBeforeFees + (tokenOutBeforeFees * 3) / 1000;
 
         const finalETHReserveExpected =
           finalETHReserveExpectedBeforeFees + (ethOutBeforeFees * 3) / 1000;
@@ -1239,7 +1236,7 @@ describe("TWAMM", function () {
         await token.connect(addr0).approve(pairETH, amountTokenIn);
         await token.transfer(addr0.address, amountTokenIn);
         await token.connect(addr0).approve(pairETH, amountTokenIn);
-        
+
         const balanceTokenBefore = await token.balanceOf(addr0.address);
         const balanceETHBefore = await ethers.provider.getBalance(
           addr0.address
@@ -1263,10 +1260,10 @@ describe("TWAMM", function () {
 
         const balanceTokenAfter = await token.balanceOf(addr0.address);
         const balanceETHAfter = await ethers.provider.getBalance(addr0.address);
-        
+
         //expect some amount of the order to be filled
         expect(balanceTokenBefore).to.be.gt(balanceTokenAfter);
-        expect(balanceETHBefore).to.be.lt(balanceETHAfter);       
+        expect(balanceETHBefore).to.be.lt(balanceETHAfter);
       });
     });
 
@@ -1350,7 +1347,7 @@ describe("TWAMM", function () {
         const beforeBalanceETH = await ethers.provider.getBalance(
           addr0.address
         );
-        
+
         //trigger long term order
         await twamm
           .connect(addr0)
@@ -1373,11 +1370,10 @@ describe("TWAMM", function () {
           );
         const afterBalanceToken = await token.balanceOf(addr0.address);
         const afterBalanceETH = await ethers.provider.getBalance(addr0.address);
-        
+
         //expect swap to work as expected
         expect(beforeBalanceToken).to.be.gt(afterBalanceToken);
         expect(beforeBalanceETH).to.be.lt(afterBalanceETH);
-        
       });
 
       it("(ETH)proceeds can be withdrawn while order is still active(ETH)", async function () {
