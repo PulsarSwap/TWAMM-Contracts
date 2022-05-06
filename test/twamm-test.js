@@ -1254,7 +1254,7 @@ describe("TWAMM", function () {
         //so we expect final balances to be roughly equal
         expect(amountTokenBought).to.be.closeTo(
           amountETHBought,
-          amountIn / 25 //only place that costs a bit more, but acceptable. 
+          amountIn / 25 //only place that costs a bit more, but acceptable.
         );
       });
     });
