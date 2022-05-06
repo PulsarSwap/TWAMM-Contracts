@@ -34,6 +34,7 @@ describe("TWAMM", function () {
     const allPairLength = await factory.allPairsLength();
     const twammAddress = await factory.returnTwammAddress();
 
+
     //deploy three tokens and WETH for pair creation
     const ERC20Factory = await ethers.getContractFactory("ERC20Mock");
     token = await ERC20Factory.deploy("Token", "Token", ERC20Supply);
@@ -326,24 +327,19 @@ describe("TWAMM", function () {
         const expectedOutput = expectedOutBeforeFees.mul(1000 - 3).div(1000);
         await token.approve(pairETH, amountTokenIn); //owner calls it
         const beforeBalance = await ethers.provider.getBalance(owner.address);
-        console.log(beforeBalance);
 
         const transaction = await twamm.instantSwapTokenToETH(
           token.address,
           amountTokenIn,
           timeStamp + 100000
         );
-        console.log(transaction);
+        const receipt = await transaction.wait();
+        const gasSpent = receipt.gasUsed.mul(receipt.effectiveGasPrice);
 
-        const transactionFee = transaction.gasPrice * transaction.gasLimit;
-        console.log(transactionFee);
         const afterBalance = await ethers.provider.getBalance(owner.address);
-        console.log(afterBalance);
+        const expectedAfterBalance = ethers.BigNumber.from(beforeBalance).add(ethers.BigNumber.from(expectedOutput)).sub(ethers.BigNumber.from(gasSpent));
 
-        const actualOutput = afterBalance - beforeBalance;
-        console.log(actualOutput);
-
-        expect(actualOutput).to.eq(expectedOutput);
+        expect(afterBalance).to.eq(expectedAfterBalance);
       });
 
       it("(ETH)instant swap expected amount(ETH)", async function () {
@@ -443,10 +439,9 @@ describe("TWAMM", function () {
           .div(tokenReserve.add(amountTokenIn));
 
         const expectedOutput = expectedOutBeforeFees.mul(1000 - 3).div(1000);
-
         //trigger long term order
         token.connect(addr0).approve(pairETH, amountTokenIn);
-        await twamm
+        const transactionPart1 = await twamm
           .connect(addr0)
           .longTermSwapTokenToETH(
             token.address,
@@ -455,6 +450,9 @@ describe("TWAMM", function () {
             timeStamp + 100000
           );
 
+        const receiptPart1 = await transactionPart1.wait();
+        const gasSpentPart1 = ethers.BigNumber.from(receiptPart1.gasUsed.mul(receiptPart1.effectiveGasPrice));
+
         //move blocks forward, and execute virtual orders
         await mineBlocks(3 * blockInterval);
         blockNumber = await ethers.provider.getBlockNumber();
@@ -462,21 +460,25 @@ describe("TWAMM", function () {
 
         //withdraw proceeds
         const beforeBalance = await ethers.provider.getBalance(addr0.address);
-        await twamm
+        const transactionPart2 = await twamm
           .connect(addr0)
           .withdrawProceedsFromTermSwapTokenToETH(
             token.address,
             0,
             timeStamp + 100000
           );
-        const afterBalance = await ethers.provider.getBalance(addr0.address);
-        const actualOutput = afterBalance.sub(beforeBalance);
 
-        //since we are breaking up order, match is not exact
-        expect(actualOutput).to.be.closeTo(
-          expectedOutput,
+        const receiptPart2 = await transactionPart2.wait();
+        const gasSpentPart2 = ethers.BigNumber.from(receiptPart2.gasUsed.mul(receiptPart2.effectiveGasPrice));
+        const expectedAfterBalance = beforeBalance.add(ethers.BigNumber.from(expectedOutput)).sub(gasSpentPart2);
+        const afterBalance = await ethers.provider.getBalance(addr0.address);
+
+        expect(afterBalance).to.be.closeTo(
+          expectedAfterBalance,
           ethers.utils.parseUnits("100", "wei")
         );
+
+
       });
 
       it("(ETH) single sided long term order behaves like normal swap (ETH)", async function () {
@@ -598,12 +600,11 @@ describe("TWAMM", function () {
         await token.approve(addr0.address, amountIn);
         await token.transfer(addr0.address, amountIn);
 
-        //trigger long term order
         await token.connect(addr0).approve(pairETH, amountIn);
         await WETH.connect(addr1).approve(pairETH, amountIn);
 
         //trigger long term orders
-        await twamm
+        const tx1 = await twamm
           .connect(addr0)
           .longTermSwapTokenToETH(
             token.address,
@@ -611,7 +612,7 @@ describe("TWAMM", function () {
             2,
             timeStamp + 100000
           );
-        await twamm
+        const tx2 = await twamm
           .connect(addr1)
           .longTermSwapETHToToken(
             token.address,
@@ -629,26 +630,32 @@ describe("TWAMM", function () {
         //withdraw proceeds
         const beforeBalance = await ethers.provider.getBalance(addr0.address);
 
-        const receipt = await twamm
+        const tx3 = await twamm
           .connect(addr0)
           .withdrawProceedsFromTermSwapTokenToETH(
             token.address,
             0,
             timeStamp + 100000
           );
-        await twamm
+        const tx4 = await twamm
           .connect(addr1)
           .withdrawProceedsFromTermSwapETHToToken(
             token.address,
             1,
             timeStamp + 100000
           );
+        const rcpt1 = await tx1.wait();
+        const gasSpent1 = ethers.BigNumber.from(rcpt1.gasUsed.mul(rcpt1.effectiveGasPrice));
+        const rcpt2 = await tx2.wait();
+        const gasSpent2 = ethers.BigNumber.from(rcpt2.gasUsed.mul(rcpt2.effectiveGasPrice));
+        const rcpt3 = await tx3.wait();
+        const gasSpent3 = ethers.BigNumber.from(rcpt3.gasUsed.mul(rcpt3.effectiveGasPrice));
+        const rcpt4 = await tx4.wait();
+        const gasSpent4 = ethers.BigNumber.from(rcpt4.gasUsed.mul(rcpt4.effectiveGasPrice));
 
         const afterBalance = await ethers.provider.getBalance(addr0.address);
-        const txValue = ethers.utils.parseUnits(
-          receipt.gasUsed.mul(receipt.effectiveGasPrice)
-        );
-        const amountETHBought = afterBalance.add(txValue).sub(beforeBalance);
+
+        const amountETHBought = afterBalance.add(gasSpent3).sub(beforeBalance);
         const amountTokenBought = await token.balanceOf(addr1.address);
 
         //pool is balanced, and both orders execute same amount in opposite directions,
@@ -817,7 +824,7 @@ describe("TWAMM", function () {
           finalETHReserveExpectedBeforeFees + (ethOutBeforeFees * 3) / 1000;
 
         //trigger long term orders
-        await twamm
+        const tx1 = await twamm
           .connect(addr0)
           .longTermSwapTokenToETH(
             token.address,
@@ -825,7 +832,7 @@ describe("TWAMM", function () {
             2,
             timeStamp + 100000
           );
-        await twamm
+        const tx2 = await twamm
           .connect(addr1)
           .longTermSwapETHToToken(token.address, ethIn, 2, timeStamp + 100000, {
             value: ethIn,
@@ -838,14 +845,14 @@ describe("TWAMM", function () {
 
         //withdraw proceeds
         const beforeBalance = await ethers.provider.getBalance(addr0.address);
-        await twamm
+        const tx3 = await twamm
           .connect(addr0)
           .withdrawProceedsFromTermSwapTokenToETH(
             token.address,
             0,
             timeStamp + 100000
           );
-        await twamm
+        const tx4 = await twamm
           .connect(addr1)
           .withdrawProceedsFromTermSwapETHToToken(
             token.address,
@@ -853,8 +860,18 @@ describe("TWAMM", function () {
             timeStamp + 100000
           );
 
+        const rcpt1 = await tx1.wait();
+        const gasSpent1 = ethers.BigNumber.from(rcpt1.gasUsed.mul(rcpt1.effectiveGasPrice));
+        const rcpt2 = await tx2.wait();
+        const gasSpent2 = ethers.BigNumber.from(rcpt2.gasUsed.mul(rcpt2.effectiveGasPrice));
+        const rcpt3 = await tx3.wait();
+        const gasSpent3 = ethers.BigNumber.from(rcpt3.gasUsed.mul(rcpt3.effectiveGasPrice));
+        const rcpt4 = await tx4.wait();
+        const gasSpent4 = ethers.BigNumber.from(rcpt4.gasUsed.mul(rcpt4.effectiveGasPrice));
+
         const afterBalance = await ethers.provider.getBalance(addr0.address);
-        const amountETHBought = afterBalance.sub(beforeBalance);
+
+        const amountETHBought = afterBalance.add(gasSpent3).sub(beforeBalance);
         const amountTokenBought = await token.balanceOf(addr1.address);
 
         const [finalTokenReserveActual, finalETHReserveActual] =
@@ -1025,37 +1042,46 @@ describe("TWAMM", function () {
 
         //withdraw proceeds
         const beforeBalance = await ethers.provider.getBalance(addr0.address);
-        await twamm
+        const tx1 = await twamm
           .connect(addr0)
           .withdrawProceedsFromTermSwapTokenToETH(
             token.address,
             0,
             timeStamp + 100000
           );
-        await twamm
+        const tx2 = await twamm
           .connect(addr1)
           .withdrawProceedsFromTermSwapETHToToken(
             token.address,
             1,
             timeStamp + 100000
           );
-        await twamm
+        const tx3 = await twamm
           .connect(addr0)
           .withdrawProceedsFromTermSwapTokenToETH(
             token.address,
             2,
             timeStamp + 100000
           );
-        await twamm
+        const tx4 = await twamm
           .connect(addr1)
           .withdrawProceedsFromTermSwapETHToToken(
             token.address,
             3,
             timeStamp + 100000
           );
+        const rcpt1 = await tx1.wait();
+        const gasSpent1 = ethers.BigNumber.from(rcpt1.gasUsed.mul(rcpt1.effectiveGasPrice));
+        const rcpt2 = await tx2.wait();
+        const gasSpent2 = ethers.BigNumber.from(rcpt2.gasUsed.mul(rcpt2.effectiveGasPrice));
+        const rcpt3 = await tx3.wait();
+        const gasSpent3 = ethers.BigNumber.from(rcpt3.gasUsed.mul(rcpt3.effectiveGasPrice));
+        const rcpt4 = await tx4.wait();
+        const gasSpent4 = ethers.BigNumber.from(rcpt4.gasUsed.mul(rcpt4.effectiveGasPrice));
 
         const afterBalance = await ethers.provider.getBalance(addr0.address);
-        const amountETHBought = afterBalance.sub(beforeBalance);
+
+        const amountETHBought = afterBalance.add(gasSpent3).add(gasSpent1).sub(beforeBalance);
         const amountTokenBought = await token.balanceOf(addr1.address);
 
         //pool is balanced, and orders execute same amount in opposite directions,
@@ -1136,6 +1162,7 @@ describe("TWAMM", function () {
         //trigger long term order
         await token.connect(addr0).approve(pairETH, amountIn);
         await WETH.connect(addr1).approve(pairETH, amountIn);
+         
 
         //trigger long term orders
         await twamm
@@ -1156,6 +1183,7 @@ describe("TWAMM", function () {
             { value: amountIn }
           );
 
+
         //move blocks forward, and execute virtual orders
         await mineBlocks(3 * blockInterval);
         blockNumber = await ethers.provider.getBlockNumber();
@@ -1163,14 +1191,14 @@ describe("TWAMM", function () {
 
         //withdraw proceeds
         const beforeBalance = await ethers.provider.getBalance(addr0.address);
-        await twamm
+        const tx1 = await twamm
           .connect(addr0)
           .withdrawProceedsFromTermSwapTokenToETH(
             token.address,
             0,
             timeStamp + 100000
           );
-        await twamm
+        const tx2 = await twamm
           .connect(addr1)
           .withdrawProceedsFromTermSwapETHToToken(
             token.address,
@@ -1178,8 +1206,15 @@ describe("TWAMM", function () {
             timeStamp + 100000
           );
 
+        const rcpt1 = await tx1.wait();
+        const gasSpent1 = ethers.BigNumber.from(rcpt1.gasUsed.mul(rcpt1.effectiveGasPrice));
+        const rcpt2 = await tx2.wait();
+        const gasSpent2 = ethers.BigNumber.from(rcpt2.gasUsed.mul(rcpt2.effectiveGasPrice));
+        
+
         const afterBalance = await ethers.provider.getBalance(addr0.address);
-        const amountETHBought = afterBalance.sub(beforeBalance);
+
+        const amountETHBought = afterBalance.add(gasSpent1).sub(beforeBalance);
         const amountTokenBought = await token.balanceOf(addr1.address);
 
         //pool is balanced, and both orders execute same amount in opposite directions,
@@ -1243,7 +1278,7 @@ describe("TWAMM", function () {
         );
 
         //trigger long term order
-        await twamm
+       const tx1 =  await twamm
           .connect(addr0)
           .longTermSwapTokenToETH(
             token.address,
@@ -1254,16 +1289,21 @@ describe("TWAMM", function () {
 
         //move blocks forward, and execute virtual orders
         await mineBlocks(3 * blockInterval);
-        await twamm
+        const tx2 = await twamm
           .connect(addr0)
           .cancelTermSwapTokenToETH(token.address, 0, timeStamp + 100000);
+        
 
-        const balanceTokenAfter = await token.balanceOf(addr0.address);
+        const rcpt1 = await tx1.wait();
+        const gasSpent1 = ethers.BigNumber.from(rcpt1.gasUsed.mul(rcpt1.effectiveGasPrice));
+        const rcpt2 = await tx2.wait();
+        const gasSpent2 = ethers.BigNumber.from(rcpt2.gasUsed.mul(rcpt2.effectiveGasPrice));
         const balanceETHAfter = await ethers.provider.getBalance(addr0.address);
+        const balanceTokenAfter = await token.balanceOf(addr0.address);
 
         //expect some amount of the order to be filled
         expect(balanceTokenBefore).to.be.gt(balanceTokenAfter);
-        expect(balanceETHBefore).to.be.lt(balanceETHAfter);
+        expect(balanceETHBefore).to.be.lt(balanceETHAfter.add(gasSpent1).add(gasSpent2));
       });
     });
 
@@ -1349,7 +1389,7 @@ describe("TWAMM", function () {
         );
 
         //trigger long term order
-        await twamm
+        const tx1 = await twamm
           .connect(addr0)
           .longTermSwapTokenToETH(
             token.address,
@@ -1361,7 +1401,7 @@ describe("TWAMM", function () {
         //move blocks forward, and execute virtual orders
         await mineBlocks(3 * blockInterval);
 
-        await twamm
+        const tx2 = await twamm
           .connect(addr0)
           .withdrawProceedsFromTermSwapTokenToETH(
             token.address,
@@ -1370,10 +1410,16 @@ describe("TWAMM", function () {
           );
         const afterBalanceToken = await token.balanceOf(addr0.address);
         const afterBalanceETH = await ethers.provider.getBalance(addr0.address);
+      
+        
+        const rcpt1 = await tx1.wait();
+        const gasSpent1 = ethers.BigNumber.from(rcpt1.gasUsed.mul(rcpt1.effectiveGasPrice));
+        const rcpt2 = await tx2.wait();
+        const gasSpent2 = ethers.BigNumber.from(rcpt2.gasUsed.mul(rcpt2.effectiveGasPrice));
 
         //expect swap to work as expected
         expect(beforeBalanceToken).to.be.gt(afterBalanceToken);
-        expect(beforeBalanceETH).to.be.lt(afterBalanceETH);
+        expect(beforeBalanceETH).to.be.lt(afterBalanceETH.add(gasSpent1).add(gasSpent2));
       });
 
       it("(ETH)proceeds can be withdrawn while order is still active(ETH)", async function () {
