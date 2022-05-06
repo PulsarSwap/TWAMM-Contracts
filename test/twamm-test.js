@@ -34,7 +34,6 @@ describe("TWAMM", function () {
     const allPairLength = await factory.allPairsLength();
     const twammAddress = await factory.returnTwammAddress();
 
-
     //deploy three tokens and WETH for pair creation
     const ERC20Factory = await ethers.getContractFactory("ERC20Mock");
     token = await ERC20Factory.deploy("Token", "Token", ERC20Supply);
@@ -337,7 +336,9 @@ describe("TWAMM", function () {
         const gasSpent = receipt.gasUsed.mul(receipt.effectiveGasPrice);
 
         const afterBalance = await ethers.provider.getBalance(owner.address);
-        const expectedAfterBalance = ethers.BigNumber.from(beforeBalance).add(ethers.BigNumber.from(expectedOutput)).sub(ethers.BigNumber.from(gasSpent));
+        const expectedAfterBalance = ethers.BigNumber.from(beforeBalance)
+          .add(ethers.BigNumber.from(expectedOutput))
+          .sub(ethers.BigNumber.from(gasSpent));
 
         expect(afterBalance).to.eq(expectedAfterBalance);
       });
@@ -451,7 +452,9 @@ describe("TWAMM", function () {
           );
 
         const receiptPart1 = await transactionPart1.wait();
-        const gasSpentPart1 = ethers.BigNumber.from(receiptPart1.gasUsed.mul(receiptPart1.effectiveGasPrice));
+        const gasSpentPart1 = ethers.BigNumber.from(
+          receiptPart1.gasUsed.mul(receiptPart1.effectiveGasPrice)
+        );
 
         //move blocks forward, and execute virtual orders
         await mineBlocks(3 * blockInterval);
@@ -469,16 +472,18 @@ describe("TWAMM", function () {
           );
 
         const receiptPart2 = await transactionPart2.wait();
-        const gasSpentPart2 = ethers.BigNumber.from(receiptPart2.gasUsed.mul(receiptPart2.effectiveGasPrice));
-        const expectedAfterBalance = beforeBalance.add(ethers.BigNumber.from(expectedOutput)).sub(gasSpentPart2);
+        const gasSpentPart2 = ethers.BigNumber.from(
+          receiptPart2.gasUsed.mul(receiptPart2.effectiveGasPrice)
+        );
+        const expectedAfterBalance = beforeBalance
+          .add(ethers.BigNumber.from(expectedOutput))
+          .sub(gasSpentPart2);
         const afterBalance = await ethers.provider.getBalance(addr0.address);
 
         expect(afterBalance).to.be.closeTo(
           expectedAfterBalance,
           ethers.utils.parseUnits("100", "wei")
         );
-
-
       });
 
       it("(ETH) single sided long term order behaves like normal swap (ETH)", async function () {
@@ -645,13 +650,21 @@ describe("TWAMM", function () {
             timeStamp + 100000
           );
         const rcpt1 = await tx1.wait();
-        const gasSpent1 = ethers.BigNumber.from(rcpt1.gasUsed.mul(rcpt1.effectiveGasPrice));
+        const gasSpent1 = ethers.BigNumber.from(
+          rcpt1.gasUsed.mul(rcpt1.effectiveGasPrice)
+        );
         const rcpt2 = await tx2.wait();
-        const gasSpent2 = ethers.BigNumber.from(rcpt2.gasUsed.mul(rcpt2.effectiveGasPrice));
+        const gasSpent2 = ethers.BigNumber.from(
+          rcpt2.gasUsed.mul(rcpt2.effectiveGasPrice)
+        );
         const rcpt3 = await tx3.wait();
-        const gasSpent3 = ethers.BigNumber.from(rcpt3.gasUsed.mul(rcpt3.effectiveGasPrice));
+        const gasSpent3 = ethers.BigNumber.from(
+          rcpt3.gasUsed.mul(rcpt3.effectiveGasPrice)
+        );
         const rcpt4 = await tx4.wait();
-        const gasSpent4 = ethers.BigNumber.from(rcpt4.gasUsed.mul(rcpt4.effectiveGasPrice));
+        const gasSpent4 = ethers.BigNumber.from(
+          rcpt4.gasUsed.mul(rcpt4.effectiveGasPrice)
+        );
 
         const afterBalance = await ethers.provider.getBalance(addr0.address);
 
@@ -861,13 +874,21 @@ describe("TWAMM", function () {
           );
 
         const rcpt1 = await tx1.wait();
-        const gasSpent1 = ethers.BigNumber.from(rcpt1.gasUsed.mul(rcpt1.effectiveGasPrice));
+        const gasSpent1 = ethers.BigNumber.from(
+          rcpt1.gasUsed.mul(rcpt1.effectiveGasPrice)
+        );
         const rcpt2 = await tx2.wait();
-        const gasSpent2 = ethers.BigNumber.from(rcpt2.gasUsed.mul(rcpt2.effectiveGasPrice));
+        const gasSpent2 = ethers.BigNumber.from(
+          rcpt2.gasUsed.mul(rcpt2.effectiveGasPrice)
+        );
         const rcpt3 = await tx3.wait();
-        const gasSpent3 = ethers.BigNumber.from(rcpt3.gasUsed.mul(rcpt3.effectiveGasPrice));
+        const gasSpent3 = ethers.BigNumber.from(
+          rcpt3.gasUsed.mul(rcpt3.effectiveGasPrice)
+        );
         const rcpt4 = await tx4.wait();
-        const gasSpent4 = ethers.BigNumber.from(rcpt4.gasUsed.mul(rcpt4.effectiveGasPrice));
+        const gasSpent4 = ethers.BigNumber.from(
+          rcpt4.gasUsed.mul(rcpt4.effectiveGasPrice)
+        );
 
         const afterBalance = await ethers.provider.getBalance(addr0.address);
 
@@ -1071,17 +1092,28 @@ describe("TWAMM", function () {
             timeStamp + 100000
           );
         const rcpt1 = await tx1.wait();
-        const gasSpent1 = ethers.BigNumber.from(rcpt1.gasUsed.mul(rcpt1.effectiveGasPrice));
+        const gasSpent1 = ethers.BigNumber.from(
+          rcpt1.gasUsed.mul(rcpt1.effectiveGasPrice)
+        );
         const rcpt2 = await tx2.wait();
-        const gasSpent2 = ethers.BigNumber.from(rcpt2.gasUsed.mul(rcpt2.effectiveGasPrice));
+        const gasSpent2 = ethers.BigNumber.from(
+          rcpt2.gasUsed.mul(rcpt2.effectiveGasPrice)
+        );
         const rcpt3 = await tx3.wait();
-        const gasSpent3 = ethers.BigNumber.from(rcpt3.gasUsed.mul(rcpt3.effectiveGasPrice));
+        const gasSpent3 = ethers.BigNumber.from(
+          rcpt3.gasUsed.mul(rcpt3.effectiveGasPrice)
+        );
         const rcpt4 = await tx4.wait();
-        const gasSpent4 = ethers.BigNumber.from(rcpt4.gasUsed.mul(rcpt4.effectiveGasPrice));
+        const gasSpent4 = ethers.BigNumber.from(
+          rcpt4.gasUsed.mul(rcpt4.effectiveGasPrice)
+        );
 
         const afterBalance = await ethers.provider.getBalance(addr0.address);
 
-        const amountETHBought = afterBalance.add(gasSpent3).add(gasSpent1).sub(beforeBalance);
+        const amountETHBought = afterBalance
+          .add(gasSpent3)
+          .add(gasSpent1)
+          .sub(beforeBalance);
         const amountTokenBought = await token.balanceOf(addr1.address);
 
         //pool is balanced, and orders execute same amount in opposite directions,
@@ -1162,7 +1194,6 @@ describe("TWAMM", function () {
         //trigger long term order
         await token.connect(addr0).approve(pairETH, amountIn);
         await WETH.connect(addr1).approve(pairETH, amountIn);
-         
 
         //trigger long term orders
         await twamm
@@ -1182,7 +1213,6 @@ describe("TWAMM", function () {
             timeStamp + 100000,
             { value: amountIn }
           );
-
 
         //move blocks forward, and execute virtual orders
         await mineBlocks(3 * blockInterval);
@@ -1207,10 +1237,13 @@ describe("TWAMM", function () {
           );
 
         const rcpt1 = await tx1.wait();
-        const gasSpent1 = ethers.BigNumber.from(rcpt1.gasUsed.mul(rcpt1.effectiveGasPrice));
+        const gasSpent1 = ethers.BigNumber.from(
+          rcpt1.gasUsed.mul(rcpt1.effectiveGasPrice)
+        );
         const rcpt2 = await tx2.wait();
-        const gasSpent2 = ethers.BigNumber.from(rcpt2.gasUsed.mul(rcpt2.effectiveGasPrice));
-        
+        const gasSpent2 = ethers.BigNumber.from(
+          rcpt2.gasUsed.mul(rcpt2.effectiveGasPrice)
+        );
 
         const afterBalance = await ethers.provider.getBalance(addr0.address);
 
@@ -1278,7 +1311,7 @@ describe("TWAMM", function () {
         );
 
         //trigger long term order
-       const tx1 =  await twamm
+        const tx1 = await twamm
           .connect(addr0)
           .longTermSwapTokenToETH(
             token.address,
@@ -1292,18 +1325,23 @@ describe("TWAMM", function () {
         const tx2 = await twamm
           .connect(addr0)
           .cancelTermSwapTokenToETH(token.address, 0, timeStamp + 100000);
-        
 
         const rcpt1 = await tx1.wait();
-        const gasSpent1 = ethers.BigNumber.from(rcpt1.gasUsed.mul(rcpt1.effectiveGasPrice));
+        const gasSpent1 = ethers.BigNumber.from(
+          rcpt1.gasUsed.mul(rcpt1.effectiveGasPrice)
+        );
         const rcpt2 = await tx2.wait();
-        const gasSpent2 = ethers.BigNumber.from(rcpt2.gasUsed.mul(rcpt2.effectiveGasPrice));
+        const gasSpent2 = ethers.BigNumber.from(
+          rcpt2.gasUsed.mul(rcpt2.effectiveGasPrice)
+        );
         const balanceETHAfter = await ethers.provider.getBalance(addr0.address);
         const balanceTokenAfter = await token.balanceOf(addr0.address);
 
         //expect some amount of the order to be filled
         expect(balanceTokenBefore).to.be.gt(balanceTokenAfter);
-        expect(balanceETHBefore).to.be.lt(balanceETHAfter.add(gasSpent1).add(gasSpent2));
+        expect(balanceETHBefore).to.be.lt(
+          balanceETHAfter.add(gasSpent1).add(gasSpent2)
+        );
       });
     });
 
@@ -1410,16 +1448,21 @@ describe("TWAMM", function () {
           );
         const afterBalanceToken = await token.balanceOf(addr0.address);
         const afterBalanceETH = await ethers.provider.getBalance(addr0.address);
-      
-        
+
         const rcpt1 = await tx1.wait();
-        const gasSpent1 = ethers.BigNumber.from(rcpt1.gasUsed.mul(rcpt1.effectiveGasPrice));
+        const gasSpent1 = ethers.BigNumber.from(
+          rcpt1.gasUsed.mul(rcpt1.effectiveGasPrice)
+        );
         const rcpt2 = await tx2.wait();
-        const gasSpent2 = ethers.BigNumber.from(rcpt2.gasUsed.mul(rcpt2.effectiveGasPrice));
+        const gasSpent2 = ethers.BigNumber.from(
+          rcpt2.gasUsed.mul(rcpt2.effectiveGasPrice)
+        );
 
         //expect swap to work as expected
         expect(beforeBalanceToken).to.be.gt(afterBalanceToken);
-        expect(beforeBalanceETH).to.be.lt(afterBalanceETH.add(gasSpent1).add(gasSpent2));
+        expect(beforeBalanceETH).to.be.lt(
+          afterBalanceETH.add(gasSpent1).add(gasSpent2)
+        );
       });
 
       it("(ETH)proceeds can be withdrawn while order is still active(ETH)", async function () {
