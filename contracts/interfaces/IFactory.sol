@@ -17,6 +17,12 @@ interface IFactory {
 
     function allPairs(uint256) external view returns (address pair);
 
+    function feeArg() external view returns (uint32);
+
+    function feeTo() external view returns (address);
+
+    function feeToSetter() external view returns (address);
+
     function allPairsLength() external view returns (uint256);
 
     function initialize(address twammAdd) external;
@@ -26,4 +32,10 @@ interface IFactory {
     function createPair(address token0, address token1)
         external
         returns (address pair);
+
+    function setFeeArg(uint32) external;
+
+    function setFeeTo(address) external;
+
+    function setFeeToSetter(address) external;
 }

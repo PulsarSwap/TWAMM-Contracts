@@ -10,7 +10,15 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 contract Factory is IFactory, Initializable {
     mapping(address => mapping(address => address)) public override getPair;
     address[] public override allPairs;
+
+    uint32 public override feeArg;
+    address public override feeTo = address(0);
+    address public override feeToSetter = address(0);
     address private twammTheOnlyCaller = address(0);
+
+    constructor(address _feeToSetter) {
+        feeToSetter = _feeToSetter;
+    }
 
     function allPairsLength() external view override returns (uint256) {
         return allPairs.length;
@@ -61,5 +69,20 @@ contract Factory is IFactory, Initializable {
         getPair[tokenB][tokenA] = pair; // populate mapping in the reverse direction
         allPairs.push(pair);
         emit PairCreated(tokenA, tokenB, pair, allPairs.length);
+    }
+
+    function setFeeArg(uint32 _feeArg) external override {
+        require(msg.sender == feeToSetter, "Factory: Forbidden");
+        feeArg = _feeArg;
+    }
+
+    function setFeeTo(address _feeTo) external override {
+        require(msg.sender == feeToSetter, "Factory: Forbidden");
+        feeTo = _feeTo;
+    }
+
+    function setFeeToSetter(address _feeToSetter) external override {
+        require(msg.sender == feeToSetter, "Factory: Forbidden");
+        feeToSetter = _feeToSetter;
     }
 }

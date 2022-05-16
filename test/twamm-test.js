@@ -30,7 +30,7 @@ describe("TWAMM", function () {
 
     //factory deployment
     const Factory = await ethers.getContractFactory("Factory");
-    factory = await Factory.deploy();
+    factory = await Factory.deploy(addr0.address);
     const allPairLength = await factory.allPairsLength();
     const twammAddress = await factory.returnTwammAddress();
 
