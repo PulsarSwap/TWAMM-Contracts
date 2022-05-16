@@ -163,9 +163,9 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
             "Liquidity Has Already Been Provided, Need To Call provideLiquidity()"
         );
 
+        bool feeOn = mintFee(0, 0);
         reserveMap[tokenA] = amountA;
         reserveMap[tokenB] = amountB;
-        bool feeOn = mintFee(amountA, amountB);
 
         //initial LP amount is the geometric mean of supplied tokens
         uint256 lpTokenAmount = amountA
@@ -245,6 +245,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         );
         uint256 reserveA = reserveMap[tokenA];
         uint256 reserveB = reserveMap[tokenB];
+        bool feeOn = mintFee(reserveA, reserveB);
 
         //the ratio between the number of underlying tokens and the number of lp tokens must remain invariant after burn
         uint256 amountAOut = (reserveA * lpTokenAmount) / totalSupply();
@@ -269,6 +270,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
             IERC20(tokenB).safeTransfer(to, amountBOut);
         }
 
+        if (feeOn) kLast = reserveMap[tokenA] * reserveMap[tokenB];
         emit LiquidityRemoved(to, lpTokenAmount);
     }
 
