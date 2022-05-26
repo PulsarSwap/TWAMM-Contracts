@@ -15,9 +15,6 @@ async function main() {
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
   const TWAMM = await ethers.getContractFactory("TWAMM");
-
-  console.log("TWAMM loaded");
-
   const twamm = await TWAMM.deploy(
     hre.network.config.Factory,
     hre.network.config.WETH
@@ -28,7 +25,6 @@ async function main() {
     hre.network.config.Factory,
     hre.network.config.WETH
   );
-  console.log("TWAMM deployed");
 
   await twamm.deployed();
 

@@ -12,9 +12,9 @@ contract Factory is IFactory, Initializable {
     address[] public override allPairs;
 
     uint32 public override feeArg;
-    address public override feeTo = address(0);
-    address public override feeToSetter = address(0);
-    address private twammTheOnlyCaller = address(0);
+    address public override feeTo;
+    address public override feeToSetter;
+    address private twammTheOnlyCaller;
 
     constructor(address _feeToSetter) {
         feeToSetter = _feeToSetter;

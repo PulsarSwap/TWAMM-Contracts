@@ -2,7 +2,7 @@
 
 // Inspired by https://www.paradigm.xyz/2021/07/twamm
 // https://github.com/para-dave/twamm
-// FrankieIsLost MVP code implementation: https://github.com/FrankieIsLost
+// FrankieIsLost MVP code implementation: https://github.com/FrankieIsLost/TWAMM
 
 pragma solidity ^0.8.9;
 
@@ -29,7 +29,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     address public override tokenB;
     address private safeCaller;
 
-    uint32 private blockTimestampLast;
+    uint32 public blockTimestampLast;
     uint256 public override priceACumulativeLast;
     uint256 public override priceBCumulativeLast;
     uint256 public override kLast; // reserveA * reserveB, as of immediately after the most recent liquidity event

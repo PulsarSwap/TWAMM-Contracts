@@ -18,6 +18,7 @@ const INFURA_API_KEY = process.env.INFURA_API_KEY;
 const PRIVATE_KEY_TEST = process.env.PRIVATE_KEY_TEST;
 const PRIVATE_KEY_MAINNET = process.env.PRIVATE_KEY_MAINNET;
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
+const FeeToSetter = process.env.FeeToSetter;
 
 if (!INFURA_API_KEY) {
   console.log(
@@ -27,16 +28,19 @@ if (!INFURA_API_KEY) {
 }
 
 const localArgs = {
+  FeeToSetter: FeeToSetter,
   Factory: "",
   WETH: "",
 };
 
 const mainnetArgs = {
+  FeeToSetter: FeeToSetter,
   Factory: "",
   WETH: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
 };
 
 const ropstenArgs = {
+  FeeToSetter: FeeToSetter,
   Factory: "",
   WETH: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
 };

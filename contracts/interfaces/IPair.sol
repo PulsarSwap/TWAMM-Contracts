@@ -9,6 +9,8 @@ interface IPair {
 
     function tokenB() external view returns (address);
 
+    function blockTimestampLast() external view returns (uint32);
+
     function priceACumulativeLast() external view returns (uint256);
 
     function priceBCumulativeLast() external view returns (uint256);
