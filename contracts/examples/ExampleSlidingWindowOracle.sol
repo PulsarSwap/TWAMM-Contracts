@@ -40,7 +40,7 @@ contract ExampleSlidingWindowOracle {
     mapping(address => Observation[]) public pairObservations;
 
     constructor(
-        address factory_,
+        address _factory,
         uint256 _windowSize,
         uint8 _granularity
     ) {
@@ -50,7 +50,7 @@ contract ExampleSlidingWindowOracle {
                 _windowSize,
             "SlidingWindowOracle: WINDOW_NOT_EVENLY_DIVISIBLE"
         );
-        factory = factory_;
+        factory = _factory;
         windowSize = _windowSize;
         granularity = _granularity;
     }
