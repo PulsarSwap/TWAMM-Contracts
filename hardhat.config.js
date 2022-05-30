@@ -27,26 +27,27 @@ if (!INFURA_API_KEY) {
 }
 
 const localArgs = {
-  FeeToSetter: "",
   Factory: "",
   WETH: "",
 };
 
 const mainnetArgs = {
-  FeeToSetter: "",
   Factory: "",
   WETH: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
 };
 
 const ropstenArgs = {
-  FeeToSetter: "",
   Factory: "",
   WETH: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
 };
 
-const rinkebyArgs = {
-  FeeToSetter: "",
+const kovanArgs = {
   Factory: "",
+  WETH: "0xd0A1E359811322d97991E03f863a0C30C2cF029C",
+};
+
+const rinkebyArgs = {
+  Factory: "0x5B1fcacD33DeD1BED708F67f895bD9479AA21f5f",
   WETH: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
 };
 
@@ -85,6 +86,13 @@ module.exports = {
       accounts: [PRIVATE_KEY_TEST],
       hardfork: "berlin",
       ...ropstenArgs,
+    },
+
+    kovan: {
+      url: `https://kovan.infura.io/v3/${INFURA_API_KEY}`,
+      accounts: [PRIVATE_KEY_TEST],
+      hardfork: "berlin",
+      ...kovanArgs,
     },
 
     rinkeby: {
