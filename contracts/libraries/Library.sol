@@ -28,12 +28,12 @@ library Library {
         address factory,
         address token0,
         address token1
-    ) internal view returns (address pair) {
+    ) internal pure returns (address pair) {
         (address tokenA, address tokenB) = sortTokens(token0, token1);
         bytes memory bytecode = type(Pair).creationCode;
         bytes memory bytecodeArg = abi.encodePacked(
             bytecode,
-            abi.encode(tokenA, tokenB, IFactory(factory).returnTwammAddress())
+            abi.encode(tokenA, tokenB)
         );
         pair = address(
             uint160(
@@ -79,5 +79,30 @@ library Library {
             "Library: Insufficient_Liquidity"
         );
         amount1 = amount0.mul(reserve1) / reserve0;
+    }
+
+
+    function obtainReserves(address token0, address token1, address factory)
+        external
+        view
+        returns (uint256 reserve0, uint256 reserve1)
+    {
+        (reserve0, reserve1) = getReserves(factory, token0, token1);
+    }
+
+    function obtainTotalSupply(address pair)
+        external
+        view
+        returns (uint256)
+    {
+        return IPair(pair).getTotalSupply();
+    }
+
+    function obtainPairAddress(address token0, address token1, address factory)
+        external
+        view
+        returns (address)
+    {
+        return IFactory(factory).getPair(token0, token1);
     }
 }

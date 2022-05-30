@@ -14,23 +14,40 @@ contract Factory is IFactory, Initializable {
     uint32 public override feeArg;
     address public override feeTo;
     address public override feeToSetter;
-    address private twammTheOnlyCaller;
+    address private twammAddr;
+    address private twammInstantSwapAddr;
+    address private twammLiquidityInAddr;
+    address private twammLiquidityOutAddr;
+    address private twammTermSwapInAddr;
+    address private twammTermSwapOutAddr;
+
 
     constructor(address _feeToSetter) {
         feeToSetter = _feeToSetter;
     }
 
-    function allPairsLength() external view override returns (uint256) {
-        return allPairs.length;
+    // function allPairsLength() external view override returns (uint256) {
+    //     return allPairs.length;
+    // }
+
+    function initialize(
+        address _twammAddr,
+        address _twammInstantSwapAddr, 
+        address _twammLiquidityInAddr, 
+        address _twammLiquidityOutAddr,
+        address _twammTermSwapInAddr, 
+        address _twammTermSwapOutAddr) external override initializer {
+        twammAddr = _twammAddr;
+        twammInstantSwapAddr = _twammInstantSwapAddr;
+        twammLiquidityInAddr = _twammLiquidityInAddr;
+        twammLiquidityOutAddr = _twammLiquidityOutAddr;
+        twammTermSwapInAddr = _twammTermSwapInAddr;
+        twammTermSwapOutAddr = _twammTermSwapOutAddr;
     }
 
-    function initialize(address twammAdd) external override initializer {
-        twammTheOnlyCaller = twammAdd;
-    }
-
-    function returnTwammAddress() external view override returns (address) {
-        return twammTheOnlyCaller;
-    }
+    // function returnTwammAddress() external view override returns (address) {
+    //     return twammTheOnlyCaller;
+    // }
 
     function createPair(address token0, address token1)
         external
@@ -38,11 +55,11 @@ contract Factory is IFactory, Initializable {
         returns (address pair)
     {
         require(
-            msg.sender == twammTheOnlyCaller,
+            msg.sender == twammAddr,
             "Invalid User, Only TWAMM Can Create Pair"
         );
         require(
-            twammTheOnlyCaller != address(0),
+            twammAddr != address(0),
             "Factory Not Initialized By TWAMM Yet"
         );
 
@@ -58,13 +75,20 @@ contract Factory is IFactory, Initializable {
         bytes memory bytecode = type(Pair).creationCode;
         bytes memory bytecodeArg = abi.encodePacked(
             bytecode,
-            abi.encode(tokenA, tokenB, twammTheOnlyCaller)
+            abi.encode(tokenA, tokenB)
         );
         bytes32 salt = keccak256(abi.encodePacked(tokenA, tokenB));
         assembly {
             pair := create2(0, add(bytecodeArg, 0x20), mload(bytecodeArg), salt)
         }
         require(pair != address(0), "Create2: Failed On Deploy");
+        IPair(pair).initialize(
+            twammAddr,
+            twammInstantSwapAddr,
+            twammLiquidityInAddr,
+            twammLiquidityOutAddr,
+            twammTermSwapInAddr,
+            twammTermSwapOutAddr);
         getPair[tokenA][tokenB] = pair;
         getPair[tokenB][tokenA] = pair; // populate mapping in the reverse direction
         allPairs.push(pair);

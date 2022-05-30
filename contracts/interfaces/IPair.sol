@@ -15,9 +15,17 @@ interface IPair {
 
     function priceBCumulativeLast() external view returns (uint256);
 
-    function kLast() external view returns (uint256);
+    // function kLast() external view returns (uint256);
 
     function LP_FEE() external pure returns (uint256);
+
+    function initialize(
+        address _twammAddr,
+        address _twammInstanSwapAddr, 
+        address _twammLiquidityInAddr, 
+        address _twammLiquidityOutAddr,
+        address _twammTermSwapInAddr, 
+        address _twammTermSwapOutAddr) external;
 
     function orderBlockInterval() external pure returns (uint256);
 

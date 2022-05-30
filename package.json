@@ -62,6 +62,7 @@
   "dependencies": {
     "@rari-capital/solmate": "^6.2.0",
     "dotenv": "^10.0.0",
+    "hardhat-contract-sizer": "^2.5.1",
     "hardhat-deploy": "^0.9.4"
   }
 }

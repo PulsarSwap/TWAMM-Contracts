@@ -15,6 +15,11 @@ interface IFactory {
         view
         returns (address pair);
 
+    // function twammTheOnlyCaller()
+    //     external 
+    //     view
+    //     returns (address twammTheOnlyCaller);
+
     function allPairs(uint256) external view returns (address pair);
 
     function feeArg() external view returns (uint32);
@@ -23,11 +28,16 @@ interface IFactory {
 
     function feeToSetter() external view returns (address);
 
-    function allPairsLength() external view returns (uint256);
+    // function allPairsLength() external view returns (uint256);
 
-    function initialize(address twammAdd) external;
+    function initialize(address _twammAddr,
+        address _twammInstantSwapAddr, 
+        address _twammLiquidityInAddr, 
+        address _twammLiquidityOutAddr,
+        address _twammTermSwapInAddr, 
+        address _twammTermSwapOutAddr) external;
 
-    function returnTwammAddress() external view returns (address);
+    // function returnTwammAddress() external view returns (address);
 
     function createPair(address token0, address token1)
         external

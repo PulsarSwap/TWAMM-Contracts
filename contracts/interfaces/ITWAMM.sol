@@ -7,21 +7,21 @@ interface ITWAMM {
 
     function WETH() external view returns (address);
 
-    function obtainReserves(address token0, address token1)
-        external
-        returns (uint256 reserve0, uint256 reserve1);
+    // function obtainReserves(address token0, address token1)
+    //     external
+    //     returns (uint256 reserve0, uint256 reserve1);
 
-    function obtainTotalSupply(address pair) external returns (uint256);
+    // function obtainTotalSupply(address pair) external returns (uint256);
 
-    function obtainPairAddress(address token0, address token1)
-        external
-        returns (address);
+    // function obtainPairAddress(address token0, address token1)
+    //     external
+    //     returns (address);
 
-    function createPairWrapper(
-        address token0,
-        address token1,
-        uint256 deadline
-    ) external;
+    // function createPairWrapper(
+    //     address token0,
+    //     address token1,
+    //     uint256 deadline
+    // ) external;
 
     function addInitialLiquidity(
         address token0,
@@ -38,110 +38,110 @@ interface ITWAMM {
         uint256 deadline
     ) external payable;
 
-    function addLiquidity(
-        address token0,
-        address token1,
-        uint256 lpTokenAmount,
-        uint256 deadline
-    ) external;
+    // function addLiquidity(
+    //     address token0,
+    //     address token1,
+    //     uint256 lpTokenAmount,
+    //     uint256 deadline
+    // ) external;
 
-    function addLiquidityETH(
-        address token,
-        uint256 lpTokenAmount,
-        uint256 deadline
-    ) external payable;
+    // function addLiquidityETH(
+    //     address token,
+    //     uint256 lpTokenAmount,
+    //     uint256 deadline
+    // ) external payable;
 
-    function withdrawLiquidity(
-        address token0,
-        address token1,
-        uint256 lpTokenAmount,
-        uint256 deadline
-    ) external;
+    // function withdrawLiquidity(
+    //     address token0,
+    //     address token1,
+    //     uint256 lpTokenAmount,
+    //     uint256 deadline
+    // ) external;
 
-    function withdrawLiquidityETH(
-        address token,
-        uint256 lpTokenAmount,
-        uint256 deadline
-    ) external;
+    // function withdrawLiquidityETH(
+    //     address token,
+    //     uint256 lpTokenAmount,
+    //     uint256 deadline
+    // ) external;
 
-    function instantSwapTokenToToken(
-        address token0,
-        address token1,
-        uint256 amountIn,
-        uint256 deadline
-    ) external;
+    // function instantSwapTokenToToken(
+    //     address token0,
+    //     address token1,
+    //     uint256 amountIn,
+    //     uint256 deadline
+    // ) external;
 
-    function instantSwapTokenToETH(
-        address token,
-        uint256 amountTokenIn,
-        uint256 deadline
-    ) external;
+    // function instantSwapTokenToETH(
+    //     address token,
+    //     uint256 amountTokenIn,
+    //     uint256 deadline
+    // ) external;
 
-    function instantSwapETHToToken(
-        address token,
-        uint256 amountETHIn,
-        uint256 deadline
-    ) external payable;
+    // function instantSwapETHToToken(
+    //     address token,
+    //     uint256 amountETHIn,
+    //     uint256 deadline
+    // ) external payable;
 
-    function longTermSwapTokenToToken(
-        address token0,
-        address token1,
-        uint256 amountIn,
-        uint256 numberOfBlockIntervals,
-        uint256 deadline
-    ) external;
+    // function longTermSwapTokenToToken(
+    //     address token0,
+    //     address token1,
+    //     uint256 amountIn,
+    //     uint256 numberOfBlockIntervals,
+    //     uint256 deadline
+    // ) external;
 
-    function longTermSwapTokenToETH(
-        address token,
-        uint256 amountTokenIn,
-        uint256 numberOfBlockIntervals,
-        uint256 deadline
-    ) external;
+    // function longTermSwapTokenToETH(
+    //     address token,
+    //     uint256 amountTokenIn,
+    //     uint256 numberOfBlockIntervals,
+    //     uint256 deadline
+    // ) external;
 
-    function longTermSwapETHToToken(
-        address token,
-        uint256 amountETHIn,
-        uint256 numberOfBlockIntervals,
-        uint256 deadline
-    ) external payable;
+    // function longTermSwapETHToToken(
+    //     address token,
+    //     uint256 amountETHIn,
+    //     uint256 numberOfBlockIntervals,
+    //     uint256 deadline
+    // ) external payable;
 
-    function cancelTermSwapTokenToToken(
-        address token0,
-        address token1,
-        uint256 orderId,
-        uint256 deadline
-    ) external;
+    // function cancelTermSwapTokenToToken(
+    //     address token0,
+    //     address token1,
+    //     uint256 orderId,
+    //     uint256 deadline
+    // ) external;
 
-    function cancelTermSwapTokenToETH(
-        address token,
-        uint256 orderId,
-        uint256 deadline
-    ) external;
+    // function cancelTermSwapTokenToETH(
+    //     address token,
+    //     uint256 orderId,
+    //     uint256 deadline
+    // ) external;
 
-    function cancelTermSwapETHToToken(
-        address token,
-        uint256 orderId,
-        uint256 deadline
-    ) external;
+    // function cancelTermSwapETHToToken(
+    //     address token,
+    //     uint256 orderId,
+    //     uint256 deadline
+    // ) external;
 
-    function withdrawProceedsFromTermSwapTokenToToken(
-        address token0,
-        address token1,
-        uint256 orderId,
-        uint256 deadline
-    ) external;
+    // function withdrawProceedsFromTermSwapTokenToToken(
+    //     address token0,
+    //     address token1,
+    //     uint256 orderId,
+    //     uint256 deadline
+    // ) external;
 
-    function withdrawProceedsFromTermSwapTokenToETH(
-        address token,
-        uint256 orderId,
-        uint256 deadline
-    ) external;
+    // function withdrawProceedsFromTermSwapTokenToETH(
+    //     address token,
+    //     uint256 orderId,
+    //     uint256 deadline
+    // ) external;
 
-    function withdrawProceedsFromTermSwapETHToToken(
-        address token,
-        uint256 orderId,
-        uint256 deadline
-    ) external;
+    // function withdrawProceedsFromTermSwapETHToToken(
+    //     address token,
+    //     uint256 orderId,
+    //     uint256 deadline
+    // ) external;
 
     function executeVirtualOrdersWrapper(address pair, uint256 blockNumber)
         external;

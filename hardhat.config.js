@@ -5,6 +5,7 @@ require("@nomiclabs/hardhat-etherscan");
 require("hardhat-gas-reporter");
 require("hardhat-deploy");
 require("dotenv").config();
+require('hardhat-contract-sizer');
 
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   const accounts = await hre.ethers.getSigners();
@@ -27,26 +28,26 @@ if (!INFURA_API_KEY) {
 }
 
 const localArgs = {
-  FeeToSetter: "",
-  Factory: "",
-  WETH: "",
+  FeeToSetter: "0x5906E73D3A0356A92fe0320c4b10d7892D8Ad607",
+  Factory: "0x5906E73D3A0356A92fe0320c4b10d7892D8Ad607",
+  WETH: "0x5906E73D3A0356A92fe0320c4b10d7892D8Ad607",
 };
 
 const mainnetArgs = {
   FeeToSetter: "",
   Factory: "",
-  WETH: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+  WETH: "",
 };
 
 const ropstenArgs = {
-  FeeToSetter: "",
+  FeeToSetter: "0x9be86E75E67f2ef9a44730C60cF04Ef9F944CCee",
   Factory: "",
   WETH: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
 };
 
 const rinkebyArgs = {
-  FeeToSetter: "",
-  Factory: "",
+  FeeToSetter: "0x9be86E75E67f2ef9a44730C60cF04Ef9F944CCee",
+  Factory: "0xa4930FD0f75ea1a4f61752734E8cD9c44883c3dc",
   WETH: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
 };
 
@@ -62,6 +63,7 @@ module.exports = {
   networks: {
     localhost: {
       url: "http://127.0.0.1:8545",
+      ...localArgs,
     },
 
     hardhat: {
@@ -106,7 +108,7 @@ module.exports = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 200,
+            runs: 50,
           },
         },
       },
