@@ -42,12 +42,12 @@ const ropstenArgs = {
 };
 
 const kovanArgs = {
-  Factory: "",
+  Factory: "0xb90D1e6efF0f1cD9fb20B1a61565b34EC26Ea5CA",
   WETH: "0xd0A1E359811322d97991E03f863a0C30C2cF029C",
 };
 
 const rinkebyArgs = {
-  Factory: "0x5B1fcacD33DeD1BED708F67f895bD9479AA21f5f",
+  Factory: "0x9F1a50ab076944F94602E25109441E0691774D0D",
   WETH: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
 };
 
