@@ -28,11 +28,15 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     address public override tokenA;
     address public override tokenB;
     address private safeCaller;
+    address private twammSwap;
+    address private twammTermSwap;
+    address private twammLiquidity;
+
 
     uint32 public blockTimestampLast;
     uint256 public override priceACumulativeLast;
     uint256 public override priceBCumulativeLast;
-    uint256 public override kLast; // reserveA * reserveB, as of immediately after the most recent liquidity event
+    // uint256 public override kLast; // reserveA * reserveB, as of immediately after the most recent liquidity event
 
     ///@notice fee for LP providers, 4 decimal places, i.e. 30 = 0.3%
     uint256 public constant LP_FEE = 30;
@@ -54,19 +58,25 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     /// ---------------------------
     ///@notice pair contract caller check
     modifier checkCaller() {
-        require(msg.sender == safeCaller, "Invalid Caller");
+        require(msg.sender == safeCaller || msg.sender == twammSwap ||  msg.sender == twammTermSwap || msg.sender == twammLiquidity, "Invalid Caller");
         _;
     }
 
     constructor(
         address _tokenA,
         address _tokenB,
-        address _twamm
+        address _twamm,
+        address _twammSwap,
+        address _twammTermSwap,
+        address _twammLiquidity
     ) ERC20("Pulsar-LP", "PUL-LP") {
         factory = msg.sender;
         safeCaller = _twamm;
         tokenA = _tokenA;
         tokenB = _tokenB;
+        twammSwap = _twammSwap;
+        twammTermSwap = _twammTermSwap;
+        twammLiquidity = _twammLiquidity;
         longTermOrders.initialize(
             tokenA,
             tokenB,
@@ -97,59 +107,59 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         tmpMapWETH[sender] = 0;
     }
 
-    // update price accumulators, on the first call per block
-    function updatePrice(uint256 reserveA, uint256 reserveB) private {
-        require(
-            reserveA <= type(uint112).max && reserveB <= type(uint112).max,
-            "Pair: Overflow"
-        );
-        uint32 blockTimestamp = uint32(block.timestamp % 2**32);
-        uint32 timeElapsed = blockTimestamp - blockTimestampLast; // overflow is desired
-        if (timeElapsed > 0 && reserveA != 0 && reserveB != 0) {
-            // * never overflows, and + overflow is desired
-            priceACumulativeLast +=
-                uint256(
-                    UQ112x112.encode(uint112(reserveB)).uqdiv(uint112(reserveA))
-                ) *
-                timeElapsed;
-            priceBCumulativeLast +=
-                uint256(
-                    UQ112x112.encode(uint112(reserveA)).uqdiv(uint112(reserveB))
-                ) *
-                timeElapsed;
-        }
-        blockTimestampLast = blockTimestamp;
-        emit UpdatePrice(reserveA, reserveB);
-    }
+    // // update price accumulators, on the first call per block
+    // function updatePrice(uint256 reserveA, uint256 reserveB) private {
+    //     require(
+    //         reserveA <= type(uint112).max && reserveB <= type(uint112).max,
+    //         "Pair: Overflow"
+    //     );
+    //     uint32 blockTimestamp = uint32(block.timestamp % 2**32);
+    //     uint32 timeElapsed = blockTimestamp - blockTimestampLast; // overflow is desired
+    //     if (timeElapsed > 0 && reserveA != 0 && reserveB != 0) {
+    //         // * never overflows, and + overflow is desired
+    //         priceACumulativeLast +=
+    //             uint256(
+    //                 UQ112x112.encode(uint112(reserveB)).uqdiv(uint112(reserveA))
+    //             ) *
+    //             timeElapsed;
+    //         priceBCumulativeLast +=
+    //             uint256(
+    //                 UQ112x112.encode(uint112(reserveA)).uqdiv(uint112(reserveB))
+    //             ) *
+    //             timeElapsed;
+    //     }
+    //     blockTimestampLast = blockTimestamp;
+    //     emit UpdatePrice(reserveA, reserveB);
+    // }
 
-    // if fee is on, mint liquidity equivalent to 1/(feeArg+1)th of the growth in sqrt(k)
-    function mintFee(uint256 reserveA, uint256 reserveB)
-        private
-        returns (bool feeOn)
-    {
-        address feeTo = IFactory(factory).feeTo();
-        uint32 feeArg = IFactory(factory).feeArg();
-        feeOn = feeTo != address(0);
+    // // if fee is on, mint liquidity equivalent to 1/(feeArg+1)th of the growth in sqrt(k)
+    // function mintFee(uint256 reserveA, uint256 reserveB)
+    //     private
+    //     returns (bool feeOn)
+    // {
+    //     address feeTo = IFactory(factory).feeTo();
+    //     uint32 feeArg = IFactory(factory).feeArg();
+    //     feeOn = feeTo != address(0);
 
-        if (feeOn) {
-            if (kLast != 0) {
-                uint256 rootK = reserveA
-                    .fromUint()
-                    .sqrt()
-                    .mul(reserveB.fromUint().sqrt())
-                    .toUint();
-                uint256 rootKLast = kLast.fromUint().sqrt().toUint();
-                if (rootK > rootKLast) {
-                    uint256 numerator = totalSupply() * (rootK - rootKLast);
-                    uint256 denominator = rootK * feeArg + rootKLast;
-                    uint256 liquidity = numerator / denominator;
-                    if (liquidity > 0) _mint(feeTo, liquidity);
-                }
-            }
-        } else if (kLast != 0) {
-            kLast = 0;
-        }
-    }
+    //     if (feeOn) {
+    //         if (kLast != 0) {
+    //             uint256 rootK = reserveA
+    //                 .fromUint()
+    //                 .sqrt()
+    //                 .mul(reserveB.fromUint().sqrt())
+    //                 .toUint();
+    //             uint256 rootKLast = kLast.fromUint().sqrt().toUint();
+    //             if (rootK > rootKLast) {
+    //                 uint256 numerator = totalSupply() * (rootK - rootKLast);
+    //                 uint256 denominator = rootK * feeArg + rootKLast;
+    //                 uint256 liquidity = numerator / denominator;
+    //                 if (liquidity > 0) _mint(feeTo, liquidity);
+    //             }
+    //         }
+    //     } else if (kLast != 0) {
+    //         kLast = 0;
+    //     }
+    // }
 
     ///@notice provide initial liquidity to the amm. This sets the relative price between tokens
     function provideInitialLiquidity(
@@ -163,7 +173,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
             "Liquidity Has Already Been Provided, Need To Call provideLiquidity()"
         );
 
-        bool feeOn = mintFee(0, 0);
+        // bool feeOn = mintFee(0, 0);
         reserveMap[tokenA] = amountA;
         reserveMap[tokenB] = amountB;
 
@@ -178,8 +188,8 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         IERC20(tokenB).safeTransferFrom(to, address(this), amountB);
         _mint(to, lpTokenAmount);
 
-        updatePrice(0, 0);
-        if (feeOn) kLast = amountA * amountB;
+        // updatePrice(0, 0);
+        // if (feeOn) kLast = amountA * amountB;
 
         emit InitialLiquidityProvided(to, amountA, amountB);
     }
@@ -192,7 +202,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         checkCaller
         nonReentrant
     {
-        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
+        // updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         //execute virtual orders
         longTermOrders.executeVirtualOrdersUntilSpecifiedBlock(
             reserveMap,
@@ -206,7 +216,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         );
         uint256 reserveA = reserveMap[tokenA];
         uint256 reserveB = reserveMap[tokenB];
-        bool feeOn = mintFee(reserveA, reserveB);
+        // bool feeOn = mintFee(reserveA, reserveB);
 
         //the ratio between the number of underlying tokens and the number of lp tokens must remain invariant after mint
         uint256 amountAIn = (lpTokenAmount * reserveA) / totalSupply();
@@ -219,7 +229,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         IERC20(tokenB).safeTransferFrom(to, address(this), amountBIn);
         _mint(to, lpTokenAmount);
 
-        if (feeOn) kLast = reserveMap[tokenA] * reserveMap[tokenB];
+        // if (feeOn) kLast = reserveMap[tokenA] * reserveMap[tokenB];
         emit LiquidityProvided(to, lpTokenAmount);
     }
 
@@ -230,7 +240,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         uint256 lpTokenAmount,
         bool proceedETH
     ) external override checkCaller nonReentrant {
-        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
+        // updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         //execute virtual orders
         longTermOrders.executeVirtualOrdersUntilSpecifiedBlock(
             reserveMap,
@@ -244,7 +254,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         );
         uint256 reserveA = reserveMap[tokenA];
         uint256 reserveB = reserveMap[tokenB];
-        bool feeOn = mintFee(reserveA, reserveB);
+        // bool feeOn = mintFee(reserveA, reserveB);
 
         //the ratio between the number of underlying tokens and the number of lp tokens must remain invariant after burn
         uint256 amountAOut = (reserveA * lpTokenAmount) / totalSupply();
@@ -269,7 +279,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
             IERC20(tokenB).safeTransfer(to, amountBOut);
         }
 
-        if (feeOn) kLast = reserveMap[tokenA] * reserveMap[tokenB];
+        // if (feeOn) kLast = reserveMap[tokenA] * reserveMap[tokenB];
         emit LiquidityRemoved(to, lpTokenAmount);
     }
 
@@ -279,7 +289,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         uint256 amountAIn,
         bool proceedETH
     ) external override checkCaller nonReentrant {
-        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
+        // updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         require(amountAIn > 0, "Invalid Amount");
         uint256 amountBOut = performInstantSwap(
             sender,
@@ -300,7 +310,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         uint256 amountAIn,
         uint256 numberOfBlockIntervals
     ) external override checkCaller nonReentrant {
-        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
+        // updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         require(amountAIn > 0, "Invalid Amount");
         uint256 orderId = longTermOrders.longTermSwapFromAToB(
             sender,
@@ -318,7 +328,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         uint256 amountBIn,
         bool proceedETH
     ) external override checkCaller nonReentrant {
-        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
+        // updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         require(amountBIn > 0, "Invalid Amount");
         uint256 amountAOut = performInstantSwap(
             sender,
@@ -339,7 +349,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         uint256 amountBIn,
         uint256 numberOfBlockIntervals
     ) external override checkCaller nonReentrant {
-        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
+        // updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         require(amountBIn > 0, "Invalid Amount");
         uint256 orderId = longTermOrders.longTermSwapFromBToA(
             sender,
@@ -357,7 +367,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         uint256 orderId,
         bool proceedETH
     ) external override checkCaller nonReentrant {
-        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
+        // updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         tmpMapWETH[sender] = longTermOrders.cancelLongTermSwap(
             sender,
             orderId,
@@ -373,7 +383,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         uint256 orderId,
         bool proceedETH
     ) external override checkCaller nonReentrant {
-        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
+        // updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         tmpMapWETH[sender] = longTermOrders.withdrawProceedsFromLongTermSwap(
             sender,
             orderId,
@@ -450,7 +460,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     ///@notice convenience function to execute virtual orders. Note that this already happens
     ///before most interactions with the AMM
     function executeVirtualOrders(uint256 blockNumber) public override {
-        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
+        // updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         longTermOrders.executeVirtualOrdersUntilSpecifiedBlock(
             reserveMap,
             blockNumber

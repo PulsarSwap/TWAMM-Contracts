@@ -32,7 +32,7 @@ describe("TWAMM", function () {
     const Factory = await ethers.getContractFactory("Factory");
     factory = await Factory.deploy(addr0.address);
     const allPairLength = await factory.allPairsLength();
-    const twammAddress = await factory.returnTwammAddress();
+    const twammAddress = await factory.twammAdd();
 
     //deploy three tokens and WETH for pair creation
     const ERC20Factory = await ethers.getContractFactory("ERC20Mock");
@@ -45,14 +45,30 @@ describe("TWAMM", function () {
     expect(await WETH.symbol()).to.equal("WETH10");
 
     // TWAMM init
+
+    const TWAMMSwap = await ethers.getContractFactory("TWAMMSwap", {
+      gasLimit: "8000000",
+    });
+    twammSwap = await TWAMMSwap.deploy(factory.address, WETH.address);
+
+
+    const TWAMMTermSwap = await ethers.getContractFactory("TWAMMTermSwap", {
+      gasLimit: "8000000",
+    });
+    twammTermSwap = await TWAMMTermSwap.deploy(factory.address, WETH.address);
+
+    const TWAMMLiquidity = await ethers.getContractFactory("TWAMMLiquidity", {
+      gasLimit: "8000000",
+    });
+    twammLiquidity = await TWAMMLiquidity.deploy(factory.address, WETH.address);
+
     const TWAMM = await ethers.getContractFactory("TWAMM", {
       gasLimit: "8000000",
     });
-    twamm = await TWAMM.deploy(factory.address, WETH.address);
-
+    twamm = await TWAMM.deploy(factory.address, WETH.address, twammSwap.address, twammTermSwap.address, twammLiquidity.address);
     // create pair and initialize liquidity for the pair
     blockNumber = await ethers.provider.getBlockNumber();
-    timeStamp = (await ethers.provider.getBlock(blockNumber)).timestamp;
+    timeStamp = (await ethers.provider.getBlock(blockNumber)).timestamp;  
 
     await twamm.createPairWrapper(
       token0.address,

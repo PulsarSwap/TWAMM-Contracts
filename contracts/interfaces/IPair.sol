@@ -15,7 +15,7 @@ interface IPair {
 
     function priceBCumulativeLast() external view returns (uint256);
 
-    function kLast() external view returns (uint256);
+    // function kLast() external view returns (uint256);
 
     function LP_FEE() external pure returns (uint256);
 
