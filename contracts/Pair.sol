@@ -26,7 +26,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     address public override factory;
     address public override tokenA;
     address public override tokenB;
-    address private safeCaller;
+    address private twamm;
     address private twammInstantSwap;
     address private twammTermSwap;
     address private twammLiquidity;
@@ -57,7 +57,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     ///@notice pair contract caller check
     modifier checkCaller() {
         require(
-            msg.sender == safeCaller ||
+            msg.sender == twamm ||
                 msg.sender == twammInstantSwap ||
                 msg.sender == twammTermSwap ||
                 msg.sender == twammLiquidity,
@@ -75,17 +75,17 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         address _twammLiquidity
     ) ERC20("Pulsar-LP", "PUL-LP") {
         factory = msg.sender;
-        safeCaller = _twamm;
         tokenA = _tokenA;
         tokenB = _tokenB;
         twammInstantSwap = _twammInstantSwap;
+        twamm = _twamm;
         twammTermSwap = _twammTermSwap;
         twammLiquidity = _twammLiquidity;
         longTermOrders.initialize(
             tokenA,
             tokenB,
-            safeCaller,
-            ITWAMM(safeCaller).WETH(),
+            twammTermSwap,
+            ITWAMM(twamm).WETH(),
             block.number,
             orderBlockInterval
         );
@@ -269,13 +269,13 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
 
         _burn(to, lpTokenAmount);
         if (proceedETH) {
-            if (ITWAMM(safeCaller).WETH() == tokenA) {
-                IERC20(tokenA).safeTransfer(safeCaller, amountAOut);
+            if (ITWAMM(twamm).WETH() == tokenA) {
+                IERC20(tokenA).safeTransfer(twammLiquidity, amountAOut);
                 IERC20(tokenB).safeTransfer(to, amountBOut);
                 tmpMapWETH[to] = amountAOut;
             } else {
                 IERC20(tokenA).safeTransfer(to, amountAOut);
-                IERC20(tokenB).safeTransfer(safeCaller, amountBOut);
+                IERC20(tokenB).safeTransfer(twammLiquidity, amountBOut);
                 tmpMapWETH[to] = amountBOut;
             }
         } else {
@@ -424,8 +424,8 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         reserveMap[to] -= amountOutMinusFee;
 
         IERC20(from).safeTransferFrom(sender, address(this), amountIn);
-        if (poceedETH && ITWAMM(safeCaller).WETH() == to) {
-            IERC20(to).safeTransfer(safeCaller, amountOutMinusFee);
+        if (poceedETH && ITWAMM(twamm).WETH() == to) {
+            IERC20(to).safeTransfer(twammInstantSwap, amountOutMinusFee);
             tmpMapWETH[sender] = amountOutMinusFee;
         } else {
             IERC20(to).safeTransfer(sender, amountOutMinusFee);

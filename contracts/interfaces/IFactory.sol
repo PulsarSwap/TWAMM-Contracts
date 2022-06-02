@@ -32,22 +32,13 @@ interface IFactory {
         address _twammLiquidityAdd
     ) external;
 
-    function twammAdd() external view returns (address twammAdd);
+    function twammAdd() external view returns (address);
 
-    function twammInstantSwapAdd()
-        external
-        view
-        returns (address twammInstantSwapAdd);
+    function twammInstantSwapAdd() external view returns (address);
 
-    function twammTermSwapAdd()
-        external
-        view
-        returns (address twammTermSwapAdd);
+    function twammTermSwapAdd() external view returns (address);
 
-    function twammLiquidityAdd()
-        external
-        view
-        returns (address twammLiquidityAdd);
+    function twammLiquidityAdd() external view returns (address);
 
     function createPair(address token0, address token1)
         external
