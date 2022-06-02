@@ -2,14 +2,12 @@
 
 pragma solidity ^0.8.9;
 
-// import "hardhat/console.sol";
 import "./interfaces/ITWAMM.sol";
 import "./interfaces/IPair.sol";
 import "./interfaces/IFactory.sol";
 import "./libraries/Library.sol";
 import "./libraries/TransferHelper.sol";
 import "./interfaces/IWETH10.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract TWAMM is ITWAMM {
     using Library for address;
@@ -136,7 +134,7 @@ contract TWAMM is ITWAMM {
         address pair = Library.pairFor(factory, token, WETH);
         IPair(pair).executeVirtualOrders(block.number);
         (, uint256 reserveETH) = Library.getReserves(factory, token, WETH);
-        uint256 totalSupplyLP = IERC20(pair).totalSupply();
+        uint256 totalSupplyLP = IPair(pair).getTotalSupply();
         uint256 amountETH = (lpTokenAmount * reserveETH) / totalSupplyLP;
 
         IWETH10(WETH).depositTo{value: amountETH}(msg.sender);
