@@ -21,8 +21,8 @@ async function main() {
   const tokenB = await ERC20Factory.deploy("WETHB", "WETHB", ERC20Supply);
   await tokenA.deployed();
   await tokenB.deployed();
-  console.log("token A (USDT) address:", tokenA.address);
-  console.log("token B (WETH) address:", tokenB.address);
+  console.log("tokenA (USDT) address:", tokenA.address);
+  console.log("tokenB (WETH) address:", tokenB.address);
 }
 
 main()
