@@ -207,7 +207,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         nonReentrant
     {
         updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
-        // execute virtual orders
+        //execute virtual orders
         longTermOrders.executeVirtualOrdersUntilSpecifiedBlock(
             reserveMap,
             block.number
@@ -464,7 +464,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     ///@notice convenience function to execute virtual orders. Note that this already happens
     ///before most interactions with the AMM
     function executeVirtualOrders(uint256 blockNumber) public override {
-        // updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
+        updatePrice(reserveMap[tokenA], reserveMap[tokenB]);
         longTermOrders.executeVirtualOrdersUntilSpecifiedBlock(
             reserveMap,
             blockNumber
