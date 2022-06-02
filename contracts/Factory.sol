@@ -2,7 +2,6 @@
 
 pragma solidity ^0.8.9;
 
-// import "hardhat/console.sol";
 import "./interfaces/IFactory.sol";
 import "./Pair.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -15,7 +14,7 @@ contract Factory is IFactory, Initializable {
     address public override feeTo;
     address public override feeToSetter;
     address public twammAdd;
-    address public twammSwapAdd;
+    address public twammInstantSwapAdd;
     address public twammTermSwapAdd;
     address public twammLiquidityAdd;
 
@@ -27,16 +26,17 @@ contract Factory is IFactory, Initializable {
         return allPairs.length;
     }
 
-    function initialize(address _twammAdd, address _twammSwapAdd, address _twammTermSwapAdd, address _twammLiquidityAdd) external override initializer {
+    function initialize(
+        address _twammAdd,
+        address _twammInstantSwapAdd,
+        address _twammTermSwapAdd,
+        address _twammLiquidityAdd
+    ) external override initializer {
         twammAdd = _twammAdd;
-        twammSwapAdd = _twammSwapAdd;
+        twammInstantSwapAdd = _twammInstantSwapAdd;
         twammTermSwapAdd = _twammTermSwapAdd;
         twammLiquidityAdd = _twammLiquidityAdd;
     }
-
-    // function returnTwammAddress() external view override returns (address) {
-    //     return twammAdd;
-    // }
 
     function createPair(address token0, address token1)
         external
@@ -47,10 +47,7 @@ contract Factory is IFactory, Initializable {
             msg.sender == twammAdd,
             "Invalid User, Only TWAMM Can Create Pair"
         );
-        require(
-            twammAdd != address(0),
-            "Factory Not Initialized By TWAMM Yet"
-        );
+        require(twammAdd != address(0), "Factory Not Initialized By TWAMM Yet");
 
         require(token0 != token1, "Factory: Identical Addresses");
 
@@ -64,7 +61,14 @@ contract Factory is IFactory, Initializable {
         bytes memory bytecode = type(Pair).creationCode;
         bytes memory bytecodeArg = abi.encodePacked(
             bytecode,
-            abi.encode(tokenA, tokenB, twammAdd, twammSwapAdd, twammTermSwapAdd, twammLiquidityAdd)
+            abi.encode(
+                tokenA,
+                tokenB,
+                twammAdd,
+                twammInstantSwapAdd,
+                twammTermSwapAdd,
+                twammLiquidityAdd
+            )
         );
         bytes32 salt = keccak256(abi.encodePacked(tokenA, tokenB));
         assembly {

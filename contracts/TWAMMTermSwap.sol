@@ -2,14 +2,11 @@
 
 pragma solidity ^0.8.9;
 
-// import "hardhat/console.sol";
 import "./interfaces/ITWAMMTermSwap.sol";
 import "./interfaces/IPair.sol";
-// import "./interfaces/IFactory.sol";
 import "./libraries/Library.sol";
 import "./libraries/TransferHelper.sol";
 import "./interfaces/IWETH10.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract TWAMMTermSwap is ITWAMMTermSwap {
     using Library for address;
@@ -25,14 +22,11 @@ contract TWAMMTermSwap is ITWAMMTermSwap {
     constructor(address _factory, address _WETH) {
         factory = _factory;
         WETH = _WETH;
-        // IFactory(factory).initialize(address(this));
     }
 
     receive() external payable {
         assert(msg.sender == WETH); // only accept ETH via fallback from the WETH contract
     }
-
-
 
     function longTermSwapTokenToToken(
         address token0,

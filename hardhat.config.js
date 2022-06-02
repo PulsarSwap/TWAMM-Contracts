@@ -3,9 +3,9 @@ require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-solhint");
 require("@nomiclabs/hardhat-etherscan");
 require("hardhat-gas-reporter");
+require("hardhat-contract-sizer");
 require("hardhat-deploy");
 require("dotenv").config();
-require('hardhat-contract-sizer');
 
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   const accounts = await hre.ethers.getSigners();
@@ -40,14 +40,20 @@ const mainnetArgs = {
 };
 
 const ropstenArgs = {
-  FeeToSetter: "",
+  FeeToSetter: "0x9be86E75E67f2ef9a44730C60cF04Ef9F944CCee",
   Factory: "",
   WETH: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
 };
 
+const kovanArgs = {
+  FeeToSetter: "0x9be86E75E67f2ef9a44730C60cF04Ef9F944CCee",
+  Factory: "",
+  WETH: "0xd0A1E359811322d97991E03f863a0C30C2cF029C",
+};
+
 const rinkebyArgs = {
   FeeToSetter: "0x9be86E75E67f2ef9a44730C60cF04Ef9F944CCee",
-  Factory: "0xB9Ca3d980F4a58C6dF795586F9168a1d57BF7d4E",
+  Factory: "",
   WETH: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
 };
 
@@ -86,6 +92,13 @@ module.exports = {
       accounts: [PRIVATE_KEY_TEST],
       hardfork: "berlin",
       ...ropstenArgs,
+    },
+
+    kovan: {
+      url: `https://kovan.infura.io/v3/${INFURA_API_KEY}`,
+      accounts: [PRIVATE_KEY_TEST],
+      hardfork: "berlin",
+      ...kovanArgs,
     },
 
     rinkeby: {

@@ -14,47 +14,39 @@ async function main() {
 
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
-
-  const TWAMMSwap = await ethers.getContractFactory("TWAMMSwap");
-  const twammSwap = await TWAMMSwap.deploy(
-    hre.network.config.Factory,
-    hre.network.config.WETH); 
-  console.log("twammSwap library address:", twammSwap.address);
-
-  const TWAMMLiquidity = await ethers.getContractFactory("TWAMMLiquidity");
-  const twammLiquidity = await TWAMMLiquidity.deploy(
+  const TWAMMInstantSwap = await ethers.getContractFactory("TWAMMInstantSwap");
+  const twammInstantSwap = await TWAMMInstantSwap.deploy(
     hre.network.config.Factory,
     hre.network.config.WETH
-  ); 
-  console.log("twammLiquidity library address:", twammLiquidity.address);
-
+  );
+  await twammInstantSwap.deployed();
+  console.log("twammInstantSwap library address:", twammInstantSwap.address);
 
   const TWAMMTermSwap = await ethers.getContractFactory("TWAMMTermSwap");
   const twammTermSwap = await TWAMMTermSwap.deploy(
     hre.network.config.Factory,
     hre.network.config.WETH
-  ); 
+  );
+  await twammTermSwap.deployed();
   console.log("twammTermSwap library address:", twammTermSwap.address);
 
-
+  const TWAMMLiquidity = await ethers.getContractFactory("TWAMMLiquidity");
+  const twammLiquidity = await TWAMMLiquidity.deploy(
+    hre.network.config.Factory,
+    hre.network.config.WETH
+  );
+  await twammLiquidity.deployed();
+  console.log("twammLiquidity library address:", twammLiquidity.address);
 
   const TWAMM = await ethers.getContractFactory("TWAMM");
   const twamm = await TWAMM.deploy(
     hre.network.config.Factory,
     hre.network.config.WETH,
-    twammSwap.address,
+    twammInstantSwap.address,
     twammTermSwap.address,
-    twammLiquidity.address,
+    twammLiquidity.address
   );
- 
-  console.log(
-    "init params:",
-    hre.network.config.Factory,
-    hre.network.config.WETH
-  );
-
   await twamm.deployed();
-
   console.log("TWAMM address:", twamm.address);
 }
 

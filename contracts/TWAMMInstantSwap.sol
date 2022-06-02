@@ -2,20 +2,17 @@
 
 pragma solidity ^0.8.9;
 
-// import "hardhat/console.sol";
-import "./interfaces/ITWAMMSwap.sol";
+import "./interfaces/ITWAMMInstantSwap.sol";
 import "./interfaces/IPair.sol";
-// import "./interfaces/IFactory.sol";
 import "./libraries/Library.sol";
 import "./libraries/TransferHelper.sol";
 import "./interfaces/IWETH10.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract TWAMMSwap is ITWAMMSwap {
+contract TWAMMInstantSwap is ITWAMMInstantSwap {
     using Library for address;
 
-    address public immutable  factory;
-    address public immutable  WETH;
+    address public immutable factory;
+    address public immutable WETH;
 
     modifier ensure(uint256 deadline) {
         require(deadline >= block.timestamp, "TWAMM: Expired");
@@ -25,14 +22,11 @@ contract TWAMMSwap is ITWAMMSwap {
     constructor(address _factory, address _WETH) {
         factory = _factory;
         WETH = _WETH;
-        // IFactory(factory).initialize(address(this));
     }
 
     receive() external payable {
         assert(msg.sender == WETH); // only accept ETH via fallback from the WETH contract
     }
-
-    
 
     function instantSwapTokenToToken(
         address token0,
@@ -95,6 +89,4 @@ contract TWAMMSwap is ITWAMMSwap {
         if (msg.value > amountETHIn)
             TransferHelper.safeTransferETH(msg.sender, msg.value - amountETHIn);
     }
-
-    
 }

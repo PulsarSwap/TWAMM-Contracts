@@ -7,6 +7,9 @@ describe("TWAMM", function () {
   let token1;
   let token;
   let twamm;
+  let twammInstantSwap;
+  let twammTermSwap;
+  let twammLiquidity;
   let owner;
   let addr0;
   let addr1;
@@ -31,8 +34,6 @@ describe("TWAMM", function () {
     //factory deployment
     const Factory = await ethers.getContractFactory("Factory");
     factory = await Factory.deploy(addr0.address);
-    const allPairLength = await factory.allPairsLength();
-    const twammAddress = await factory.twammAdd();
 
     //deploy three tokens and WETH for pair creation
     const ERC20Factory = await ethers.getContractFactory("ERC20Mock");
@@ -45,12 +46,16 @@ describe("TWAMM", function () {
     expect(await WETH.symbol()).to.equal("WETH10");
 
     // TWAMM init
-
-    const TWAMMSwap = await ethers.getContractFactory("TWAMMSwap", {
-      gasLimit: "8000000",
-    });
-    twammSwap = await TWAMMSwap.deploy(factory.address, WETH.address);
-
+    const TWAMMInstantSwap = await ethers.getContractFactory(
+      "TWAMMInstantSwap",
+      {
+        gasLimit: "8000000",
+      }
+    );
+    twammInstantSwap = await TWAMMInstantSwap.deploy(
+      factory.address,
+      WETH.address
+    );
 
     const TWAMMTermSwap = await ethers.getContractFactory("TWAMMTermSwap", {
       gasLimit: "8000000",
@@ -65,10 +70,16 @@ describe("TWAMM", function () {
     const TWAMM = await ethers.getContractFactory("TWAMM", {
       gasLimit: "8000000",
     });
-    twamm = await TWAMM.deploy(factory.address, WETH.address, twammSwap.address, twammTermSwap.address, twammLiquidity.address);
+    twamm = await TWAMM.deploy(
+      factory.address,
+      WETH.address,
+      twammInstantSwap.address,
+      twammTermSwap.address,
+      twammLiquidity.address
+    );
     // create pair and initialize liquidity for the pair
     blockNumber = await ethers.provider.getBlockNumber();
-    timeStamp = (await ethers.provider.getBlock(blockNumber)).timestamp;  
+    timeStamp = (await ethers.provider.getBlock(blockNumber)).timestamp;
 
     await twamm.createPairWrapper(
       token0.address,
@@ -78,7 +89,7 @@ describe("TWAMM", function () {
     pair = await twamm.obtainPairAddress(token0.address, token1.address);
     await token0.approve(pair, initialLiquidityProvided); //owner calls it
     await token1.approve(pair, initialLiquidityProvided);
-    await twamm.addInitialLiquidity(
+    await twammLiquidity.addInitialLiquidity(
       token0.address,
       token1.address,
       initialLiquidityProvided,
@@ -94,7 +105,7 @@ describe("TWAMM", function () {
     pairETH = await twamm.obtainPairAddress(token.address, WETH.address);
     await WETH.approve(pairETH, initialLiquidityProvided);
     await token.approve(pairETH, initialLiquidityProvided);
-    await twamm.addInitialLiquidityETH(
+    await twammLiquidity.addInitialLiquidityETH(
       token.address,
       initialLiquidityProvided,
       initialLiquidityProvided,
@@ -109,7 +120,7 @@ describe("TWAMM", function () {
       it("can't provide initial liquidity twice", async function () {
         const amount = 10000;
         await expect(
-          twamm.addInitialLiquidity(
+          twammLiquidity.addInitialLiquidity(
             token0.address,
             token1.address,
             amount,
@@ -124,7 +135,7 @@ describe("TWAMM", function () {
       it("(ETH)can't provide initial liquidity twice(ETH)", async function () {
         const amount = 10000;
         await expect(
-          twamm.addInitialLiquidityETH(
+          twammLiquidity.addInitialLiquidityETH(
             token.address,
             amount,
             amount,
@@ -150,7 +161,7 @@ describe("TWAMM", function () {
         await token0.approve(pair, newLPTokens * initialToken0PerLP); //owner calls it
         await token1.approve(pair, newLPTokens * initialToken1PerLP);
 
-        await twamm.addLiquidity(
+        await twammLiquidity.addLiquidity(
           token0.address,
           token1.address,
           newLPTokens,
@@ -185,7 +196,7 @@ describe("TWAMM", function () {
         await WETH.approve(pairETH, newLPTokens * initialETHPerLP); //owner calls it
         await token.approve(pairETH, newLPTokens * initialTokenPerLP);
 
-        await twamm.addLiquidityETH(
+        await twammLiquidity.addLiquidityETH(
           token.address,
           newLPTokens,
           timeStamp + 100000,
@@ -220,7 +231,7 @@ describe("TWAMM", function () {
         const initialToken1PerLP = token1Reserve / totalSupply;
 
         const liquidityToRemove = initialLiquidityProvided / 2;
-        await twamm.withdrawLiquidity(
+        await twammLiquidity.withdrawLiquidity(
           token0.address,
           token1.address,
           liquidityToRemove,
@@ -253,7 +264,7 @@ describe("TWAMM", function () {
         const initialETHPerLP = ethReserve / totalSupply;
 
         const liquidityToRemove = initialLiquidityProvided / 2;
-        await twamm.withdrawLiquidityETH(
+        await twammLiquidity.withdrawLiquidityETH(
           token.address,
           liquidityToRemove,
           timeStamp + 100000
@@ -278,7 +289,7 @@ describe("TWAMM", function () {
         const liquidityToRemove = initialLiquidityProvided * 2;
 
         await expect(
-          twamm.withdrawLiquidity(
+          twammLiquidity.withdrawLiquidity(
             token0.address,
             token1.address,
             liquidityToRemove,
@@ -293,7 +304,7 @@ describe("TWAMM", function () {
         const liquidityToRemove = initialLiquidityProvided * 2;
 
         await expect(
-          twamm.withdrawLiquidityETH(
+          twammLiquidity.withdrawLiquidityETH(
             token.address,
             liquidityToRemove,
             timeStamp + 100000
@@ -317,7 +328,7 @@ describe("TWAMM", function () {
         const expectedOutput = expectedOutBeforeFees.mul(1000 - 3).div(1000);
         await token0.approve(pair, amountIn); //owner calls it
         const beforeBalance = await token1.balanceOf(owner.address);
-        await twamm.instantSwapTokenToToken(
+        await twammInstantSwap.instantSwapTokenToToken(
           token0.address,
           token1.address,
           amountIn,
@@ -343,7 +354,7 @@ describe("TWAMM", function () {
         await token.approve(pairETH, amountTokenIn); //owner calls it
         const beforeBalance = await ethers.provider.getBalance(owner.address);
 
-        const transaction = await twamm.instantSwapTokenToETH(
+        const transaction = await twammInstantSwap.instantSwapTokenToETH(
           token.address,
           amountTokenIn,
           timeStamp + 100000
@@ -373,7 +384,7 @@ describe("TWAMM", function () {
         const expectedOutput = expectedOutBeforeFees.mul(1000 - 3).div(1000);
         await WETH.approve(pairETH, amountETHIn); //owner calls it
         const beforeBalance = await token.balanceOf(owner.address);
-        await twamm.instantSwapETHToToken(
+        await twammInstantSwap.instantSwapETHToToken(
           token.address,
           amountETHIn,
           timeStamp + 100000,
@@ -406,7 +417,7 @@ describe("TWAMM", function () {
         const expectedOutput = expectedOutBeforeFees.mul(1000 - 3).div(1000);
         //trigger long term order
         token0.connect(addr0).approve(pair, amountIn);
-        await twamm
+        await twammTermSwap
           .connect(addr0)
           .longTermSwapTokenToToken(
             token0.address,
@@ -423,7 +434,7 @@ describe("TWAMM", function () {
 
         //withdraw proceeds
         const beforeBalance = await token1.balanceOf(addr0.address);
-        await twamm
+        await twammTermSwap
           .connect(addr0)
           .withdrawProceedsFromTermSwapTokenToToken(
             token0.address,
@@ -458,7 +469,7 @@ describe("TWAMM", function () {
         const expectedOutput = expectedOutBeforeFees.mul(1000 - 3).div(1000);
         //trigger long term order
         token.connect(addr0).approve(pairETH, amountTokenIn);
-        const transactionPart1 = await twamm
+        const transactionPart1 = await twammTermSwap
           .connect(addr0)
           .longTermSwapTokenToETH(
             token.address,
@@ -479,7 +490,7 @@ describe("TWAMM", function () {
 
         //withdraw proceeds
         const beforeBalance = await ethers.provider.getBalance(addr0.address);
-        const transactionPart2 = await twamm
+        const transactionPart2 = await twammTermSwap
           .connect(addr0)
           .withdrawProceedsFromTermSwapTokenToETH(
             token.address,
@@ -518,7 +529,7 @@ describe("TWAMM", function () {
 
         //trigger long term order
         WETH.connect(addr0).approve(pairETH, amountETHIn);
-        await twamm
+        await twammTermSwap
           .connect(addr0)
           .longTermSwapETHToToken(
             token.address,
@@ -535,7 +546,7 @@ describe("TWAMM", function () {
 
         //withdraw proceeds
         const beforeBalance = await token.balanceOf(addr0.address);
-        await twamm
+        await twammTermSwap
           .connect(addr0)
           .withdrawProceedsFromTermSwapETHToToken(
             token.address,
@@ -566,7 +577,7 @@ describe("TWAMM", function () {
         await token1.connect(addr1).approve(pair, amountIn);
 
         //trigger long term orders
-        await twamm
+        await twammTermSwap
           .connect(addr0)
           .longTermSwapTokenToToken(
             token0.address,
@@ -575,7 +586,7 @@ describe("TWAMM", function () {
             2,
             timeStamp + 100000
           );
-        await twamm
+        await twammTermSwap
           .connect(addr1)
           .longTermSwapTokenToToken(
             token1.address,
@@ -591,7 +602,7 @@ describe("TWAMM", function () {
         await twamm.executeVirtualOrdersWrapper(pair, blockNumber);
 
         //withdraw proceeds
-        await twamm
+        await twammTermSwap
           .connect(addr0)
           .withdrawProceedsFromTermSwapTokenToToken(
             token0.address,
@@ -599,7 +610,7 @@ describe("TWAMM", function () {
             0,
             timeStamp + 100000
           );
-        await twamm
+        await twammTermSwap
           .connect(addr1)
           .withdrawProceedsFromTermSwapTokenToToken(
             token0.address,
@@ -625,7 +636,7 @@ describe("TWAMM", function () {
         await WETH.connect(addr1).approve(pairETH, amountIn);
 
         //trigger long term orders
-        const tx1 = await twamm
+        const tx1 = await twammTermSwap
           .connect(addr0)
           .longTermSwapTokenToETH(
             token.address,
@@ -633,7 +644,7 @@ describe("TWAMM", function () {
             2,
             timeStamp + 100000
           );
-        const tx2 = await twamm
+        const tx2 = await twammTermSwap
           .connect(addr1)
           .longTermSwapETHToToken(
             token.address,
@@ -651,14 +662,14 @@ describe("TWAMM", function () {
         //withdraw proceeds
         const beforeBalance = await ethers.provider.getBalance(addr0.address);
 
-        const tx3 = await twamm
+        const tx3 = await twammTermSwap
           .connect(addr0)
           .withdrawProceedsFromTermSwapTokenToETH(
             token.address,
             0,
             timeStamp + 100000
           );
-        const tx4 = await twamm
+        const tx4 = await twammTermSwap
           .connect(addr1)
           .withdrawProceedsFromTermSwapETHToToken(
             token.address,
@@ -742,7 +753,7 @@ describe("TWAMM", function () {
           final1ReserveExpectedBeforeFees + (token1OutBeforeFees * 3) / 1000;
 
         //trigger long term orders
-        await twamm
+        await twammTermSwap
           .connect(addr0)
           .longTermSwapTokenToToken(
             token0.address,
@@ -751,7 +762,7 @@ describe("TWAMM", function () {
             2,
             timeStamp + 100000
           );
-        await twamm
+        await twammTermSwap
           .connect(addr1)
           .longTermSwapTokenToToken(
             token1.address,
@@ -767,7 +778,7 @@ describe("TWAMM", function () {
         await twamm.executeVirtualOrdersWrapper(pair, blockNumber);
 
         //withdraw proceeds
-        await twamm
+        await twammTermSwap
           .connect(addr0)
           .withdrawProceedsFromTermSwapTokenToToken(
             token0.address,
@@ -775,7 +786,7 @@ describe("TWAMM", function () {
             0,
             timeStamp + 100000
           );
-        await twamm
+        await twammTermSwap
           .connect(addr1)
           .withdrawProceedsFromTermSwapTokenToToken(
             token0.address,
@@ -853,7 +864,7 @@ describe("TWAMM", function () {
           finalETHReserveExpectedBeforeFees + (ethOutBeforeFees * 3) / 1000;
 
         //trigger long term orders
-        const tx1 = await twamm
+        const tx1 = await twammTermSwap
           .connect(addr0)
           .longTermSwapTokenToETH(
             token.address,
@@ -861,7 +872,7 @@ describe("TWAMM", function () {
             2,
             timeStamp + 100000
           );
-        const tx2 = await twamm
+        const tx2 = await twammTermSwap
           .connect(addr1)
           .longTermSwapETHToToken(token.address, ethIn, 2, timeStamp + 100000, {
             value: ethIn,
@@ -874,14 +885,14 @@ describe("TWAMM", function () {
 
         //withdraw proceeds
         const beforeBalance = await ethers.provider.getBalance(addr0.address);
-        const tx3 = await twamm
+        const tx3 = await twammTermSwap
           .connect(addr0)
           .withdrawProceedsFromTermSwapTokenToETH(
             token.address,
             0,
             timeStamp + 100000
           );
-        const tx4 = await twamm
+        const tx4 = await twammTermSwap
           .connect(addr1)
           .withdrawProceedsFromTermSwapETHToToken(
             token.address,
@@ -943,7 +954,7 @@ describe("TWAMM", function () {
         await token1.connect(addr1).approve(pair, amountIn);
 
         //trigger long term orders
-        await twamm
+        await twammTermSwap
           .connect(addr0)
           .longTermSwapTokenToToken(
             token0.address,
@@ -952,7 +963,7 @@ describe("TWAMM", function () {
             2,
             timeStamp + 100000
           );
-        await twamm
+        await twammTermSwap
           .connect(addr1)
           .longTermSwapTokenToToken(
             token1.address,
@@ -961,7 +972,7 @@ describe("TWAMM", function () {
             3,
             timeStamp + 100000
           );
-        await twamm
+        await twammTermSwap
           .connect(addr0)
           .longTermSwapTokenToToken(
             token0.address,
@@ -970,7 +981,7 @@ describe("TWAMM", function () {
             4,
             timeStamp + 100000
           );
-        await twamm
+        await twammTermSwap
           .connect(addr1)
           .longTermSwapTokenToToken(
             token1.address,
@@ -986,7 +997,7 @@ describe("TWAMM", function () {
         await twamm.executeVirtualOrdersWrapper(pair, blockNumber);
 
         //withdraw proceeds
-        await twamm
+        await twammTermSwap
           .connect(addr0)
           .withdrawProceedsFromTermSwapTokenToToken(
             token0.address,
@@ -994,7 +1005,7 @@ describe("TWAMM", function () {
             0,
             timeStamp + 100000
           );
-        await twamm
+        await twammTermSwap
           .connect(addr1)
           .withdrawProceedsFromTermSwapTokenToToken(
             token0.address,
@@ -1002,7 +1013,7 @@ describe("TWAMM", function () {
             1,
             timeStamp + 100000
           );
-        await twamm
+        await twammTermSwap
           .connect(addr0)
           .withdrawProceedsFromTermSwapTokenToToken(
             token0.address,
@@ -1010,7 +1021,7 @@ describe("TWAMM", function () {
             2,
             timeStamp + 100000
           );
-        await twamm
+        await twammTermSwap
           .connect(addr1)
           .withdrawProceedsFromTermSwapTokenToToken(
             token0.address,
@@ -1037,7 +1048,7 @@ describe("TWAMM", function () {
         await WETH.connect(addr1).approve(pairETH, amountIn);
 
         //trigger long term orders
-        await twamm
+        await twammTermSwap
           .connect(addr0)
           .longTermSwapTokenToETH(
             token.address,
@@ -1045,7 +1056,7 @@ describe("TWAMM", function () {
             2,
             timeStamp + 100000
           );
-        await twamm
+        await twammTermSwap
           .connect(addr1)
           .longTermSwapETHToToken(
             token.address,
@@ -1054,7 +1065,7 @@ describe("TWAMM", function () {
             timeStamp + 100000,
             { value: amountIn / 2 }
           );
-        await twamm
+        await twammTermSwap
           .connect(addr0)
           .longTermSwapTokenToETH(
             token.address,
@@ -1062,7 +1073,7 @@ describe("TWAMM", function () {
             4,
             timeStamp + 100000
           );
-        await twamm
+        await twammTermSwap
           .connect(addr1)
           .longTermSwapETHToToken(
             token.address,
@@ -1079,28 +1090,28 @@ describe("TWAMM", function () {
 
         //withdraw proceeds
         const beforeBalance = await ethers.provider.getBalance(addr0.address);
-        const tx1 = await twamm
+        const tx1 = await twammTermSwap
           .connect(addr0)
           .withdrawProceedsFromTermSwapTokenToETH(
             token.address,
             0,
             timeStamp + 100000
           );
-        const tx2 = await twamm
+        const tx2 = await twammTermSwap
           .connect(addr1)
           .withdrawProceedsFromTermSwapETHToToken(
             token.address,
             1,
             timeStamp + 100000
           );
-        const tx3 = await twamm
+        const tx3 = await twammTermSwap
           .connect(addr0)
           .withdrawProceedsFromTermSwapTokenToETH(
             token.address,
             2,
             timeStamp + 100000
           );
-        const tx4 = await twamm
+        const tx4 = await twammTermSwap
           .connect(addr1)
           .withdrawProceedsFromTermSwapETHToToken(
             token.address,
@@ -1152,7 +1163,7 @@ describe("TWAMM", function () {
         await token1.connect(addr1).approve(pair, amountIn);
 
         //trigger long term orders
-        await twamm
+        await twammTermSwap
           .connect(addr0)
           .longTermSwapTokenToToken(
             token0.address,
@@ -1161,7 +1172,7 @@ describe("TWAMM", function () {
             10,
             timeStamp + 100000
           );
-        await twamm
+        await twammTermSwap
           .connect(addr1)
           .longTermSwapTokenToToken(
             token1.address,
@@ -1177,7 +1188,7 @@ describe("TWAMM", function () {
         await twamm.executeVirtualOrdersWrapper(pair, blockNumber);
 
         //withdraw proceeds
-        await twamm
+        await twammTermSwap
           .connect(addr0)
           .withdrawProceedsFromTermSwapTokenToToken(
             token0.address,
@@ -1185,7 +1196,7 @@ describe("TWAMM", function () {
             0,
             timeStamp + 100000
           );
-        await twamm
+        await twammTermSwap
           .connect(addr1)
           .withdrawProceedsFromTermSwapTokenToToken(
             token0.address,
@@ -1212,7 +1223,7 @@ describe("TWAMM", function () {
         await WETH.connect(addr1).approve(pairETH, amountIn);
 
         //trigger long term orders
-        await twamm
+        await twammTermSwap
           .connect(addr0)
           .longTermSwapTokenToETH(
             token.address,
@@ -1220,7 +1231,7 @@ describe("TWAMM", function () {
             10,
             timeStamp + 100000
           );
-        await twamm
+        await twammTermSwap
           .connect(addr1)
           .longTermSwapETHToToken(
             token.address,
@@ -1237,14 +1248,14 @@ describe("TWAMM", function () {
 
         //withdraw proceeds
         const beforeBalance = await ethers.provider.getBalance(addr0.address);
-        const tx1 = await twamm
+        const tx1 = await twammTermSwap
           .connect(addr0)
           .withdrawProceedsFromTermSwapTokenToETH(
             token.address,
             0,
             timeStamp + 100000
           );
-        const tx2 = await twamm
+        const tx2 = await twammTermSwap
           .connect(addr1)
           .withdrawProceedsFromTermSwapETHToToken(
             token.address,
@@ -1286,7 +1297,7 @@ describe("TWAMM", function () {
         const balance1Before = await token1.balanceOf(addr0.address);
 
         //trigger long term order
-        await twamm
+        await twammTermSwap
           .connect(addr0)
           .longTermSwapTokenToToken(
             token0.address,
@@ -1298,7 +1309,7 @@ describe("TWAMM", function () {
 
         //move blocks forward, and execute virtual orders
         await mineBlocks(3 * blockInterval);
-        await twamm
+        await twammTermSwap
           .connect(addr0)
           .cancelTermSwapTokenToToken(
             token0.address,
@@ -1327,7 +1338,7 @@ describe("TWAMM", function () {
         );
 
         //trigger long term order
-        const tx1 = await twamm
+        const tx1 = await twammTermSwap
           .connect(addr0)
           .longTermSwapTokenToETH(
             token.address,
@@ -1338,7 +1349,7 @@ describe("TWAMM", function () {
 
         //move blocks forward, and execute virtual orders
         await mineBlocks(3 * blockInterval);
-        const tx2 = await twamm
+        const tx2 = await twammTermSwap
           .connect(addr0)
           .cancelTermSwapTokenToETH(token.address, 0, timeStamp + 100000);
 
@@ -1368,7 +1379,7 @@ describe("TWAMM", function () {
       const balanceTokenBefore = await token.balanceOf(addr0.address);
 
       //trigger long term order
-      await twamm
+      await twammTermSwap
         .connect(addr0)
         .longTermSwapETHToToken(
           token.address,
@@ -1380,7 +1391,7 @@ describe("TWAMM", function () {
 
       //move blocks forward, and execute virtual orders
       await mineBlocks(3 * blockInterval);
-      await twamm
+      await twammTermSwap
         .connect(addr0)
         .cancelTermSwapETHToToken(token.address, 0, timeStamp + 100000);
 
@@ -1403,7 +1414,7 @@ describe("TWAMM", function () {
         const beforeBalance1 = await token1.balanceOf(addr0.address);
 
         //trigger long term order
-        await twamm
+        await twammTermSwap
           .connect(addr0)
           .longTermSwapTokenToToken(
             token0.address,
@@ -1416,7 +1427,7 @@ describe("TWAMM", function () {
         //move blocks forward, and execute virtual orders
         await mineBlocks(3 * blockInterval);
 
-        await twamm
+        await twammTermSwap
           .connect(addr0)
           .withdrawProceedsFromTermSwapTokenToToken(
             token0.address,
@@ -1443,7 +1454,7 @@ describe("TWAMM", function () {
         );
 
         //trigger long term order
-        const tx1 = await twamm
+        const tx1 = await twammTermSwap
           .connect(addr0)
           .longTermSwapTokenToETH(
             token.address,
@@ -1455,7 +1466,7 @@ describe("TWAMM", function () {
         //move blocks forward, and execute virtual orders
         await mineBlocks(3 * blockInterval);
 
-        const tx2 = await twamm
+        const tx2 = await twammTermSwap
           .connect(addr0)
           .withdrawProceedsFromTermSwapTokenToETH(
             token.address,
@@ -1490,7 +1501,7 @@ describe("TWAMM", function () {
         const beforeBalanceToken = await token.balanceOf(addr0.address);
 
         //trigger long term order
-        await twamm
+        await twammTermSwap
           .connect(addr0)
           .longTermSwapETHToToken(
             token.address,
@@ -1503,7 +1514,7 @@ describe("TWAMM", function () {
         //move blocks forward, and execute virtual orders
         await mineBlocks(3 * blockInterval);
 
-        await twamm
+        await twammTermSwap
           .connect(addr0)
           .withdrawProceedsFromTermSwapETHToToken(
             token.address,

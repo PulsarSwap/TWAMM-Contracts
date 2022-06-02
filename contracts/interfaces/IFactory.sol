@@ -25,15 +25,29 @@ interface IFactory {
 
     function allPairsLength() external view returns (uint256);
 
-    function initialize(address _twammAdd, address _twammSwapAdd, address _twammTermSwapAdd, address _twammLiquidityAdd) external;
+    function initialize(
+        address _twammAdd,
+        address _twammInstantSwapAdd,
+        address _twammTermSwapAdd,
+        address _twammLiquidityAdd
+    ) external;
 
     function twammAdd() external view returns (address twammAdd);
 
-    function twammSwapAdd() external view returns (address twammSwapAdd);
+    function twammInstantSwapAdd()
+        external
+        view
+        returns (address twammInstantSwapAdd);
 
-    function twammTermSwapAdd() external view returns (address twammTermSwapAdd);
+    function twammTermSwapAdd()
+        external
+        view
+        returns (address twammTermSwapAdd);
 
-    function twammLiquidityAdd() external view returns (address twammLiquidityAdd);
+    function twammLiquidityAdd()
+        external
+        view
+        returns (address twammLiquidityAdd);
 
     function createPair(address token0, address token1)
         external

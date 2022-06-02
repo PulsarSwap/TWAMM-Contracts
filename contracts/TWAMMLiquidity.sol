@@ -2,14 +2,12 @@
 
 pragma solidity ^0.8.9;
 
-// import "hardhat/console.sol";
 import "./interfaces/ITWAMMLiquidity.sol";
 import "./interfaces/IPair.sol";
 import "./interfaces/IFactory.sol";
 import "./libraries/Library.sol";
 import "./libraries/TransferHelper.sol";
 import "./interfaces/IWETH10.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract TWAMMLiquidity is ITWAMMLiquidity {
     using Library for address;
@@ -31,6 +29,52 @@ contract TWAMMLiquidity is ITWAMMLiquidity {
         assert(msg.sender == WETH); // only accept ETH via fallback from the WETH contract
     }
 
+    function addInitialLiquidity(
+        address token0,
+        address token1,
+        uint256 amount0,
+        uint256 amount1,
+        uint256 deadline
+    ) external virtual override ensure(deadline) {
+        // create the pair if it doesn't exist yet
+        if (IFactory(factory).getPair(token0, token1) == address(0)) {
+            IFactory(factory).createPair(token0, token1);
+        }
+
+        address pair = Library.pairFor(factory, token0, token1);
+        (address tokenA, ) = Library.sortTokens(token0, token1);
+        (uint256 amountA, uint256 amountB) = tokenA == token0
+            ? (amount0, amount1)
+            : (amount1, amount0);
+
+        IPair(pair).provideInitialLiquidity(msg.sender, amountA, amountB);
+    }
+
+    function addInitialLiquidityETH(
+        address token,
+        uint256 amountToken,
+        uint256 amountETH,
+        uint256 deadline
+    ) external payable virtual override ensure(deadline) {
+        // create the pair if it doesn't exist yet
+        if (IFactory(factory).getPair(token, WETH) == address(0)) {
+            IFactory(factory).createPair(token, WETH);
+        }
+
+        address pair = Library.pairFor(factory, token, WETH);
+        (address tokenA, ) = Library.sortTokens(token, WETH);
+        (uint256 amountA, uint256 amountB) = tokenA == token
+            ? (amountToken, amountETH)
+            : (amountETH, amountToken);
+
+        IWETH10(WETH).depositTo{value: amountETH}(msg.sender);
+        IPair(pair).provideInitialLiquidity(msg.sender, amountA, amountB);
+
+        // refund dust eth, if any
+        if (msg.value > amountETH) {
+            TransferHelper.safeTransferETH(msg.sender, msg.value - amountETH);
+        }
+    }
 
     function addLiquidity(
         address token0,
@@ -50,7 +94,7 @@ contract TWAMMLiquidity is ITWAMMLiquidity {
         address pair = Library.pairFor(factory, token, WETH);
         IPair(pair).executeVirtualOrders(block.number);
         (, uint256 reserveETH) = Library.getReserves(factory, token, WETH);
-        uint256 totalSupplyLP = IERC20(pair).totalSupply();
+        uint256 totalSupplyLP = IPair(pair).getTotalSupply();
         uint256 amountETH = (lpTokenAmount * reserveETH) / totalSupplyLP;
 
         IWETH10(WETH).depositTo{value: amountETH}(msg.sender);
@@ -90,7 +134,4 @@ contract TWAMMLiquidity is ITWAMMLiquidity {
         );
         IPair(pair).resetMapWETH(msg.sender);
     }
-
-    
-
 }

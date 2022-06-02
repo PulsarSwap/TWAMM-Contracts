@@ -3,8 +3,6 @@
 pragma solidity ^0.8.9;
 
 interface ITWAMMTermSwap {
-
-
     function longTermSwapTokenToToken(
         address token0,
         address token1,
@@ -64,8 +62,4 @@ interface ITWAMMTermSwap {
         uint256 orderId,
         uint256 deadline
     ) external;
-
-
-    
-   
 }
