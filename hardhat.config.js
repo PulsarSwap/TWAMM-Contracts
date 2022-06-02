@@ -127,6 +127,14 @@ module.exports = {
     ],
   },
 
+  contractSizer: {
+    alphaSort: true,
+    disambiguatePaths: false,
+    runOnCompile: true,
+    strict: true,
+    only: [""],
+  },
+
   paths: {
     sources: "./contracts",
     tests: "./test",

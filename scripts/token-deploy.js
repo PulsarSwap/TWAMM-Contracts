@@ -4,7 +4,7 @@ const ERC20Supply = ethers.utils.parseUnits("100");
 
 async function main() {
   if (hre.network.name === "mainnet") {
-    console.log("Deploying TWAMM to mainnet. Hit ctrl + c to abort");
+    console.log("Deploying Token To mainnet. Hit ctrl + c to abort");
   }
 
   const [deployer] = await ethers.getSigners();

@@ -77,8 +77,8 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         factory = msg.sender;
         tokenA = _tokenA;
         tokenB = _tokenB;
-        twammInstantSwap = _twammInstantSwap;
         twamm = _twamm;
+        twammInstantSwap = _twammInstantSwap;
         twammTermSwap = _twammTermSwap;
         twammLiquidity = _twammLiquidity;
         longTermOrders.initialize(
