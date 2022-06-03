@@ -59,6 +59,16 @@ contract TWAMM is ITWAMM {
         return IFactory(factory).getPair(token0, token1);
     }
 
+
+    function obtainPairAddressRaw(address token0, address token1)
+        external
+        view
+        override
+        returns (address)
+    {
+        return Library.pairFor(factory, token0, token1);
+    }
+
     function createPairWrapper(
         address token0,
         address token1,

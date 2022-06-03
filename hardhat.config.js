@@ -47,7 +47,7 @@ const ropstenArgs = {
 
 const rinkebyArgs = {
   FeeToSetter: "0x9be86E75E67f2ef9a44730C60cF04Ef9F944CCee",
-  Factory: "0xB9Ca3d980F4a58C6dF795586F9168a1d57BF7d4E",
+  Factory: "0x1bFf56B42cdFb3665D7557199B8ee3D8E1ede2A2",
   WETH: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
 };
 

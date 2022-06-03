@@ -17,6 +17,10 @@ interface ITWAMM {
         external
         returns (address);
 
+    function obtainPairAddressRaw(address token0, address token1)
+        external
+        returns (address);
+
     function createPairWrapper(
         address token0,
         address token1,
