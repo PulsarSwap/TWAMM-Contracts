@@ -33,7 +33,7 @@ describe("TWAMM", function () {
 
     //factory deployment
     const Factory = await ethers.getContractFactory("Factory");
-    factory = await Factory.deploy(addr0.address);
+    factory = await Factory.deploy();
 
     //deploy three tokens and WETH for pair creation
     const ERC20Factory = await ethers.getContractFactory("ERC20Mock");
@@ -89,7 +89,7 @@ describe("TWAMM", function () {
     pair = await twamm.obtainPairAddress(token0.address, token1.address);
     await token0.approve(pair, initialLiquidityProvided); //owner calls it
     await token1.approve(pair, initialLiquidityProvided);
-    await twammLiquidity.addInitialLiquidity(
+    await twamm.addInitialLiquidity(
       token0.address,
       token1.address,
       initialLiquidityProvided,
@@ -105,7 +105,7 @@ describe("TWAMM", function () {
     pairETH = await twamm.obtainPairAddress(token.address, WETH.address);
     await WETH.approve(pairETH, initialLiquidityProvided);
     await token.approve(pairETH, initialLiquidityProvided);
-    await twammLiquidity.addInitialLiquidityETH(
+    await twamm.addInitialLiquidityETH(
       token.address,
       initialLiquidityProvided,
       initialLiquidityProvided,
@@ -120,31 +120,27 @@ describe("TWAMM", function () {
       it("can't provide initial liquidity twice", async function () {
         const amount = 10000;
         await expect(
-          twammLiquidity.addInitialLiquidity(
+          twamm.addInitialLiquidity(
             token0.address,
             token1.address,
             amount,
             amount,
             timeStamp + 100000
           )
-        ).to.be.revertedWith(
-          "Liquidity Has Already Been Provided, Need To Call provideLiquidity()"
-        );
+        ).to.be.revertedWith("Liquidity Has Already Been Provided");
       });
 
       it("(ETH)can't provide initial liquidity twice(ETH)", async function () {
         const amount = 10000;
         await expect(
-          twammLiquidity.addInitialLiquidityETH(
+          twamm.addInitialLiquidityETH(
             token.address,
             amount,
             amount,
             timeStamp + 100000,
             { value: amount }
           )
-        ).to.be.revertedWith(
-          "Liquidity Has Already Been Provided, Need To Call provideLiquidity()"
-        );
+        ).to.be.revertedWith("Liquidity Has Already Been Provided");
       });
 
       it("LP token value is constant after mint", async function () {

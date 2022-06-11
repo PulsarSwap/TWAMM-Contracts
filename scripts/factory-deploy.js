@@ -15,7 +15,7 @@ async function main() {
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
   const Factory = await ethers.getContractFactory("Factory");
-  const factory = await Factory.deploy(hre.network.config.FeeToSetter);
+  const factory = await Factory.deploy();
   await factory.deployed();
   console.log("Factory address:", factory.address);
 }

@@ -9,14 +9,6 @@ interface IPair {
 
     function tokenB() external view returns (address);
 
-    function blockTimestampLast() external view returns (uint32);
-
-    function priceACumulativeLast() external view returns (uint256);
-
-    function priceBCumulativeLast() external view returns (uint256);
-
-    function kLast() external view returns (uint256);
-
     function LP_FEE() external pure returns (uint256);
 
     function orderBlockInterval() external pure returns (uint256);
@@ -33,7 +25,6 @@ interface IPair {
 
     function resetMapWETH(address to) external;
 
-    event UpdatePrice(uint256 reserveA, uint256 reserveB);
     event InitialLiquidityProvided(
         address indexed addr,
         uint256 amountA,
