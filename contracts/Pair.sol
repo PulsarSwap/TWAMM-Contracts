@@ -31,7 +31,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     address private twammTermSwap;
     address private twammLiquidity;
 
-    uint32 public blockTimestampLast;
+    uint32 public override blockTimestampLast;
     uint256 public override priceACumulativeLast;
     uint256 public override priceBCumulativeLast;
     uint256 public override kLast; // reserveA * reserveB, as of immediately after the most recent liquidity event

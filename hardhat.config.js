@@ -2,7 +2,7 @@ require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-solhint");
 require("@nomiclabs/hardhat-etherscan");
-// require("hardhat-gas-reporter");
+require("hardhat-gas-reporter");
 require("hardhat-contract-sizer");
 require("hardhat-deploy");
 require("dotenv").config();
@@ -41,19 +41,19 @@ const mainnetArgs = {
 
 const ropstenArgs = {
   FeeToSetter: "0x9be86E75E67f2ef9a44730C60cF04Ef9F944CCee",
-  Factory: "",
+  Factory: "0x73cc89B9DFa096876F9Ca49f2C2a8F05D7E0B02a",
   WETH: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
 };
 
 const kovanArgs = {
   FeeToSetter: "0x9be86E75E67f2ef9a44730C60cF04Ef9F944CCee",
-  Factory: "",
+  Factory: "0x5b99F3365b607c0C87B3b17A04290202b44D0491",
   WETH: "0xd0A1E359811322d97991E03f863a0C30C2cF029C",
 };
 
 const rinkebyArgs = {
   FeeToSetter: "0x9be86E75E67f2ef9a44730C60cF04Ef9F944CCee",
-  Factory: "",
+  Factory: "0xFe2E5fCe86495560574270f1F97a5ce9f534Cf94",
   WETH: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
 };
 
@@ -83,28 +83,24 @@ module.exports = {
     mainnet: {
       url: `https://mainnet.infura.io/v3/${INFURA_API_KEY}`,
       accounts: [PRIVATE_KEY_MAINNET],
-      hardfork: "berlin",
       ...mainnetArgs,
     },
 
     ropsten: {
       url: `https://ropsten.infura.io/v3/${INFURA_API_KEY}`,
       accounts: [PRIVATE_KEY_TEST],
-      hardfork: "berlin",
       ...ropstenArgs,
     },
 
     kovan: {
       url: `https://kovan.infura.io/v3/${INFURA_API_KEY}`,
       accounts: [PRIVATE_KEY_TEST],
-      hardfork: "berlin",
       ...kovanArgs,
     },
 
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${INFURA_API_KEY}`,
       accounts: [PRIVATE_KEY_TEST],
-      hardfork: "berlin",
       ...rinkebyArgs,
     },
   },
@@ -120,7 +116,7 @@ module.exports = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 200,
+            runs: 1,
           },
         },
       },
