@@ -9,6 +9,8 @@ interface IPair {
 
     function tokenB() external view returns (address);
 
+    function kLast() external view returns (uint256);
+
     function LP_FEE() external pure returns (uint256);
 
     function orderBlockInterval() external pure returns (uint256);
