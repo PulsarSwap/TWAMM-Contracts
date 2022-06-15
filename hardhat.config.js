@@ -3,7 +3,7 @@ require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-solhint");
 require("@nomiclabs/hardhat-etherscan");
 require("hardhat-gas-reporter");
-//require("hardhat-contract-sizer");
+require("hardhat-contract-sizer");
 require("hardhat-deploy");
 require("dotenv").config();
 
@@ -128,7 +128,6 @@ module.exports = {
     disambiguatePaths: false,
     runOnCompile: true,
     strict: true,
-    only: [],
   },
 
   paths: {

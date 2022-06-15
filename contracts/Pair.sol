@@ -28,7 +28,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     address public override tokenB;
     address private safeCaller;
 
-    uint32 public blockTimestampLast;
+    uint32 public override blockTimestampLast;
     uint256 public override priceACumulativeLast;
     uint256 public override priceBCumulativeLast;
     uint256 public override kLast;

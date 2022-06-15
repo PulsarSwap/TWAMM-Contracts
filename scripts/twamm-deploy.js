@@ -19,15 +19,7 @@ async function main() {
     hre.network.config.Factory,
     hre.network.config.WETH
   );
-
-  console.log(
-    "init params:",
-    hre.network.config.Factory,
-    hre.network.config.WETH
-  );
-
   await twamm.deployed();
-
   console.log("TWAMM address:", twamm.address);
 }
 
