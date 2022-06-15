@@ -28,7 +28,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     address private twammInstantSwap;
     address private twammTermSwap;
     address private twammLiquidity;
-
     uint256 public override kLast; // reserveA * reserveB, as of immediately after the most recent liquidity event
 
     ///@notice fee for LP providers, 4 decimal places, i.e. 30 = 0.3%

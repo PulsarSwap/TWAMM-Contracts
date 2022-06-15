@@ -4,7 +4,6 @@ pragma solidity ^0.8.9;
 
 import "./interfaces/ITWAMMLiquidity.sol";
 import "./interfaces/IPair.sol";
-import "./interfaces/IFactory.sol";
 import "./libraries/Library.sol";
 import "./libraries/TransferHelper.sol";
 import "./interfaces/IWETH10.sol";

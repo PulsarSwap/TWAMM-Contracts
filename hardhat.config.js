@@ -52,7 +52,7 @@ const kovanArgs = {
 };
 
 const rinkebyArgs = {
-  FeeToSetter: "0x9be86E75E67f2ef9a44730C60cF04Ef9F944CCee",
+  FeeToSetter: "0x8E7264DD909D77C14AD2c4836d04E27924C05e5e",
   Factory: "0xe63d56C52bec2daADE256ea5E9b052227cE99394",
   WETH: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
 };

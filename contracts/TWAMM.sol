@@ -65,7 +65,7 @@ contract TWAMM is ITWAMM {
         override
         returns (address)
     {
-        return IFactory(factory).getPair(token0, token1);
+        return Library.pairFor(factory, token0, token1);
     }
 
     function createPairWrapper(
