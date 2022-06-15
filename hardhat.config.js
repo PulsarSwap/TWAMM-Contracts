@@ -3,7 +3,7 @@ require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-solhint");
 require("@nomiclabs/hardhat-etherscan");
 require("hardhat-gas-reporter");
-// require("hardhat-contract-sizer");
+//require("hardhat-contract-sizer");
 require("hardhat-deploy");
 require("dotenv").config();
 
@@ -31,35 +31,30 @@ const localArgs = {
   FeeToSetter: "",
   Factory: "",
   WETH: "",
-  TWAMM: "",
 };
 
 const mainnetArgs = {
   FeeToSetter: "0x84fd859088db1e5a6dfcc75988a85dd3ebd378b9",
   Factory: "",
   WETH: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-  TWAMM: "",
 };
 
 const ropstenArgs = {
   FeeToSetter: "0x9be86E75E67f2ef9a44730C60cF04Ef9F944CCee",
-  Factory: "0x1E2010a36f54E3353EeaB9b7eE2c207048692C27",
+  Factory: "",
   WETH: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
-  TWAMM: "",
 };
 
 const kovanArgs = {
   FeeToSetter: "0x9be86E75E67f2ef9a44730C60cF04Ef9F944CCee",
-  Factory: "0xf3aaFBB6c612eb9112C1a7B1741270E636C3C4dD",
+  Factory: "",
   WETH: "0xd0A1E359811322d97991E03f863a0C30C2cF029C",
-  TWAMM: "",
 };
 
 const rinkebyArgs = {
-  FeeToSetter: "0x9be86E75E67f2ef9a44730C60cF04Ef9F944CCee",
-  Factory: "0x470C1F6F472f4ec19de25A467327188b5de96308",
+  FeeToSetter: "0x8E7264DD909D77C14AD2c4836d04E27924C05e5e",
+  Factory: "",
   WETH: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
-  TWAMM: "",
 };
 
 module.exports = {
@@ -88,28 +83,24 @@ module.exports = {
     mainnet: {
       url: `https://mainnet.infura.io/v3/${INFURA_API_KEY}`,
       accounts: [PRIVATE_KEY_MAINNET],
-      hardfork: "berlin",
       ...mainnetArgs,
     },
 
     ropsten: {
       url: `https://ropsten.infura.io/v3/${INFURA_API_KEY}`,
       accounts: [PRIVATE_KEY_TEST],
-      hardfork: "berlin",
       ...ropstenArgs,
     },
 
     kovan: {
       url: `https://kovan.infura.io/v3/${INFURA_API_KEY}`,
       accounts: [PRIVATE_KEY_TEST],
-      hardfork: "berlin",
       ...kovanArgs,
     },
 
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${INFURA_API_KEY}`,
       accounts: [PRIVATE_KEY_TEST],
-      hardfork: "berlin",
       ...rinkebyArgs,
     },
   },
@@ -125,7 +116,7 @@ module.exports = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 200,
+            runs: 1,
           },
         },
       },

@@ -27,7 +27,7 @@ contract Factory is IFactory, Initializable {
         twammTheOnlyCaller = twammAdd;
     }
 
-    function returnTwammAddress() external view override returns (address) {
+    function returnTWAMMAddress() external view override returns (address) {
         return twammTheOnlyCaller;
     }
 

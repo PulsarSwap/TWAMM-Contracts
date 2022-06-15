@@ -117,6 +117,21 @@ interface IPair {
         bool proceedETH
     ) external;
 
+    function getOrderProceeds(uint256 orderId)
+        external
+        view
+        returns (uint256 withdrawableProceeds);
+
+    function getTWAMMState()
+        external
+        view
+        returns (
+            uint256 tokenASalesRate,
+            uint256 tokenBSalesRate,
+            uint256 tokenATWAMMReserves,
+            uint256 tokenBTWAMMReserves
+        );
+
     function userIdsCheck(address userAddress)
         external
         view

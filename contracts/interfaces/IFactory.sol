@@ -27,7 +27,7 @@ interface IFactory {
 
     function initialize(address twammAdd) external;
 
-    function returnTwammAddress() external view returns (address);
+    function returnTWAMMAddress() external view returns (address);
 
     function createPair(address token0, address token1)
         external

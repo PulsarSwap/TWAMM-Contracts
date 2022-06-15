@@ -446,11 +446,9 @@ library LongTermOrdersLib {
         int256 bStart
     ) private pure returns (int256 ammEndTokenA) {
         //rearranged for numerical stability
-        int256 eNumerator = PRBMathSD59x18
-            .fromInt(4)
-            .mul(tokenAIn)
-            .mul(tokenBIn)
-            .sqrt();
+        int256 eNumerator = PRBMathSD59x18.fromInt(4).mul(tokenAIn).sqrt().mul(
+            tokenBIn.sqrt()
+        );
         int256 eDenominator = aStart.sqrt().mul(bStart.sqrt()).inv();
         int256 exponent = eNumerator.mul(eDenominator).exp();
         require(exponent > PRBMathSD59x18.abs(c), "Invalid Amount");

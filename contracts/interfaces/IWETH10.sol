@@ -3,7 +3,6 @@
 // Adapted by Ethereum Community 2021
 pragma solidity 0.8.9;
 
-// import "./IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./IERC2612.sol";
 import "./IERC3156FlashLender.sol";

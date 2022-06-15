@@ -16,10 +16,7 @@ async function main() {
 
   const Factory = await ethers.getContractFactory("Factory");
   const factory = await Factory.deploy(hre.network.config.FeeToSetter);
-
-  console.log("init params:", hre.network.FeeToSetter);
   await factory.deployed();
-
   console.log("Factory address:", factory.address);
 }
 
