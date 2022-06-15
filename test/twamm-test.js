@@ -32,7 +32,7 @@ describe("TWAMM", function () {
     const Factory = await ethers.getContractFactory("Factory");
     factory = await Factory.deploy(addr0.address);
     const allPairLength = await factory.allPairsLength();
-    const twammAddress = await factory.returnTWAMMAddress();
+    const twammAddress = await factory.twammTheOnlyCaller;
 
     //deploy three tokens and WETH for pair creation
     const ERC20Factory = await ethers.getContractFactory("ERC20Mock");
@@ -100,9 +100,7 @@ describe("TWAMM", function () {
             amount,
             timeStamp + 100000
           )
-        ).to.be.revertedWith(
-          "Liquidity Has Already Been Provided, Need To Call provideLiquidity()"
-        );
+        ).to.be.revertedWith("Liquidity Has Already Been Provided");
       });
 
       it("(ETH)can't provide initial liquidity twice(ETH)", async function () {
@@ -115,9 +113,7 @@ describe("TWAMM", function () {
             timeStamp + 100000,
             { value: amount }
           )
-        ).to.be.revertedWith(
-          "Liquidity Has Already Been Provided, Need To Call provideLiquidity()"
-        );
+        ).to.be.revertedWith("Liquidity Has Already Been Provided");
       });
 
       it("LP token value is constant after mint", async function () {

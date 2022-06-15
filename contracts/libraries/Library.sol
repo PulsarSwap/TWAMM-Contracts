@@ -33,7 +33,7 @@ library Library {
         bytes memory bytecode = type(Pair).creationCode;
         bytes memory bytecodeArg = abi.encodePacked(
             bytecode,
-            abi.encode(tokenA, tokenB, IFactory(factory).returnTWAMMAddress())
+            abi.encode(tokenA, tokenB, IFactory(factory).twammTheOnlyCaller)
         );
         pair = address(
             uint160(

@@ -23,11 +23,11 @@ interface IFactory {
 
     function feeToSetter() external view returns (address);
 
+    function twammTheOnlyCaller() external view returns (address);
+
     function allPairsLength() external view returns (uint256);
 
     function initialize(address twammAdd) external;
-
-    function returnTWAMMAddress() external view returns (address);
 
     function createPair(address token0, address token1)
         external

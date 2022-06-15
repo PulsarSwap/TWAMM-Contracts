@@ -40,17 +40,3 @@ npx hardhat compile
 # Test contracts with hardhat
 npx hardhat test
 ```
-
-## Contract Address
-
-**Mainnet**
-
-`Factory:`
-
-`TWAMM:`
-
-**Ropsten**
-
-`Factory:`
-
-`TWAMM:`

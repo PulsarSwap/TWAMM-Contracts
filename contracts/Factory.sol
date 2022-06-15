@@ -13,7 +13,7 @@ contract Factory is IFactory, Initializable {
     uint32 public override feeArg;
     address public override feeTo;
     address public override feeToSetter;
-    address private twammTheOnlyCaller;
+    address public override twammTheOnlyCaller;
 
     constructor(address _feeToSetter) {
         feeToSetter = _feeToSetter;
@@ -25,10 +25,6 @@ contract Factory is IFactory, Initializable {
 
     function initialize(address twammAdd) external override initializer {
         twammTheOnlyCaller = twammAdd;
-    }
-
-    function returnTWAMMAddress() external view override returns (address) {
-        return twammTheOnlyCaller;
     }
 
     function createPair(address token0, address token1)

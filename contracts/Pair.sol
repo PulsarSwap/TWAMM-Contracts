@@ -154,10 +154,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         uint256 amountB
     ) external override checkCaller nonReentrant {
         require(amountA > 0 && amountB > 0, "Invalid Amount");
-        require(
-            totalSupply() == 0,
-            "Liquidity Has Already Been Provided, Need To Call provideLiquidity()"
-        );
+        require(totalSupply() == 0, "Liquidity Has Already Been Provided");
 
         bool feeOn = mintFee(0, 0);
         reserveMap[tokenA] = amountA;
@@ -196,10 +193,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         );
 
         require(lpTokenAmount > 0, "Invalid Amount");
-        require(
-            totalSupply() != 0,
-            "No Liquidity Has Been Provided Yet, Need To Call provideInitialLiquidity()"
-        );
+        require(totalSupply() != 0, "No Liquidity Has Been Provided Yet");
         uint256 reserveA = reserveMap[tokenA];
         uint256 reserveB = reserveMap[tokenB];
         bool feeOn = mintFee(reserveA, reserveB);
