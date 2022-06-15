@@ -28,8 +28,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     address private twammInstantSwap;
     address private twammTermSwap;
     address private twammLiquidity;
-    uint256 public override kLast; // reserveA * reserveB, as of immediately after the most recent liquidity event
-
+    uint256 public override kLast;
     ///@notice fee for LP providers, 4 decimal places, i.e. 30 = 0.3%
     uint256 public constant LP_FEE = 30;
 
@@ -306,7 +305,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         uint256 numberOfBlockIntervals
     ) external override checkCaller nonReentrant {
         require(amountBIn > 0, "Invalid Amount");
-
         uint256 orderId = longTermOrders.longTermSwapFromBToA(
             sender,
             amountBIn,
@@ -389,6 +387,62 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         returns (LongTermOrdersLib.Order memory)
     {
         return longTermOrders.orderMap[orderId];
+    }
+
+    ///@notice returns the user order withdrawable proceeds
+    function getOrderProceeds(uint256 orderId)
+        external
+        view
+        override
+        returns (uint256 withdrawableProceeds)
+    {
+        uint256 orderExpiry = longTermOrders.orderMap[orderId].expirationBlock;
+        uint256 stakedAmount = longTermOrders.orderMap[orderId].saleRate;
+        uint256 orderRewardFactorAtSubmission = longTermOrders
+            .OrderPoolMap[longTermOrders.orderMap[orderId].sellTokenId]
+            .rewardFactorAtSubmission[orderId];
+        uint256 orderRewardFactorAtExpiry = longTermOrders
+            .OrderPoolMap[longTermOrders.orderMap[orderId].sellTokenId]
+            .rewardFactorAtBlock[orderExpiry];
+        uint256 poolRewardFactor = longTermOrders
+            .OrderPoolMap[longTermOrders.orderMap[orderId].sellTokenId]
+            .rewardFactor;
+
+        if (block.number >= orderExpiry) {
+            withdrawableProceeds = (orderRewardFactorAtExpiry -
+                orderRewardFactorAtSubmission)
+                .mul(stakedAmount.fromUint())
+                .toUint();
+        }
+        //if order has not yet expired, we just adjust the start
+        else {
+            withdrawableProceeds = (poolRewardFactor -
+                orderRewardFactorAtSubmission)
+                .mul(stakedAmount.fromUint())
+                .toUint();
+        }
+    }
+
+    ///@notice returns the current state of the twamm
+    function getTWAMMState()
+        external
+        view
+        override
+        returns (
+            uint256 tokenASalesRate,
+            uint256 tokenBSalesRate,
+            uint256 tokenATWAMMReserves,
+            uint256 tokenBTWAMMReserves
+        )
+    {
+        tokenASalesRate = longTermOrders.OrderPoolMap[tokenA].currentSalesRate;
+        tokenBSalesRate = longTermOrders.OrderPoolMap[tokenB].currentSalesRate;
+        tokenATWAMMReserves =
+            IERC20(tokenA).balanceOf(address(this)) -
+            reserveMap[tokenA];
+        tokenBTWAMMReserves =
+            IERC20(tokenB).balanceOf(address(this)) -
+            reserveMap[tokenB];
     }
 
     ///@notice get user orderIds

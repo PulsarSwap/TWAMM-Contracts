@@ -27,7 +27,9 @@ describe("TWAMM", function () {
   const blockInterval = 5;
 
   const initialLiquidityProvided = ethers.utils.parseUnits("10"); //1000000;
-  const ERC20Supply = ethers.utils.parseUnits("10000000000000000000000000000000");
+  const ERC20Supply = ethers.utils.parseUnits(
+    "10000000000000000000000000000000"
+  );
 
   beforeEach(async function () {
     // network basics
