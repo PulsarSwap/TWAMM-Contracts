@@ -29,6 +29,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     address private twammTermSwap;
     address private twammLiquidity;
     uint256 public override kLast;
+
     ///@notice fee for LP providers, 4 decimal places, i.e. 30 = 0.3%
     uint256 public constant LP_FEE = 30;
 
