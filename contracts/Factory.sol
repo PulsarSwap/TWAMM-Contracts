@@ -12,10 +12,10 @@ contract Factory is IFactory, Initializable {
 
     address public override feeTo;
     address public override feeToSetter;
-    address public twammAdd;
-    address public twammInstantSwapAdd;
-    address public twammTermSwapAdd;
-    address public twammLiquidityAdd;
+    address public override twammAdd;
+    address public override twammInstantSwapAdd;
+    address public override twammTermSwapAdd;
+    address public override twammLiquidityAdd;
 
     constructor(address _feeToSetter) {
         feeToSetter = _feeToSetter;
