@@ -13,7 +13,7 @@ contract Factory is IFactory, Initializable {
     uint32 public override feeArg;
     address public override feeTo;
     address public override feeToSetter;
-    address public override twammTheOnlyCaller;
+    address public override twammAdd;
 
     constructor(address _feeToSetter) {
         feeToSetter = _feeToSetter;
@@ -23,8 +23,8 @@ contract Factory is IFactory, Initializable {
         return allPairs.length;
     }
 
-    function initialize(address twammAdd) external override initializer {
-        twammTheOnlyCaller = twammAdd;
+    function initialize(address _twammAdd) external override initializer {
+        twammAdd = _twammAdd;
     }
 
     function createPair(address token0, address token1)
@@ -33,13 +33,10 @@ contract Factory is IFactory, Initializable {
         returns (address pair)
     {
         require(
-            msg.sender == twammTheOnlyCaller,
+            msg.sender == twammAdd,
             "Invalid User, Only TWAMM Can Create Pair"
         );
-        require(
-            twammTheOnlyCaller != address(0),
-            "Factory Not Initialized By TWAMM Yet"
-        );
+        require(twammAdd != address(0), "Factory Not Initialized By TWAMM Yet");
 
         require(token0 != token1, "Factory: Identical Addresses");
 
@@ -53,7 +50,7 @@ contract Factory is IFactory, Initializable {
         bytes memory bytecode = type(Pair).creationCode;
         bytes memory bytecodeArg = abi.encodePacked(
             bytecode,
-            abi.encode(tokenA, tokenB, twammTheOnlyCaller)
+            abi.encode(tokenA, tokenB, twammAdd)
         );
         bytes32 salt = keccak256(abi.encodePacked(tokenA, tokenB));
         assembly {

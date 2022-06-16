@@ -18,15 +18,13 @@ describe("TWAMM", function () {
   let blockNumber;
   let timeStamp;
 
-  const testDAOAmount = ethers.utils.parseUnits("10000000000000000000000000"); //1000000000;
+  const testDAOAmount = ethers.utils.parseUnits("10000000000000000000"); //1000000000;
   const totalNBlockIntervals = 10000;
 
   const blockInterval = 5;
 
   const initialLiquidityProvided = ethers.utils.parseUnits("10"); //1000000;
-  const ERC20Supply = ethers.utils.parseUnits(
-    "10000000000000000000000000000000"
-  );
+  const ERC20Supply = ethers.utils.parseUnits("100000000000000000000000");
 
   beforeEach(async function () {
     // network basics

@@ -26,7 +26,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     address public override factory;
     address public override tokenA;
     address public override tokenB;
-    address private safeCaller;
+    address private twamm;
 
     uint32 public override blockTimestampLast;
     uint256 public override priceACumulativeLast;
@@ -50,7 +50,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
 
     ///@notice pair contract caller check
     modifier checkCaller() {
-        require(msg.sender == safeCaller, "Invalid Caller");
+        require(msg.sender == twamm, "Invalid Caller");
         _;
     }
 
@@ -60,14 +60,14 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         address _twamm
     ) ERC20("Pulsar-LP", "PUL-LP") {
         factory = msg.sender;
-        safeCaller = _twamm;
+        twamm = _twamm;
         tokenA = _tokenA;
         tokenB = _tokenB;
         longTermOrders.initialize(
             tokenA,
             tokenB,
-            safeCaller,
-            ITWAMM(safeCaller).WETH(),
+            twamm,
+            ITWAMM(twamm).WETH(),
             block.number,
             orderBlockInterval
         );
@@ -245,13 +245,13 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
 
         _burn(to, lpTokenAmount);
         if (proceedETH) {
-            if (ITWAMM(safeCaller).WETH() == tokenA) {
-                IERC20(tokenA).safeTransfer(safeCaller, amountAOut);
+            if (ITWAMM(twamm).WETH() == tokenA) {
+                IERC20(tokenA).safeTransfer(twamm, amountAOut);
                 IERC20(tokenB).safeTransfer(to, amountBOut);
                 tmpMapWETH[to] = amountAOut;
             } else {
                 IERC20(tokenA).safeTransfer(to, amountAOut);
-                IERC20(tokenB).safeTransfer(safeCaller, amountBOut);
+                IERC20(tokenB).safeTransfer(twamm, amountBOut);
                 tmpMapWETH[to] = amountBOut;
             }
         } else {
@@ -400,8 +400,8 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         reserveMap[to] -= amountOutMinusFee;
 
         IERC20(from).safeTransferFrom(sender, address(this), amountIn);
-        if (poceedETH && ITWAMM(safeCaller).WETH() == to) {
-            IERC20(to).safeTransfer(safeCaller, amountOutMinusFee);
+        if (poceedETH && ITWAMM(twamm).WETH() == to) {
+            IERC20(to).safeTransfer(twamm, amountOutMinusFee);
             tmpMapWETH[sender] = amountOutMinusFee;
         } else {
             IERC20(to).safeTransfer(sender, amountOutMinusFee);
@@ -424,29 +424,31 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         override
         returns (uint256 withdrawableProceeds)
     {
+        address orderSellToken = longTermOrders.orderMap[orderId].sellTokenId;
         uint256 orderExpiry = longTermOrders.orderMap[orderId].expirationBlock;
-        uint256 stakedAmount = longTermOrders.orderMap[orderId].saleRate;
+        uint256 orderSaleRate = longTermOrders.orderMap[orderId].saleRate;
+
         uint256 orderRewardFactorAtSubmission = longTermOrders
-            .OrderPoolMap[longTermOrders.orderMap[orderId].sellTokenId]
+            .OrderPoolMap[orderSellToken]
             .rewardFactorAtSubmission[orderId];
         uint256 orderRewardFactorAtExpiry = longTermOrders
-            .OrderPoolMap[longTermOrders.orderMap[orderId].sellTokenId]
+            .OrderPoolMap[orderSellToken]
             .rewardFactorAtBlock[orderExpiry];
         uint256 poolRewardFactor = longTermOrders
-            .OrderPoolMap[longTermOrders.orderMap[orderId].sellTokenId]
+            .OrderPoolMap[orderSellToken]
             .rewardFactor;
 
         if (block.number >= orderExpiry) {
             withdrawableProceeds = (orderRewardFactorAtExpiry -
                 orderRewardFactorAtSubmission)
-                .mul(stakedAmount.fromUint())
+                .mul(orderSaleRate.fromUint())
                 .toUint();
         }
         //if order has not yet expired, we just adjust the start
         else {
             withdrawableProceeds = (poolRewardFactor -
                 orderRewardFactorAtSubmission)
-                .mul(stakedAmount.fromUint())
+                .mul(orderSaleRate.fromUint())
                 .toUint();
         }
     }
