@@ -397,29 +397,31 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         override
         returns (uint256 withdrawableProceeds)
     {
+        address orderSellToken = longTermOrders.orderMap[orderId].sellTokenId;
         uint256 orderExpiry = longTermOrders.orderMap[orderId].expirationBlock;
-        uint256 stakedAmount = longTermOrders.orderMap[orderId].saleRate;
+        uint256 orderSaleRate = longTermOrders.orderMap[orderId].saleRate;
+
         uint256 orderRewardFactorAtSubmission = longTermOrders
-            .OrderPoolMap[longTermOrders.orderMap[orderId].sellTokenId]
+            .OrderPoolMap[orderSellToken]
             .rewardFactorAtSubmission[orderId];
         uint256 orderRewardFactorAtExpiry = longTermOrders
-            .OrderPoolMap[longTermOrders.orderMap[orderId].sellTokenId]
+            .OrderPoolMap[orderSellToken]
             .rewardFactorAtBlock[orderExpiry];
         uint256 poolRewardFactor = longTermOrders
-            .OrderPoolMap[longTermOrders.orderMap[orderId].sellTokenId]
+            .OrderPoolMap[orderSellToken]
             .rewardFactor;
 
         if (block.number >= orderExpiry) {
             withdrawableProceeds = (orderRewardFactorAtExpiry -
                 orderRewardFactorAtSubmission)
-                .mul(stakedAmount.fromUint())
+                .mul(orderSaleRate.fromUint())
                 .toUint();
         }
         //if order has not yet expired, we just adjust the start
         else {
             withdrawableProceeds = (poolRewardFactor -
                 orderRewardFactorAtSubmission)
-                .mul(stakedAmount.fromUint())
+                .mul(orderSaleRate.fromUint())
                 .toUint();
         }
     }
