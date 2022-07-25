@@ -102,7 +102,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         tmpMapWETH[sender] = 0;
     }
 
-
     ///@notice provide initial liquidity to the amm. This sets the relative price between tokens
     function provideInitialLiquidity(
         address to,
@@ -398,19 +397,10 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         external
         view
         override
-        returns (
-            uint256 tokenASalesRate,
-            uint256 tokenBSalesRate
-        )
+        returns (uint256 tokenASalesRate, uint256 tokenBSalesRate)
     {
         tokenASalesRate = longTermOrders.OrderPoolMap[tokenA].currentSalesRate;
         tokenBSalesRate = longTermOrders.OrderPoolMap[tokenB].currentSalesRate;
-        // tokenATWAMMReserves =
-        //     IERC20(tokenA).balanceOf(address(this)) -
-        //     reserveMap[tokenA];
-        // tokenBTWAMMReserves =
-        //     IERC20(tokenB).balanceOf(address(this)) -
-        //     reserveMap[tokenB];
     }
 
     ///@notice get user orderIds

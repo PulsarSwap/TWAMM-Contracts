@@ -54,13 +54,14 @@ const kovanArgs = {
 const rinkebyArgs = {
   FeeToSetter: "0x8E7264DD909D77C14AD2c4836d04E27924C05e5e",
   Factory: "0x885A730C6f022369dE783aD30594A4f7031B6eFD",
-  WETH: "0x6546Ef6BA8aacBA91148483115D89b3417De8F85",
+  WETH: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
 };
 
 module.exports = {
   gasReporter: {
     enabled: process.env.REPORT_GAS ? true : false,
     maxMethodDiff: 25,
+    
     coinmarketcap: process.env.COINMARKETCAP_API_KEY,
   },
 
