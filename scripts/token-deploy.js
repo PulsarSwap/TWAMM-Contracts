@@ -1,6 +1,6 @@
 const hre = require("hardhat");
 const ethers = hre.ethers;
-const ERC20Supply = ethers.utils.parseUnits("100");
+const ERC20Supply = ethers.utils.parseUnits("100000000");
 
 async function main() {
   if (hre.network.name === "mainnet") {
