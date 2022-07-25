@@ -87,6 +87,7 @@ describe("TWAMM", function () {
       timeStamp + 50000
     );
     pair = await twamm.obtainPairAddress(token0.address, token1.address);
+    console.log('check pair address', pair);
     await token0.approve(pair, initialLiquidityProvided); //owner calls it
     await token1.approve(pair, initialLiquidityProvided);
     await twamm.addInitialLiquidity(
