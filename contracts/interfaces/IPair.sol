@@ -121,8 +121,6 @@ interface IPair {
         returns (
             uint256 tokenASalesRate,
             uint256 tokenBSalesRate
-            // uint256 tokenATWAMMReserves,
-            // uint256 tokenBTWAMMReserves
         );
 
     function userIdsCheck(address userAddress)
