@@ -1,6 +1,6 @@
 const hre = require("hardhat");
 const ethers = hre.ethers;
-import { abi as TWAMMABI } from "./testABI/contracts/TWAMM.sol/TWAMM.json"
+
 
 async function main() {
   if (hre.network.name === "mainnet") {
@@ -28,7 +28,7 @@ async function main() {
 
   // loading necessary contracts
   const TWAMMAddr = "0xDb0F56C376fb178c1f1629374ADE3E5cECcF69D3";
-  const twamm = await ethers.getContractAt(TWAMMABI, TWAMMAddr);
+  const twamm = await ethers.getContractAt("TWAMM", TWAMMAddr);
 
   const TWAMMLiquidityAddr = "0xE5bDf3dFFd442Bff6Aee60a79F0168bab54813c0";
   const twammLiquidity = await ethers.getContractAt("TWAMMLiquidity", TWAMMLiquidityAddr);
