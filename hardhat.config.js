@@ -55,7 +55,7 @@ const rinkebyArgs = {
 module.exports = {
   gasReporter: {
     enabled: process.env.REPORT_GAS ? true : false,
-    maxMethodDiff: 25,   
+    maxMethodDiff: 25,
     coinmarketcap: process.env.COINMARKETCAP_API_KEY,
   },
 
@@ -94,6 +94,7 @@ module.exports = {
     },
 
     rinkeby: {
+      allowUnlimitedContractSize: true,
       url: `https://rinkeby.infura.io/v3/${INFURA_API_KEY}`,
       accounts: [PRIVATE_KEY_TEST],
       ...rinkebyArgs,

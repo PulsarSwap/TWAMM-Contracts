@@ -57,19 +57,13 @@ describe("TWAMM", function () {
       WETH.address
     );
 
-    const TWAMMTermSwap = await ethers.getContractFactory("TWAMMTermSwap", {
-      gasLimit: "8000000",
-    });
+    const TWAMMTermSwap = await ethers.getContractFactory("TWAMMTermSwap");
     twammTermSwap = await TWAMMTermSwap.deploy(factory.address, WETH.address);
 
-    const TWAMMLiquidity = await ethers.getContractFactory("TWAMMLiquidity", {
-      gasLimit: "8000000",
-    });
+    const TWAMMLiquidity = await ethers.getContractFactory("TWAMMLiquidity");
     twammLiquidity = await TWAMMLiquidity.deploy(factory.address, WETH.address);
 
-    const TWAMM = await ethers.getContractFactory("TWAMM", {
-      gasLimit: "8000000",
-    });
+    const TWAMM = await ethers.getContractFactory("TWAMM");
     twamm = await TWAMM.deploy(
       factory.address,
       WETH.address,
@@ -87,6 +81,7 @@ describe("TWAMM", function () {
       timeStamp + 50000
     );
     pair = await twamm.obtainPairAddress(token0.address, token1.address);
+    console.log("check pair address", pair);
     await token0.approve(pair, initialLiquidityProvided); //owner calls it
     await token1.approve(pair, initialLiquidityProvided);
     await twamm.addInitialLiquidity(

@@ -116,10 +116,7 @@ interface IPair {
     function getTWAMMCurrentSalesRate()
         external
         view
-        returns (
-            uint256 tokenASalesRate,
-            uint256 tokenBSalesRate
-        );
+        returns (uint256 tokenASalesRate, uint256 tokenBSalesRate);
 
     function userIdsCheck(address userAddress)
         external
