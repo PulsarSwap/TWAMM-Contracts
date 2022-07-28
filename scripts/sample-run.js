@@ -9,7 +9,6 @@ async function main() {
 
   const [account] = await ethers.getSigners();
   console.log("Account Address:", await account.getAddress());
-
   console.log("Account balance:", (await account.getBalance()).toString());
 
   //some hyperparameters
@@ -57,7 +56,7 @@ async function main() {
   } catch (error) {
     // console.log(error);
     console.log(
-      "continute without pair creation, the pair might be created already."
+      "continue without pair creation, the pair might be created already."
     );
   }
   const pairAddr = await twamm.obtainPairAddress(token0Addr, token1Addr);
@@ -77,7 +76,6 @@ async function main() {
       timeStamp + 300
     );
   } catch (error) {
-    //console.log(error);
     console.log(
       "initial liquidity might be provided, add more liquidity instead."
     );
@@ -122,6 +120,7 @@ async function main() {
 
   console.log("get order Ids");
   let orderIds = await pair.userIdsCheck(account.getAddress());
+  console.log("orderIds", orderIds);
 
   console.log("cancel order");
   currentBlockNumber = await ethers.provider.getBlockNumber();

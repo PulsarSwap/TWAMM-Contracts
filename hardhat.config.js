@@ -3,7 +3,7 @@ require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-solhint");
 require("@nomiclabs/hardhat-etherscan");
 require("hardhat-gas-reporter");
-require("hardhat-contract-sizer");
+//require("hardhat-contract-sizer");
 require("hardhat-deploy");
 require("dotenv").config();
 
@@ -28,26 +28,31 @@ if (!INFURA_API_KEY) {
 }
 
 const localArgs = {
+  FeeToSetter: "",
   Factory: "",
   WETH: "",
 };
 
 const mainnetArgs = {
+  FeeToSetter: "",
   Factory: "",
   WETH: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
 };
 
 const ropstenArgs = {
+  FeeToSetter: "0x9be86E75E67f2ef9a44730C60cF04Ef9F944CCee",
   Factory: "0x4996b1B79dB27368aa90FC4631ccD9A33Ffbb75e",
   WETH: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
 };
 
 const kovanArgs = {
+  FeeToSetter: "0x9be86E75E67f2ef9a44730C60cF04Ef9F944CCee",
   Factory: "0xA7234C4db1c30FDD1fD7c552D8097d27d66BF645",
   WETH: "0xd0A1E359811322d97991E03f863a0C30C2cF029C",
 };
 
 const rinkebyArgs = {
+  FeeToSetter: "0x8E7264DD909D77C14AD2c4836d04E27924C05e5e",
   Factory: "0x885A730C6f022369dE783aD30594A4f7031B6eFD",
   WETH: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
 };

@@ -33,7 +33,7 @@ describe("TWAMM", function () {
 
     //factory deployment
     const Factory = await ethers.getContractFactory("Factory");
-    factory = await Factory.deploy();
+    factory = await Factory.deploy(addr0.address);
 
     //deploy three tokens and WETH for pair creation
     const ERC20Factory = await ethers.getContractFactory("ERC20Mock");
