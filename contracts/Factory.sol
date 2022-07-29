@@ -10,6 +10,7 @@ contract Factory is IFactory, Initializable {
     mapping(address => mapping(address => address)) public override getPair;
     address[] public override allPairs;
 
+    uint32 public override feeArg;
     address public override feeTo;
     address public override feeToSetter;
     address public override twammAdd;
@@ -78,6 +79,11 @@ contract Factory is IFactory, Initializable {
         getPair[tokenB][tokenA] = pair; // populate mapping in the reverse direction
         allPairs.push(pair);
         emit PairCreated(tokenA, tokenB, pair, allPairs.length);
+    }
+
+    function setFeeArg(uint32 _feeArg) external override {
+        require(msg.sender == feeToSetter, "Factory: Forbidden");
+        feeArg = _feeArg;
     }
 
     function setFeeTo(address _feeTo) external override {

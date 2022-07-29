@@ -102,11 +102,12 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         tmpMapWETH[sender] = 0;
     }
 
-    // if fee is on, mint liquidity equivalent to 1/2th of the growth in sqrt(k)
+    // if fee is on, mint liquidity equivalent to 1/(feeArg+1)th of the growth in sqrt(k)
     function mintFee(uint256 reserveA, uint256 reserveB)
         private
         returns (bool feeOn)
     {
+        uint32 feeArg = IFactory(factory).feeArg();
         address feeTo = IFactory(factory).feeTo();
         feeOn = feeTo != address(0);
 
@@ -120,7 +121,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
                 uint256 rootKLast = kLast.fromUint().sqrt().toUint();
                 if (rootK > rootKLast) {
                     uint256 numerator = totalSupply() * (rootK - rootKLast);
-                    uint256 denominator = rootK + rootKLast;
+                    uint256 denominator = rootK * feeArg + rootKLast;
                     uint256 liquidity = numerator / denominator;
                     if (liquidity > 0) _mint(feeTo, liquidity);
                 }
