@@ -87,18 +87,21 @@ module.exports = {
     },
 
     mainnet: {
+      allowUnlimitedContractSize: true,
       url: `https://mainnet.infura.io/v3/${INFURA_API_KEY}`,
       accounts: [PRIVATE_KEY_MAINNET],
       ...mainnetArgs,
     },
 
     ropsten: {
+      allowUnlimitedContractSize: true,
       url: `https://ropsten.infura.io/v3/${INFURA_API_KEY}`,
       accounts: [PRIVATE_KEY_TEST],
       ...ropstenArgs,
     },
 
     kovan: {
+      allowUnlimitedContractSize: true,
       url: `https://kovan.infura.io/v3/${INFURA_API_KEY}`,
       accounts: [PRIVATE_KEY_TEST],
       ...kovanArgs,
@@ -130,7 +133,7 @@ module.exports = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 10,
+            runs: 100,
           },
         },
       },

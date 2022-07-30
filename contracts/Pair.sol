@@ -45,18 +45,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     ///@notice data structure to handle long term orders
     LongTermOrdersLib.LongTermOrders internal longTermOrders;
 
-    ///@notice pair contract caller check
-    modifier checkCaller() {
-        require(
-            msg.sender == twamm ||
-                msg.sender == twammInstantSwap ||
-                msg.sender == twammTermSwap ||
-                msg.sender == twammLiquidity,
-            "Invalid Caller"
-        );
-        _;
-    }
-
     constructor(
         address _tokenA,
         address _tokenB,
@@ -80,6 +68,22 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
             block.number,
             orderBlockInterval
         );
+    }
+
+    ///@notice pair contract caller check
+    function _checkCaller() private view {
+        require(
+            msg.sender == twamm ||
+                msg.sender == twammInstantSwap ||
+                msg.sender == twammTermSwap ||
+                msg.sender == twammLiquidity,
+            "Invalid Caller"
+        );
+    }
+
+    modifier checkCaller() {
+        _checkCaller();
+        _;
     }
 
     ///@notice get tokenA reserves

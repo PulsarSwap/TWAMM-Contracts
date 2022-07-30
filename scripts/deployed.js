@@ -27,4 +27,11 @@ module.exports = {
     TWAMMTermSwap: "0xa025702fB22A5b529e58981BdDE99f4eCcC0C98b",
     TWAMMLiquidity: "0xf0EAeEda2e431C73836d518253883FF8dFD230C5",
   },
+  goerli: {
+    Factory: "",
+    TWAMM: "",
+    TWAMMInstantSwap: "",
+    TWAMMTermSwap: "",
+    TWAMMLiquidity: "",
+  },
 };
