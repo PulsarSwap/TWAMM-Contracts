@@ -1,7 +1,7 @@
 const hre = require("hardhat");
 const ethers = hre.ethers;
-let reserveA;
-let reserveB;
+let reserve0;
+let reserve1;
 let reserves;
 let totalSupply;
 
@@ -12,10 +12,9 @@ async function main() {
 
   const [account] = await ethers.getSigners();
   console.log("Account Address:", await account.getAddress());
-
   console.log("Account balance:", (await account.getBalance()).toString());
 
-  // some hyperparameters
+  //some hyperparameters
   const initialLPSupply = ethers.utils.parseUnits("10");
   const continualLPSupply = ethers.utils.parseUnits("1");
   const instantSwapAmount = ethers.utils.parseUnits("1");
@@ -26,7 +25,7 @@ async function main() {
   const token1Addr = "0x0EE834CBBAC3Ad3FB3Ecc6A1B6B130DaAb9adC7B";
   const token1 = await ethers.getContractAt("ERC20Mock", token1Addr);
 
-  // loading necessary contracts
+  //loading necessary contracts
   const TWAMMAddr = "0xDb0F56C376fb178c1f1629374ADE3E5cECcF69D3";
   const twamm = await ethers.getContractAt("TWAMM", TWAMMAddr);
 
@@ -50,7 +49,7 @@ async function main() {
 
   const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
-  // provide (initial) liquidity
+  //provide (initial) liquidity
   let currentBlockNumber = await ethers.provider.getBlockNumber();
   let timeStamp = (await ethers.provider.getBlock(currentBlockNumber))
     .timestamp;
@@ -58,7 +57,7 @@ async function main() {
   try {
     await twamm.createPairWrapper(token0Addr, token1Addr, timeStamp + 100);
   } catch (error) {
-    // console.log(error);
+    //console.log(error);
     console.log(
       "continue without pair creation, the pair might be created already."
     );
@@ -68,10 +67,10 @@ async function main() {
 
   try {
     console.log("add initial liquidity");
-    let tx1 = await token0.approve(pairAddr, initialLPSupply); //owner calls it
+    let tx0 = await token0.approve(pairAddr, initialLPSupply); //owner calls it
+    await tx0.wait();
+    let tx1 = await token1.approve(pairAddr, initialLPSupply);
     await tx1.wait();
-    let tx2 = await token1.approve(pairAddr, initialLPSupply);
-    await tx2.wait();
     await twamm.addInitialLiquidity(
       token0Addr,
       token1Addr,
@@ -80,23 +79,23 @@ async function main() {
       timeStamp + 300
     );
   } catch (error) {
-    // console.log(error);
+    //console.log(error);
     console.log(
       "initial liquidity might be provided, add more liquidity instead."
     );
     //uncomment below to enable add liquidity
     const newLPTokens = continualLPSupply;
     reserves = await twamm.obtainReserves(token0.address, token1.address);
-    reserveA = Object.values(reserves)[0];
-    reserveB = Object.values(reserves)[1];
+    reserve0 = Object.values(reserves)[0];
+    reserve1 = Object.values(reserves)[1];
     totalSupply = await twamm.obtainTotalSupply(pairAddr);
-    const amountAIn = newLPTokens.mul(reserveA).div(totalSupply);
-    const amountBIn = newLPTokens.mul(reserveA).div(totalSupply);
-    console.log(amountAIn, amountBIn);
-    tx1 = await token0.approve(pairAddr, amountAIn);
-    // await tx1.wait();
-    tx2 = await token1.approve(pairAddr, amountBIn);
-    // await tx2.wait();
+    const amount0In = newLPTokens.mul(reserve0).div(totalSupply);
+    const amount1In = newLPTokens.mul(reserve1).div(totalSupply);
+    console.log(amount0In, amount1In);
+    tx0 = await token0.approve(pairAddr, amount0In);
+    //await tx0.wait();
+    tx1 = await token1.approve(pairAddr, amount1In);
+    //await tx1.wait();
 
     await twammLiquidity.addLiquidity(
       token0Addr,
@@ -106,7 +105,7 @@ async function main() {
     );
   }
 
-  // perform instant swap
+  //perform instant swap
   console.log("instant swap");
   await token0.approve(pairAddr, instantSwapAmount);
   await twammInstantSwap.instantSwapTokenToToken(
@@ -116,7 +115,7 @@ async function main() {
     timeStamp + 700
   );
 
-  // perform term swap
+  //perform term swap
   let pair = await ethers.getContractAt("Pair", pairAddr);
   console.log("get order Ids");
   let orderIds = await pair.userIdsCheck(account.getAddress());

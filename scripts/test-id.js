@@ -1,7 +1,7 @@
 const hre = require("hardhat");
 const ethers = hre.ethers;
-let reserveA;
-let reserveB;
+let reserve0;
+let reserve1;
 let reserves;
 let totalSupply;
 
@@ -12,10 +12,9 @@ async function main() {
 
   const [account] = await ethers.getSigners();
   console.log("Account Address:", await account.getAddress());
-
   console.log("Account balance:", (await account.getBalance()).toString());
 
-  // some hyperparameters
+  //some hyperparameters
   const initialLPSupply = ethers.utils.parseUnits("10");
   const continualLPSupply = ethers.utils.parseUnits("1");
   const instantSwapAmount = ethers.utils.parseUnits("1");
@@ -50,7 +49,7 @@ async function main() {
 
   const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
-  // provide (initial) liquidity
+  //provide (initial) liquidity
   let currentBlockNumber = await ethers.provider.getBlockNumber();
   let timeStamp = (await ethers.provider.getBlock(currentBlockNumber))
     .timestamp;
@@ -58,7 +57,7 @@ async function main() {
   try {
     await twamm.createPairWrapper(token0Addr, token1Addr, timeStamp + 100);
   } catch (error) {
-    // console.log(error);
+    //console.log(error);
     console.log(
       "continue without pair creation, the pair might be created already."
     );
@@ -66,7 +65,7 @@ async function main() {
   const pairAddr = await twamm.obtainPairAddress(token0Addr, token1Addr);
   console.log("pair address check", pairAddr);
 
-  // perform term swap
+  //perform term swap
   let pair = await ethers.getContractAt("Pair", pairAddr);
   console.log("get order Ids");
   let orderIds = await pair.userIdsCheck(account.getAddress());
