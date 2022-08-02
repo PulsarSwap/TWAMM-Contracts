@@ -84,7 +84,7 @@ interface IPair {
         address sender,
         uint256 amountAIn,
         uint256 numberOfBlockIntervals
-    ) external;
+    ) external returns (uint256 orderId);
 
     function instantSwapFromBToA(
         address sender,
@@ -96,7 +96,7 @@ interface IPair {
         address sender,
         uint256 amountBIn,
         uint256 numberOfBlockIntervals
-    ) external;
+    ) external returns (uint256 orderId);
 
     function cancelLongTermSwap(
         address sender,
@@ -110,15 +110,29 @@ interface IPair {
         bool proceedETH
     ) external;
 
-    function getOrderProceeds(uint256 orderId)
+    function getOrderRewardFactorAtSubmission(uint256 orderId)
         external
         view
-        returns (uint256 withdrawableProceeds);
+        returns (uint256 orderRewardFactorAtSubmission);
 
-    function getTWAMMCurrentSalesRate()
+    function getTWAMMState()
         external
         view
-        returns (uint256 tokenASalesRate, uint256 tokenBSalesRate);
+        returns (
+            uint256 lastVirtualOrderBlock,
+            uint256 tokenASalesRate,
+            uint256 tokenBSalesRate,
+            uint256 orderPoolARewardFactor,
+            uint256 orderPoolBRewardFactor
+        );
+
+    function getTWAMMSalesRateEnding(uint256 blockNumber)
+        external
+        view
+        returns (
+            uint256 orderPoolASalesRateEnding,
+            uint256 orderPoolBSalesRateEnding
+        );
 
     function userIdsCheck(address userAddress)
         external

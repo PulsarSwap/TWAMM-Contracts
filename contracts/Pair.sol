@@ -272,9 +272,9 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         address sender,
         uint256 amountAIn,
         uint256 numberOfBlockIntervals
-    ) external override checkCaller nonReentrant {
+    ) external override checkCaller nonReentrant returns (uint256 orderId) {
         require(amountAIn > 0, "Invalid Amount");
-        uint256 orderId = longTermOrders.longTermSwapFromAToB(
+        orderId = longTermOrders.longTermSwapFromAToB(
             sender,
             amountAIn,
             numberOfBlockIntervals,
@@ -309,9 +309,9 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         address sender,
         uint256 amountBIn,
         uint256 numberOfBlockIntervals
-    ) external override checkCaller nonReentrant {
+    ) external override checkCaller nonReentrant returns (uint256 orderId) {
         require(amountBIn > 0, "Invalid Amount");
-        uint256 orderId = longTermOrders.longTermSwapFromBToA(
+        orderId = longTermOrders.longTermSwapFromBToA(
             sender,
             amountBIn,
             numberOfBlockIntervals,
@@ -395,51 +395,60 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         return longTermOrders.orderMap[orderId];
     }
 
-    ///@notice returns the user order withdrawable proceeds
-    function getOrderProceeds(uint256 orderId)
+    ///@notice returns the user order reward factor at submission
+    function getOrderRewardFactorAtSubmission(uint256 orderId)
         external
         view
         override
-        returns (uint256 withdrawableProceeds)
+        returns (uint256 orderRewardFactorAtSubmission)
     {
         address orderSellToken = longTermOrders.orderMap[orderId].sellTokenId;
-        uint256 orderExpiry = longTermOrders.orderMap[orderId].expirationBlock;
-        uint256 orderSaleRate = longTermOrders.orderMap[orderId].saleRate;
 
-        uint256 orderRewardFactorAtSubmission = longTermOrders
+        orderRewardFactorAtSubmission = longTermOrders
             .OrderPoolMap[orderSellToken]
             .rewardFactorAtSubmission[orderId];
-        uint256 orderRewardFactorAtExpiry = longTermOrders
-            .OrderPoolMap[orderSellToken]
-            .rewardFactorAtBlock[orderExpiry];
-        uint256 poolRewardFactor = longTermOrders
-            .OrderPoolMap[orderSellToken]
-            .rewardFactor;
-
-        if (block.number >= orderExpiry) {
-            withdrawableProceeds = (orderRewardFactorAtExpiry -
-                orderRewardFactorAtSubmission)
-                .mul(orderSaleRate.fromUint())
-                .toUint();
-        }
-        //if order has not yet expired, we just adjust the start
-        else {
-            withdrawableProceeds = (poolRewardFactor -
-                orderRewardFactorAtSubmission)
-                .mul(orderSaleRate.fromUint())
-                .toUint();
-        }
     }
 
-    ///@notice returns the current sell rate of the twamm
-    function getTWAMMCurrentSalesRate()
+    ///@notice returns the current state of the twamm
+    function getTWAMMState()
         external
         view
         override
-        returns (uint256 tokenASalesRate, uint256 tokenBSalesRate)
+        returns (
+            uint256 lastVirtualOrderBlock,
+            uint256 tokenASalesRate,
+            uint256 tokenBSalesRate,
+            uint256 orderPoolARewardFactor,
+            uint256 orderPoolBRewardFactor
+        )
     {
+        lastVirtualOrderBlock = longTermOrders.lastVirtualOrderBlock;
         tokenASalesRate = longTermOrders.OrderPoolMap[tokenA].currentSalesRate;
         tokenBSalesRate = longTermOrders.OrderPoolMap[tokenB].currentSalesRate;
+        orderPoolARewardFactor = longTermOrders
+            .OrderPoolMap[tokenA]
+            .rewardFactor;
+        orderPoolBRewardFactor = longTermOrders
+            .OrderPoolMap[tokenB]
+            .rewardFactor;
+    }
+
+    ///@notice returns cumulative sales rate of orders ending on this block number
+    function getTWAMMSalesRateEnding(uint256 blockNumber)
+        external
+        view
+        override
+        returns (
+            uint256 orderPoolASalesRateEnding,
+            uint256 orderPoolBSalesRateEnding
+        )
+    {
+        orderPoolASalesRateEnding = longTermOrders
+            .OrderPoolMap[tokenA]
+            .salesRateEndingPerBlock[blockNumber];
+        orderPoolBSalesRateEnding = longTermOrders
+            .OrderPoolMap[tokenB]
+            .salesRateEndingPerBlock[blockNumber];
     }
 
     ///@notice get user orderIds
