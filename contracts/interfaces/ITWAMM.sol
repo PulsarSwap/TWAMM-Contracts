@@ -9,12 +9,14 @@ interface ITWAMM {
 
     function obtainReserves(address token0, address token1)
         external
+        view
         returns (uint256 reserve0, uint256 reserve1);
 
-    function obtainTotalSupply(address pair) external returns (uint256);
+    function obtainTotalSupply(address pair) external view returns (uint256);
 
     function obtainPairAddress(address token0, address token1)
         external
+        view
         returns (address);
 
     function createPairWrapper(
