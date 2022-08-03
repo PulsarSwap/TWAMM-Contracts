@@ -34,7 +34,7 @@ const localArgs = {
 };
 
 const mainnetArgs = {
-  FeeToSetter: "",
+  FeeToSetter: "0x57802b223F76Afd6E51Bb2AF578E72B07066a069",
   Factory: "",
   WETH: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
 };
@@ -53,13 +53,13 @@ const kovanArgs = {
 
 const rinkebyArgs = {
   FeeToSetter: "0x9be86E75E67f2ef9a44730C60cF04Ef9F944CCee",
-  Factory: "0x18FB86aa6F7F449eC3CeeE871ed5D8081f10a105",
+  Factory: "0xc8Fd488587837996767c57e09De274F36fA8B515",
   WETH: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
 };
 
 const goerliArgs = {
   FeeToSetter: "0x9be86E75E67f2ef9a44730C60cF04Ef9F944CCee",
-  Factory: "",
+  Factory: "0x554F686DD81b6e187454d8FCDBa9f610bc9a4987",
   WETH: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
 };
 

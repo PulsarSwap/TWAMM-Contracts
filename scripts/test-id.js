@@ -26,22 +26,22 @@ async function main() {
   const token1 = await ethers.getContractAt("ERC20Mock", token1Addr);
 
   // loading necessary contracts
-  const TWAMMAddr = "0xDb0F56C376fb178c1f1629374ADE3E5cECcF69D3";
+  const TWAMMAddr = "0x4005FE9eea50496783199b5216AEd6843eD7C17e";
   const twamm = await ethers.getContractAt("TWAMM", TWAMMAddr);
 
-  const TWAMMLiquidityAddr = "0xE5bDf3dFFd442Bff6Aee60a79F0168bab54813c0";
+  const TWAMMLiquidityAddr = "0x2e8FC313e93308ff35e694cD8E9613eC44525970";
   const twammLiquidity = await ethers.getContractAt(
     "TWAMMLiquidity",
     TWAMMLiquidityAddr
   );
 
-  const TWAMMInstantSwapAddr = "0xd6dDdD0542e6960f0C0d851333a5DD215F2CBdA8";
+  const TWAMMInstantSwapAddr = "0x7ac44C494bfB712F192471b4446E8cB21FEd6386";
   const twammInstantSwap = await ethers.getContractAt(
     "TWAMMInstantSwap",
     TWAMMInstantSwapAddr
   );
 
-  const TWAMMTermSwapAddr = "0x7933583Fe13EAB71Db1C92cfc6C1F2596BDDCb3e";
+  const TWAMMTermSwapAddr = "0x346985078578dC096FD957D69c09A948fC736e28";
   const twammTermSwap = await ethers.getContractAt(
     "TWAMMTermSwap",
     TWAMMTermSwapAddr
