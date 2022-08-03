@@ -34,18 +34,18 @@ contract TWAMMTermSwap is ITWAMMTermSwap {
         uint256 amountIn,
         uint256 numberOfBlockIntervals,
         uint256 deadline
-    ) external virtual override ensure(deadline) {
+    ) external virtual override ensure(deadline) returns (uint256 orderId) {
         address pair = Library.pairFor(factory, token0, token1);
         (address tokenA, ) = Library.sortTokens(token0, token1);
 
         if (tokenA == token0) {
-            IPair(pair).longTermSwapFromAToB(
+            orderId = IPair(pair).longTermSwapFromAToB(
                 msg.sender,
                 amountIn,
                 numberOfBlockIntervals
             );
         } else {
-            IPair(pair).longTermSwapFromBToA(
+            orderId = IPair(pair).longTermSwapFromBToA(
                 msg.sender,
                 amountIn,
                 numberOfBlockIntervals
@@ -58,18 +58,18 @@ contract TWAMMTermSwap is ITWAMMTermSwap {
         uint256 amountTokenIn,
         uint256 numberOfBlockIntervals,
         uint256 deadline
-    ) external virtual override ensure(deadline) {
+    ) external virtual override ensure(deadline) returns (uint256 orderId) {
         address pair = Library.pairFor(factory, token, WETH);
         (address tokenA, ) = Library.sortTokens(token, WETH);
 
         if (tokenA == token) {
-            IPair(pair).longTermSwapFromAToB(
+            orderId = IPair(pair).longTermSwapFromAToB(
                 msg.sender,
                 amountTokenIn,
                 numberOfBlockIntervals
             );
         } else {
-            IPair(pair).longTermSwapFromBToA(
+            orderId = IPair(pair).longTermSwapFromBToA(
                 msg.sender,
                 amountTokenIn,
                 numberOfBlockIntervals
@@ -82,19 +82,26 @@ contract TWAMMTermSwap is ITWAMMTermSwap {
         uint256 amountETHIn,
         uint256 numberOfBlockIntervals,
         uint256 deadline
-    ) external payable virtual override ensure(deadline) {
+    )
+        external
+        payable
+        virtual
+        override
+        ensure(deadline)
+        returns (uint256 orderId)
+    {
         address pair = Library.pairFor(factory, WETH, token);
         (address tokenA, ) = Library.sortTokens(WETH, token);
         IWETH10(WETH).depositTo{value: amountETHIn}(msg.sender);
 
         if (tokenA == WETH) {
-            IPair(pair).longTermSwapFromAToB(
+            orderId = IPair(pair).longTermSwapFromAToB(
                 msg.sender,
                 amountETHIn,
                 numberOfBlockIntervals
             );
         } else {
-            IPair(pair).longTermSwapFromBToA(
+            orderId = IPair(pair).longTermSwapFromBToA(
                 msg.sender,
                 amountETHIn,
                 numberOfBlockIntervals

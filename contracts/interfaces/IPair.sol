@@ -2,6 +2,8 @@
 
 pragma solidity ^0.8.9;
 
+import "../libraries/LongTermOrders.sol";
+
 interface IPair {
     function factory() external view returns (address);
 
@@ -25,7 +27,7 @@ interface IPair {
 
     function getTotalSupply() external view returns (uint256);
 
-    function resetMapWETH(address to) external;
+    function resetMapWETH(address) external;
 
     event InitialLiquidityProvided(
         address indexed addr,
@@ -109,6 +111,11 @@ interface IPair {
         uint256 orderId,
         bool proceedETH
     ) external;
+
+    function getOrderDetails(uint256 orderId)
+        external
+        view
+        returns (LongTermOrdersLib.Order memory);
 
     function getOrderRewardFactorAtSubmission(uint256 orderId)
         external

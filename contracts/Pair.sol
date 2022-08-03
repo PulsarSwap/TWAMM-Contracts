@@ -390,6 +390,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     function getOrderDetails(uint256 orderId)
         external
         view
+        override
         returns (LongTermOrdersLib.Order memory)
     {
         return longTermOrders.orderMap[orderId];
@@ -403,7 +404,6 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         returns (uint256 orderRewardFactorAtSubmission)
     {
         address orderSellToken = longTermOrders.orderMap[orderId].sellTokenId;
-
         orderRewardFactorAtSubmission = longTermOrders
             .OrderPoolMap[orderSellToken]
             .rewardFactorAtSubmission[orderId];
