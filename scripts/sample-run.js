@@ -20,28 +20,28 @@ async function main() {
   const instantSwapAmount = ethers.utils.parseUnits("1");
   const termSwapAmount = ethers.utils.parseUnits("1");
   const numIntervalUnits = 10;
-  const token0Addr = "0xA21bBa2Dcf4DcA321D13337e6b33A1D780B1dFAA";
+  const token0Addr = "0xb0751fACbCcF598787c351Ce9541a4b203504c41";
   const token0 = await ethers.getContractAt("ERC20Mock", token0Addr);
-  const token1Addr = "0x0EE834CBBAC3Ad3FB3Ecc6A1B6B130DaAb9adC7B";
+  const token1Addr = "0x419E14a156daA5159ad73D36313E3520ff2a3F57";
   const token1 = await ethers.getContractAt("ERC20Mock", token1Addr);
 
   // loading necessary contracts
-  const TWAMMAddr = "0x7c0f35D765C7201E95DD1DC9760DF16cb8EeE80f";
+  const TWAMMAddr = "0xFe2E5fCe86495560574270f1F97a5ce9f534Cf94";
   const twamm = await ethers.getContractAt("TWAMM", TWAMMAddr);
 
-  const TWAMMLiquidityAddr = "0x0CcAcd0D37DA78525D8A3c9e424a0669c9F25098";
+  const TWAMMLiquidityAddr = "0x470C1F6F472f4ec19de25A467327188b5de96308";
   const twammLiquidity = await ethers.getContractAt(
     "TWAMMLiquidity",
     TWAMMLiquidityAddr
   );
 
-  const TWAMMInstantSwapAddr = "0x1C1674a19C47085A30B6a7B5827d3b6d9659cd97";
+  const TWAMMInstantSwapAddr = "0xf382E6ff0cE929FA5F10DBBD006213e7E1D14F53";
   const twammInstantSwap = await ethers.getContractAt(
     "TWAMMInstantSwap",
     TWAMMInstantSwapAddr
   );
 
-  const TWAMMTermSwapAddr = "0xC7CA07D4478Ff155b8979524BBF11AED0651324F";
+  const TWAMMTermSwapAddr = "0x6c859b445695E216e348A75287B453A2329F391F";
   const twammTermSwap = await ethers.getContractAt(
     "TWAMMTermSwap",
     TWAMMTermSwapAddr
@@ -89,6 +89,7 @@ async function main() {
     reserve0 = Object.values(reserves)[0];
     reserve1 = Object.values(reserves)[1];
     totalSupply = await twamm.obtainTotalSupply(pairAddr);
+    console.log('totalSupply', totalSupply);
     const amount0In = newLPTokens.mul(reserve0).div(totalSupply);
     const amount1In = newLPTokens.mul(reserve1).div(totalSupply);
     console.log(amount0In, amount1In);
@@ -123,13 +124,14 @@ async function main() {
   /////////////////first part: for cancel order //////////////////
   console.log("term swap");
   await token0.approve(pairAddr, termSwapAmount);
-  await twammTermSwap.longTermSwapTokenToToken(
+  let orderId = await twammTermSwap.longTermSwapTokenToToken(
     token0.address,
     token1.address,
     termSwapAmount,
     numIntervalUnits,
     timeStamp + 900
   );
+  console.log('orderId', orderId);
 
   await sleep(10000);
 

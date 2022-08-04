@@ -59,7 +59,7 @@ const rinkebyArgs = {
 
 const goerliArgs = {
   FeeToSetter: "0x9be86E75E67f2ef9a44730C60cF04Ef9F944CCee",
-  Factory: "0x554F686DD81b6e187454d8FCDBa9f610bc9a4987",
+  Factory: "0x352cC87c7e7F929CdaB776AAcb272954C4B187C5",
   WETH: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
 };
 
