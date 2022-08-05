@@ -44,9 +44,7 @@ function computeAmmEndTokenA(
 ): BigNumber {
   let eNumerator = sqrt(tokenAIn.mul(4)).mul(sqrt(tokenBIn));
   let eDenominator = sqrt(tokenAStart).mul(sqrt(tokenBStart));
-  let exponent1 = eNumerator.div(eDenominator);
-  let exponent = exponent1.mul(exponent1).add(exponent1).add(1);
-  // require("exponent.gt(c.abs())");
+  let exponent = BigNumber.from(eNumerator.div(eDenominator).toNumber().toExponential());
   let fraction = exponent.add(c).div(exponent.sub(c));
   let scaling = sqrt(k.div(tokenBIn)).mul(sqrt(tokenAIn));
   let ammEndTokenA = fraction.mul(scaling);
@@ -109,31 +107,10 @@ async function executeVirtualOrders(
   [BigNumber, BigNumber, number, BigNumber, BigNumber, BigNumber, BigNumber]
 > {
   const token0Addr = "0xb0751fACbCcF598787c351Ce9541a4b203504c41";
-  // const token0 = await ethers.getContractAt("ERC20Mock", token0Addr);
   const token1Addr = "0x419E14a156daA5159ad73D36313E3520ff2a3F57";
-  // const token1 = await ethers.getContractAt("ERC20Mock", token1Addr);
-
   // loading necessary contracts
   const TWAMMAddr = "0xFe2E5fCe86495560574270f1F97a5ce9f534Cf94";
   const twamm = await ethers.getContractAt("TWAMM", TWAMMAddr);
-
-  // const TWAMMLiquidityAddr = "0x470C1F6F472f4ec19de25A467327188b5de96308";
-  // const twammLiquidity = await ethers.getContractAt(
-  //     "TWAMMLiquidity",
-  //     TWAMMLiquidityAddr
-  // );
-
-  // const TWAMMInstantSwapAddr = "0xf382E6ff0cE929FA5F10DBBD006213e7E1D14F53";
-  // const twammInstantSwap = await ethers.getContractAt(
-  //     "TWAMMInstantSwap",
-  //     TWAMMInstantSwapAddr
-  // );
-
-  // const TWAMMTermSwapAddr = "0x6c859b445695E216e348A75287B453A2329F391F";
-  // const twammTermSwap = await ethers.getContractAt(
-  //     "TWAMMTermSwap",
-  //     TWAMMTermSwapAddr
-  // );
 
   const pairAddr = await twamm.obtainPairAddress(token0Addr, token1Addr);
   console.log("pair address check", pairAddr);
@@ -142,9 +119,6 @@ async function executeVirtualOrders(
   //variables
   let orderBlockInterval = 5;
   let i;
-
-  // let tokenA;
-  // let tokenB;
 
   let reserveA: BigNumber;
   let reserveB: BigNumber;
