@@ -4,7 +4,6 @@ const hre = require("hardhat");
 const ethers = hre.ethers;
 
 const bigZero = BigNumber.from(0);
-// const bigFour = new bn(4);
 
 function sqrt(value: BigNumber): BigNumber {
   return BigNumber.from(
@@ -12,13 +11,6 @@ function sqrt(value: BigNumber): BigNumber {
   );
 }
 
-// function pow(value0: BigNumber, value1: BigNumber): BigNumber {
-//     return BigNumber.from(
-//         .new bn(Math.pow(new bn(value0.toString()), new bn(value1.toString())))
-//         .toFixed()
-//         .split(".")[0]
-//     );
-// }
 
 function computeC(
   tokenAStart: BigNumber,
