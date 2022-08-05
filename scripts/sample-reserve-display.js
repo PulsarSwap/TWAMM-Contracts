@@ -12,16 +12,12 @@ async function listener() {
   return info;
 }
 async function main() {
-  if (hre.network.name === "mainnet") {
-    console.log("Deploying TWAMM to mainnet. Hit ctrl + c to abort");
-  }
-
   const [account] = await ethers.getSigners();
   console.log("Account Address:", await account.getAddress());
 
   console.log("Account balance:", (await account.getBalance()).toString());
 
-  //some hyperparameters
+  // some hyperparameter
   const initialLPSupply = ethers.utils.parseUnits("10");
   const continualLPSupply = ethers.utils.parseUnits("1");
   const instantSwapAmount = ethers.utils.parseUnits("1");
@@ -33,22 +29,22 @@ async function main() {
   const token1 = await ethers.getContractAt("ERC20Mock", token1Addr);
 
   // loading necessary contracts
-  const TWAMMAddr = "0x4005FE9eea50496783199b5216AEd6843eD7C17e";
+  const TWAMMAddr = "0xE4e55FE1e3D5A716C3d7036a56F270Df66Eb178E";
   const twamm = await ethers.getContractAt("TWAMM", TWAMMAddr);
 
-  const TWAMMLiquidityAddr = "0x2e8FC313e93308ff35e694cD8E9613eC44525970";
+  const TWAMMLiquidityAddr = "0x50f3eA4f7324dE8EAD0ed1Ff0d177EE4a5817c48";
   const twammLiquidity = await ethers.getContractAt(
     "TWAMMLiquidity",
     TWAMMLiquidityAddr
   );
 
-  const TWAMMInstantSwapAddr = "0x7ac44C494bfB712F192471b4446E8cB21FEd6386";
+  const TWAMMInstantSwapAddr = "0x54f8980EC9E09eE4A2FA68A6E7B0149e2de9e509";
   const twammInstantSwap = await ethers.getContractAt(
     "TWAMMInstantSwap",
     TWAMMInstantSwapAddr
   );
 
-  const TWAMMTermSwapAddr = "0x346985078578dC096FD957D69c09A948fC736e28";
+  const TWAMMTermSwapAddr = "0xb2b99DC2775b675bb7acaCECd561C11D1ef7d32B";
   const twammTermSwap = await ethers.getContractAt(
     "TWAMMTermSwap",
     TWAMMTermSwapAddr
@@ -56,7 +52,7 @@ async function main() {
 
   const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
-  //provide (initial) liquidity
+  // provide (initial) liquidity
   let currentBlockNumber = await ethers.provider.getBlockNumber();
   let timeStamp = (await ethers.provider.getBlock(currentBlockNumber))
     .timestamp;
@@ -64,9 +60,8 @@ async function main() {
   try {
     await twamm.createPairWrapper(token0Addr, token1Addr, timeStamp + 100);
   } catch (error) {
-    // console.log(error);
     console.log(
-      "continute without pair creation, the pair might be created already."
+      "continue without pair creation, the pair might be created already."
     );
   }
   const pairAddr = await twamm.obtainPairAddress(token0Addr, token1Addr);
@@ -81,7 +76,7 @@ async function main() {
   const filter1 = {
     address: pairAddr,
     topics: [
-      // the name of the event, parnetheses containing the data type of each event, no spaces
+      // the name of the event, parentheses containing the data type of each event, no spaces
       ethers.utils.id("Transfer(address,address,uint256)"),
     ],
   };

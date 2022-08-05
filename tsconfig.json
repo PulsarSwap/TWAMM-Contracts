@@ -12,7 +12,8 @@
     "./test",
     "./typechain",
     "twamm-test.js",
-    "twamm-bak.js"
+    "twamm-bak.js",
+    "state-update.js"
   ],
   "files": ["./hardhat.config.ts"]
 }

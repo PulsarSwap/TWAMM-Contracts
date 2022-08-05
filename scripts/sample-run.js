@@ -6,15 +6,11 @@ let reserves;
 let totalSupply;
 
 async function main() {
-  if (hre.network.name === "mainnet") {
-    console.log("Deploying TWAMM to mainnet. Hit ctrl + c to abort");
-  }
-
   const [account] = await ethers.getSigners();
   console.log("Account Address:", await account.getAddress());
   console.log("Account balance:", (await account.getBalance()).toString());
 
-  //some hyperparameters
+  // some hyperparameter
   const initialLPSupply = ethers.utils.parseUnits("10");
   const continualLPSupply = ethers.utils.parseUnits("1");
   const instantSwapAmount = ethers.utils.parseUnits("1");
@@ -49,15 +45,15 @@ async function main() {
 
   const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
-  //provide (initial) liquidity
+  // provide (initial) liquidity
   let currentBlockNumber = await ethers.provider.getBlockNumber();
   let timeStamp = (await ethers.provider.getBlock(currentBlockNumber))
     .timestamp;
   console.log("current block number", timeStamp);
   try {
     await twamm.createPairWrapper(token0Addr, token1Addr, timeStamp + 100);
+    console.log("create pair successfully");
   } catch (error) {
-    //console.log(error);
     console.log(
       "continue without pair creation, the pair might be created already."
     );
@@ -79,24 +75,23 @@ async function main() {
       timeStamp + 300
     );
   } catch (error) {
-    //console.log(error);
     console.log(
       "initial liquidity might be provided, add more liquidity instead."
     );
-    //uncomment below to enable add liquidity
+    // uncomment below to enable add liquidity
     const newLPTokens = continualLPSupply;
     reserves = await twamm.obtainReserves(token0.address, token1.address);
     reserve0 = Object.values(reserves)[0];
     reserve1 = Object.values(reserves)[1];
     totalSupply = await twamm.obtainTotalSupply(pairAddr);
-    console.log('totalSupply', totalSupply);
+    console.log("totalSupply", totalSupply);
     const amount0In = newLPTokens.mul(reserve0).div(totalSupply);
     const amount1In = newLPTokens.mul(reserve1).div(totalSupply);
     console.log(amount0In, amount1In);
     tx0 = await token0.approve(pairAddr, amount0In);
-    //await tx0.wait();
+    // await tx0.wait();
     tx1 = await token1.approve(pairAddr, amount1In);
-    //await tx1.wait();
+    // await tx1.wait();
 
     await twammLiquidity.addLiquidity(
       token0Addr,
@@ -106,7 +101,7 @@ async function main() {
     );
   }
 
-  //perform instant swap
+  // perform instant swap
   console.log("instant swap");
   await token0.approve(pairAddr, instantSwapAmount);
   await twammInstantSwap.instantSwapTokenToToken(
@@ -116,7 +111,7 @@ async function main() {
     timeStamp + 700
   );
 
-  //perform term swap
+  // perform term swap
   let pair = await ethers.getContractAt("Pair", pairAddr);
   console.log("get order Ids");
   let orderIds = await pair.userIdsCheck(account.getAddress());
@@ -131,7 +126,7 @@ async function main() {
     numIntervalUnits,
     timeStamp + 900
   );
-  console.log('orderId', orderId);
+  console.log("orderId", orderId);
 
   await sleep(10000);
 

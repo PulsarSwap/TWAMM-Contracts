@@ -12,30 +12,30 @@ async function main() {
   const instantSwapAmount = ethers.utils.parseUnits("1");
   const termSwapAmount = ethers.utils.parseUnits("1");
   const numIntervalUnits = 100;
-  const token0Addr = "0xb0751fACbCcF598787c351Ce9541a4b203504c41";
+  const token0Addr = "0xA21bBa2Dcf4DcA321D13337e6b33A1D780B1dFAA";
   const token0 = await ethers.getContractAt("ERC20Mock", token0Addr);
-  const token1Addr = "0x419E14a156daA5159ad73D36313E3520ff2a3F57";
+  const token1Addr = "0x0EE834CBBAC3Ad3FB3Ecc6A1B6B130DaAb9adC7B";
   const token1 = await ethers.getContractAt("ERC20Mock", token1Addr);
 
   // loading necessary contracts
-  const TWAMMAddr = "0xFe2E5fCe86495560574270f1F97a5ce9f534Cf94";
-  const twamm = await ethers.getContractAt("ITWAMM", TWAMMAddr);
+  const TWAMMAddr = "0xE4e55FE1e3D5A716C3d7036a56F270Df66Eb178E";
+  const twamm = await ethers.getContractAt("TWAMM", TWAMMAddr);
 
-  const TWAMMLiquidityAddr = "0x470C1F6F472f4ec19de25A467327188b5de96308";
+  const TWAMMLiquidityAddr = "0x50f3eA4f7324dE8EAD0ed1Ff0d177EE4a5817c48";
   const twammLiquidity = await ethers.getContractAt(
-    "ITWAMMLiquidity",
+    "TWAMMLiquidity",
     TWAMMLiquidityAddr
   );
 
-  const TWAMMInstantSwapAddr = "0xf382E6ff0cE929FA5F10DBBD006213e7E1D14F53";
+  const TWAMMInstantSwapAddr = "0x54f8980EC9E09eE4A2FA68A6E7B0149e2de9e509";
   const twammInstantSwap = await ethers.getContractAt(
-    "ITWAMMInstantSwap",
+    "TWAMMInstantSwap",
     TWAMMInstantSwapAddr
   );
 
-  const TWAMMTermSwapAddr = "0x6c859b445695E216e348A75287B453A2329F391F";
+  const TWAMMTermSwapAddr = "0xb2b99DC2775b675bb7acaCECd561C11D1ef7d32B";
   const twammTermSwap = await ethers.getContractAt(
-    "ITWAMMTermSwap",
+    "TWAMMTermSwap",
     TWAMMTermSwapAddr
   );
 
