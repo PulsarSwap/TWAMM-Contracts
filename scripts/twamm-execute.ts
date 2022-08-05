@@ -11,7 +11,6 @@ function sqrt(value: BigNumber): BigNumber {
   );
 }
 
-
 function computeC(
   tokenAStart: BigNumber,
   tokenBStart: BigNumber,
@@ -36,7 +35,7 @@ function computeAmmEndTokenA(
 ): BigNumber {
   let eNumerator = sqrt(tokenAIn.mul(4)).mul(sqrt(tokenBIn));
   let eDenominator = sqrt(tokenAStart).mul(sqrt(tokenBStart));
-  let exponent = BigNumber.from(eNumerator.div(eDenominator).toNumber().toExponential());
+  let exponent = BigNumber.from(Math.exp(eNumerator.div(eDenominator).toNumber()));
   let fraction = exponent.add(c).div(exponent.sub(c));
   let scaling = sqrt(k.div(tokenBIn)).mul(sqrt(tokenAIn));
   let ammEndTokenA = fraction.mul(scaling);

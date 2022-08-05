@@ -47,7 +47,7 @@ async function main() {
     currentSalesRateB,
     rewardFactorA,
     rewardFactorB,
-  ] = await executeVirtualOrders(currentBlockNumber+200);
+  ] = await executeVirtualOrders(currentBlockNumber+10);
   console.log('future check')
   console.log("reserveA", reserveA);
   console.log("reserveB", reserveB);
