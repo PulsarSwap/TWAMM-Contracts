@@ -111,7 +111,7 @@ async function executeVirtualOrders(
 
   //variables
   let orderBlockInterval = 5;
-  let i;
+  let i: number;
 
   let reserveA: BigNumber;
   let reserveB: BigNumber;
@@ -125,6 +125,7 @@ async function executeVirtualOrders(
   //get the variable value through the view function
   reserveA = await pair.tokenAReserves();
   reserveB = await pair.tokenBReserves();
+
   [
     lastVirtualOrderBlock,
     currentSalesRateA,
