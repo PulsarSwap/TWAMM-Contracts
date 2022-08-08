@@ -41,9 +41,9 @@ async function main() {
     Object.keys(orderIds).length - 1
   ];
 
-  let expirationBlock: number = await pair.getOrderDetails(orderId).expirationBlock;
-  let saleRate: BigNumber = await pair.getOrderDetails(orderId).saleRate;
-  let sellTokenId = await pair.getOrderDetails(orderId).sellTokenId;
+  let { expirationBlock, saleRate, sellTokenId } = await pair.getOrderDetails(
+    orderId
+  );
 
   orderRewardFactorAtSubmission = await pair.getOrderRewardFactorAtSubmission(
     orderId
@@ -58,18 +58,18 @@ async function main() {
       currentSalesRateB,
       rewardFactorA,
       rewardFactorB,
-	] = await executeVirtualOrders(expirationBlock);
+    ] = await executeVirtualOrders(expirationBlock);
 
     if (sellTokenId == tokenAAddr) {
-      withdrawableProceeds = (rewardFactorA
-		  .sub(orderRewardFactorAtSubmission))
-		  .mul(saleRate)
+      withdrawableProceeds = rewardFactorA
+        .sub(orderRewardFactorAtSubmission)
+        .mul(saleRate)
         .mul(97)
         .div(100);
     } else {
-      withdrawableProceeds = (rewardFactorB
-		  .sub(orderRewardFactorAtSubmission))
-		  .mul(saleRate)
+      withdrawableProceeds = rewardFactorB
+        .sub(orderRewardFactorAtSubmission)
+        .mul(saleRate)
         .mul(97)
         .div(100);
     }
@@ -86,14 +86,16 @@ async function main() {
     ] = await executeVirtualOrders(currentBlockNumber);
 
     if (sellTokenId == tokenAAddr) {
-      withdrawableProceeds = (rewardFactorA
-		  .sub(orderRewardFactorAtSubmission))
-		  .mul(saleRate)
+      console.log("til current block");
+      withdrawableProceeds = rewardFactorA
+        .sub(orderRewardFactorAtSubmission)
+        .mul(saleRate)
         .mul(97)
         .div(100);
     } else {
-      withdrawableProceeds = (rewardFactorB
-		  .sub(orderRewardFactorAtSubmission))
+      console.log("til current block");
+      withdrawableProceeds = rewardFactorB
+        .sub(orderRewardFactorAtSubmission)
         .mul(saleRate)
         .mul(97)
         .div(100);
