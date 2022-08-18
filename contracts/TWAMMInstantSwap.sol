@@ -70,21 +70,32 @@ contract TWAMMInstantSwap is ITWAMMInstantSwap {
         (address tokenA, ) = Library.sortTokens(token, WETH);
 
         if (tokenA == token) {
-            IPair(pair).instantSwapFromAToB(msg.sender, amountTokenIn, true);
+            amountETHOut = IPair(pair).instantSwapFromAToB(
+                msg.sender,
+                amountTokenIn,
+                true
+            );
         } else {
-            IPair(pair).instantSwapFromBToA(msg.sender, amountTokenIn, true);
+            amountETHOut = IPair(pair).instantSwapFromBToA(
+                msg.sender,
+                amountTokenIn,
+                true
+            );
         }
 
-        amountETHOut = IPair(pair).tmpMapWETH(msg.sender);
-        require(amountETHOut >= amountETHOutMin, "Insufficient Output Amount");
+        uint256 amountETHWithdraw = IPair(pair).tmpMapWETH(msg.sender);
         require(
-            IWETH10(WETH).balanceOf(address(this)) >= amountETHOut,
+            amountETHWithdraw >= amountETHOutMin,
+            "Insufficient Output Amount"
+        );
+        require(
+            IWETH10(WETH).balanceOf(address(this)) >= amountETHWithdraw,
             "Inaccurate Amount for WETH."
         );
         IWETH10(WETH).withdrawFrom(
             address(this),
             payable(msg.sender),
-            amountETHOut
+            amountETHWithdraw
         );
         IPair(pair).resetMapWETH(msg.sender);
     }
