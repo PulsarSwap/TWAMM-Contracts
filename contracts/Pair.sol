@@ -43,7 +43,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     mapping(address => uint256) public override tmpMapWETH;
 
     ///@notice data structure to handle long term orders
-    LongTermOrdersLib.LongTermOrders internal longTermOrders;
+    LongTermOrdersLib.LongTermOrders public longTermOrders;
 
     constructor(
         address _tokenA,

@@ -59,7 +59,7 @@ library LongTermOrdersLib {
         address refWETH,
         uint256 lastVirtualOrderBlock,
         uint256 orderBlockInterval
-    ) internal {
+    ) public {
         self.tokenA = tokenA;
         self.tokenB = tokenB;
         self.refTWAMM = refTWAMM;
@@ -75,7 +75,7 @@ library LongTermOrdersLib {
         uint256 amountA,
         uint256 numberOfBlockIntervals,
         mapping(address => uint256) storage reserveMap
-    ) internal returns (uint256) {
+    ) public returns (uint256) {
         return
             performLongTermSwap(
                 self,
@@ -95,7 +95,7 @@ library LongTermOrdersLib {
         uint256 amountB,
         uint256 numberOfBlockIntervals,
         mapping(address => uint256) storage reserveMap
-    ) internal returns (uint256) {
+    ) public returns (uint256) {
         return
             performLongTermSwap(
                 self,
@@ -162,7 +162,7 @@ library LongTermOrdersLib {
         uint256 orderId,
         bool proceedETH,
         mapping(address => uint256) storage reserveMap
-    ) internal returns (uint256) {
+    ) public returns (uint256) {
         //update virtual order state
         executeVirtualOrdersUntilSpecifiedBlock(self, reserveMap, block.number);
 
@@ -226,7 +226,7 @@ library LongTermOrdersLib {
         uint256 orderId,
         bool proceedETH,
         mapping(address => uint256) storage reserveMap
-    ) internal returns (uint256) {
+    ) public returns (uint256) {
         //update virtual order state
         executeVirtualOrdersUntilSpecifiedBlock(self, reserveMap, block.number);
 
@@ -322,7 +322,7 @@ library LongTermOrdersLib {
         LongTermOrders storage self,
         mapping(address => uint256) storage reserveMap,
         uint256 blockNumber
-    ) internal {
+    ) public {
         require(
             blockNumber <= block.number,
             "Specified Block Number Cannot Be Greater Than The Current Block Number!"

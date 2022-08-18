@@ -32,9 +32,19 @@ contract TWAMMInstantSwap is ITWAMMInstantSwap {
         address token0,
         address token1,
         uint256 amountIn,
+        uint256 amountOutMin,
         uint256 deadline
     ) external virtual override ensure(deadline) {
         address pair = Library.pairFor(factory, token0, token1);
+        IPair(pair).executeVirtualOrders(block.number);
+        (uint256 reserve0, uint256 reserve1) = Library.getReserves(
+            factory,
+            token0,
+            token1
+        );
+        uint256 amountOut = ((reserve1 * amountIn * 997) / 1000) /
+            (reserve0 + amountIn);
+        require(amountOut >= amountOutMin, "Insufficient Output Amount");
         (address tokenA, ) = Library.sortTokens(token0, token1);
 
         if (tokenA == token0) {
@@ -47,6 +57,7 @@ contract TWAMMInstantSwap is ITWAMMInstantSwap {
     function instantSwapTokenToETH(
         address token,
         uint256 amountTokenIn,
+        uint256 amountETHOutMin,
         uint256 deadline
     ) external virtual override ensure(deadline) {
         address pair = Library.pairFor(factory, token, WETH);
@@ -59,6 +70,10 @@ contract TWAMMInstantSwap is ITWAMMInstantSwap {
         }
 
         uint256 amountETHWithdraw = IPair(pair).tmpMapWETH(msg.sender);
+        require(
+            amountETHWithdraw >= amountETHOutMin,
+            "Insufficient Output Amount"
+        );
         require(
             IWETH10(WETH).balanceOf(address(this)) >= amountETHWithdraw,
             "Inaccurate Amount for WETH."
@@ -74,9 +89,22 @@ contract TWAMMInstantSwap is ITWAMMInstantSwap {
     function instantSwapETHToToken(
         address token,
         uint256 amountETHIn,
+        uint256 amountTokenOutMin,
         uint256 deadline
     ) external payable virtual override ensure(deadline) {
         address pair = Library.pairFor(factory, WETH, token);
+        IPair(pair).executeVirtualOrders(block.number);
+        (uint256 reserveETH, uint256 reserveToken) = Library.getReserves(
+            factory,
+            WETH,
+            token
+        );
+        uint256 amountTokenOut = ((reserveToken * amountETHIn * 997) / 1000) /
+            (reserveETH + amountETHIn);
+        require(
+            amountTokenOut >= amountTokenOutMin,
+            "Insufficient Output Amount"
+        );
         (address tokenA, ) = Library.sortTokens(WETH, token);
         IWETH10(WETH).depositTo{value: amountETHIn}(msg.sender);
 

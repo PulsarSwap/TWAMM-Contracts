@@ -12,7 +12,7 @@ library Library {
 
     // returns sorted token addresses, used to handle return values from pairs sorted in this order
     function sortTokens(address token0, address token1)
-        internal
+        public
         pure
         returns (address tokenA, address tokenB)
     {
@@ -28,7 +28,7 @@ library Library {
         address factory,
         address token0,
         address token1
-    ) internal view returns (address pair) {
+    ) public view returns (address pair) {
         (address tokenA, address tokenB) = sortTokens(token0, token1);
         bytes memory bytecode = type(Pair).creationCode;
         bytes memory bytecodeArg = abi.encodePacked(
@@ -63,7 +63,7 @@ library Library {
         address factory,
         address token0,
         address token1
-    ) internal view returns (uint256 reserve0, uint256 reserve1) {
+    ) public view returns (uint256 reserve0, uint256 reserve1) {
         (address tokenA, ) = sortTokens(token0, token1);
         uint256 reserveA = IPair(pairFor(factory, token0, token1))
             .tokenAReserves();
@@ -79,7 +79,7 @@ library Library {
         uint256 amount0,
         uint256 reserve0,
         uint256 reserve1
-    ) internal pure returns (uint256 amount1) {
+    ) public pure returns (uint256 amount1) {
         require(amount0 > 0, "Library: Insufficient Amount");
         require(
             reserve0 > 0 && reserve1 > 0,

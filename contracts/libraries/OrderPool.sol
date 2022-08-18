@@ -31,7 +31,7 @@ library OrderPoolLib {
 
     ///@notice distribute payment amount to pool (in the case of TWAMM, proceeds from trades against amm)
     function distributePayment(OrderPool storage self, uint256 amount)
-        internal
+        public
     {
         if (self.currentSalesRate != 0) {
             //floating point arithmetic
@@ -47,7 +47,7 @@ library OrderPoolLib {
         uint256 orderId,
         uint256 amountPerBlock,
         uint256 orderExpiry
-    ) internal {
+    ) public {
         self.currentSalesRate += amountPerBlock;
         self.rewardFactorAtSubmission[orderId] = self.rewardFactor;
         self.orderExpiry[orderId] = orderExpiry;
@@ -59,7 +59,7 @@ library OrderPoolLib {
     function updateStateFromBlockExpiry(
         OrderPool storage self,
         uint256 blockNumber
-    ) internal {
+    ) public {
         uint256 ordersExpiring = self.salesRateEndingPerBlock[blockNumber];
         self.currentSalesRate -= ordersExpiring;
         self.rewardFactorAtBlock[blockNumber] = self.rewardFactor;
@@ -67,7 +67,7 @@ library OrderPoolLib {
 
     ///@notice cancel order and remove from the order pool
     function cancelOrder(OrderPool storage self, uint256 orderId)
-        internal
+        public
         returns (uint256 unsoldAmount, uint256 purchasedAmount)
     {
         uint256 expiry = self.orderExpiry[orderId];
@@ -97,7 +97,7 @@ library OrderPoolLib {
     //If the order has expired, we calculate the reward factor at time of expiry. If order has not yet expired, we
     //use current reward factor, and update the reward factor at time of staking (effectively creating a new order)
     function withdrawProceeds(OrderPool storage self, uint256 orderId)
-        internal
+        public
         returns (uint256 totalReward)
     {
         uint256 stakedAmount = self.salesRate[orderId];
