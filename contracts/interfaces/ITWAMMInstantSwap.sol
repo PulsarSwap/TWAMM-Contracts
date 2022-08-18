@@ -7,18 +7,21 @@ interface ITWAMMInstantSwap {
         address token0,
         address token1,
         uint256 amountIn,
+        uint256 amountOutMin,
         uint256 deadline
-    ) external;
+    ) external returns (uint256 amountOut);
 
     function instantSwapTokenToETH(
         address token,
         uint256 amountTokenIn,
+        uint256 amountETHOutMin,
         uint256 deadline
-    ) external;
+    ) external returns (uint256 amountETHOut);
 
     function instantSwapETHToToken(
         address token,
         uint256 amountETHIn,
+        uint256 amountTokenOutMin,
         uint256 deadline
-    ) external payable;
+    ) external payable returns (uint256 amountTokenOut);
 }
