@@ -80,7 +80,7 @@ interface IPair {
         address sender,
         uint256 amountAIn,
         bool proceedETH
-    ) external;
+    ) external returns (uint256 amountBOut);
 
     function longTermSwapFromAToB(
         address sender,
@@ -92,7 +92,7 @@ interface IPair {
         address sender,
         uint256 amountBIn,
         bool proceedETH
-    ) external;
+    ) external returns (uint256 amountAOut);
 
     function longTermSwapFromBToA(
         address sender,

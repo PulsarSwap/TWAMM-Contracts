@@ -34,24 +34,24 @@ contract TWAMMInstantSwap is ITWAMMInstantSwap {
         uint256 amountIn,
         uint256 amountOutMin,
         uint256 deadline
-    ) external virtual override ensure(deadline) {
+    ) external virtual override ensure(deadline) returns (uint256 amountOut) {
         address pair = Library.pairFor(factory, token0, token1);
-        IPair(pair).executeVirtualOrders(block.number);
-        (uint256 reserve0, uint256 reserve1) = Library.getReserves(
-            factory,
-            token0,
-            token1
-        );
-        uint256 amountOut = ((reserve1 * amountIn * 997) / 1000) /
-            (reserve0 + amountIn);
-        require(amountOut >= amountOutMin, "Insufficient Output Amount");
         (address tokenA, ) = Library.sortTokens(token0, token1);
 
         if (tokenA == token0) {
-            IPair(pair).instantSwapFromAToB(msg.sender, amountIn, false);
+            amountOut = IPair(pair).instantSwapFromAToB(
+                msg.sender,
+                amountIn,
+                false
+            );
         } else {
-            IPair(pair).instantSwapFromBToA(msg.sender, amountIn, false);
+            amountOut = IPair(pair).instantSwapFromBToA(
+                msg.sender,
+                amountIn,
+                false
+            );
         }
+        require(amountOut >= amountOutMin, "Insufficient Output Amount");
     }
 
     function instantSwapTokenToETH(
@@ -59,7 +59,13 @@ contract TWAMMInstantSwap is ITWAMMInstantSwap {
         uint256 amountTokenIn,
         uint256 amountETHOutMin,
         uint256 deadline
-    ) external virtual override ensure(deadline) {
+    )
+        external
+        virtual
+        override
+        ensure(deadline)
+        returns (uint256 amountETHOut)
+    {
         address pair = Library.pairFor(factory, token, WETH);
         (address tokenA, ) = Library.sortTokens(token, WETH);
 
@@ -69,19 +75,16 @@ contract TWAMMInstantSwap is ITWAMMInstantSwap {
             IPair(pair).instantSwapFromBToA(msg.sender, amountTokenIn, true);
         }
 
-        uint256 amountETHWithdraw = IPair(pair).tmpMapWETH(msg.sender);
+        amountETHOut = IPair(pair).tmpMapWETH(msg.sender);
+        require(amountETHOut >= amountETHOutMin, "Insufficient Output Amount");
         require(
-            amountETHWithdraw >= amountETHOutMin,
-            "Insufficient Output Amount"
-        );
-        require(
-            IWETH10(WETH).balanceOf(address(this)) >= amountETHWithdraw,
+            IWETH10(WETH).balanceOf(address(this)) >= amountETHOut,
             "Inaccurate Amount for WETH."
         );
         IWETH10(WETH).withdrawFrom(
             address(this),
             payable(msg.sender),
-            amountETHWithdraw
+            amountETHOut
         );
         IPair(pair).resetMapWETH(msg.sender);
     }
@@ -91,28 +94,35 @@ contract TWAMMInstantSwap is ITWAMMInstantSwap {
         uint256 amountETHIn,
         uint256 amountTokenOutMin,
         uint256 deadline
-    ) external payable virtual override ensure(deadline) {
+    )
+        external
+        payable
+        virtual
+        override
+        ensure(deadline)
+        returns (uint256 amountTokenOut)
+    {
         address pair = Library.pairFor(factory, WETH, token);
-        IPair(pair).executeVirtualOrders(block.number);
-        (uint256 reserveETH, uint256 reserveToken) = Library.getReserves(
-            factory,
-            WETH,
-            token
-        );
-        uint256 amountTokenOut = ((reserveToken * amountETHIn * 997) / 1000) /
-            (reserveETH + amountETHIn);
-        require(
-            amountTokenOut >= amountTokenOutMin,
-            "Insufficient Output Amount"
-        );
         (address tokenA, ) = Library.sortTokens(WETH, token);
         IWETH10(WETH).depositTo{value: amountETHIn}(msg.sender);
 
         if (tokenA == WETH) {
-            IPair(pair).instantSwapFromAToB(msg.sender, amountETHIn, false);
+            amountTokenOut = IPair(pair).instantSwapFromAToB(
+                msg.sender,
+                amountETHIn,
+                false
+            );
         } else {
-            IPair(pair).instantSwapFromBToA(msg.sender, amountETHIn, false);
+            amountTokenOut = IPair(pair).instantSwapFromBToA(
+                msg.sender,
+                amountETHIn,
+                false
+            );
         }
+        require(
+            amountTokenOut >= amountTokenOutMin,
+            "Insufficient Output Amount"
+        );
         // refund dust eth, if any
         if (msg.value > amountETHIn)
             TransferHelper.safeTransferETH(msg.sender, msg.value - amountETHIn);

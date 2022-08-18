@@ -43,7 +43,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
     mapping(address => uint256) public override tmpMapWETH;
 
     ///@notice data structure to handle long term orders
-    LongTermOrdersLib.LongTermOrders public longTermOrders;
+    LongTermOrdersLib.LongTermOrders internal longTermOrders;
 
     constructor(
         address _tokenA,
@@ -252,9 +252,9 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         address sender,
         uint256 amountAIn,
         bool proceedETH
-    ) external override checkCaller nonReentrant {
+    ) external override checkCaller nonReentrant returns (uint256 amountBOut) {
         require(amountAIn > 0, "Invalid Amount");
-        uint256 amountBOut = performInstantSwap(
+        amountBOut = performInstantSwap(
             sender,
             tokenA,
             tokenB,
@@ -289,9 +289,9 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
         address sender,
         uint256 amountBIn,
         bool proceedETH
-    ) external override checkCaller nonReentrant {
+    ) external override checkCaller nonReentrant returns (uint256 amountAOut) {
         require(amountBIn > 0, "Invalid Amount");
-        uint256 amountAOut = performInstantSwap(
+        amountAOut = performInstantSwap(
             sender,
             tokenB,
             tokenA,

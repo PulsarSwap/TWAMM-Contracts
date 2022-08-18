@@ -30,9 +30,7 @@ library OrderPoolLib {
     }
 
     ///@notice distribute payment amount to pool (in the case of TWAMM, proceeds from trades against amm)
-    function distributePayment(OrderPool storage self, uint256 amount)
-        public
-    {
+    function distributePayment(OrderPool storage self, uint256 amount) public {
         if (self.currentSalesRate != 0) {
             //floating point arithmetic
             self.rewardFactor += amount.fromUint().div(

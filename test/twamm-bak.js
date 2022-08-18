@@ -34,8 +34,37 @@ describe("TWAMM", function () {
     await network.provider.send("evm_setAutomine", [true]);
     [owner, addr0, addr1, ...addrs] = await ethers.getSigners();
 
+    const safeMathLib = await (
+      await ethers.getContractFactory("SafeMath")
+    ).deploy();
+
+    const transferHelperLib = await (
+      await ethers.getContractFactory("TransferHelper")
+    ).deploy();
+
+    const orderPoolLib = await (
+      await ethers.getContractFactory("OrderPoolLib")
+    ).deploy();
+
+    const longTermOrdersLib = await (
+      await ethers.getContractFactory("LongTermOrdersLib", {
+        libraries: { OrderPoolLib: orderPoolLib.address },
+      })
+    ).deploy();
+
+    const libraryLib = await (
+      await ethers.getContractFactory("Library", {
+        libraries: {
+          SafeMath: safeMathLib.address,
+          LongTermOrdersLib: longTermOrdersLib.address,
+        },
+      })
+    ).deploy();
+
     //factory deployment
-    const Factory = await ethers.getContractFactory("Factory");
+    const Factory = await ethers.getContractFactory("Factory", {
+      libraries: { LongTermOrdersLib: longTermOrdersLib.address },
+    });
     factory = await Factory.deploy(addr0.address);
 
     //deploy three tokens and WETH for pair creation
@@ -52,7 +81,10 @@ describe("TWAMM", function () {
     const TWAMMInstantSwap = await ethers.getContractFactory(
       "TWAMMInstantSwap",
       {
-        gasLimit: "8000000",
+        libraries: {
+          Library: libraryLib.address,
+          TransferHelper: transferHelperLib.address,
+        },
       }
     );
     twammInstantSwap = await TWAMMInstantSwap.deploy(
@@ -61,17 +93,26 @@ describe("TWAMM", function () {
     );
 
     const TWAMMTermSwap = await ethers.getContractFactory("TWAMMTermSwap", {
-      gasLimit: "8000000",
+      libraries: {
+        Library: libraryLib.address,
+        TransferHelper: transferHelperLib.address,
+      },
     });
     twammTermSwap = await TWAMMTermSwap.deploy(factory.address, WETH.address);
 
     const TWAMMLiquidity = await ethers.getContractFactory("TWAMMLiquidity", {
-      gasLimit: "8000000",
+      libraries: {
+        Library: libraryLib.address,
+        TransferHelper: transferHelperLib.address,
+      },
     });
     twammLiquidity = await TWAMMLiquidity.deploy(factory.address, WETH.address);
 
     const TWAMM = await ethers.getContractFactory("TWAMM", {
-      gasLimit: "8000000",
+      libraries: {
+        Library: libraryLib.address,
+        TransferHelper: transferHelperLib.address,
+      },
     });
     twamm = await TWAMM.deploy(
       factory.address,
