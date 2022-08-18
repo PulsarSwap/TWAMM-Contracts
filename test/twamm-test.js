@@ -323,6 +323,7 @@ describe("TWAMM", function () {
           token0.address,
           token1.address,
           amountIn,
+          expectedOutput,
           timeStamp + 100000
         );
         const afterBalance = await token1.balanceOf(owner.address);
@@ -348,6 +349,7 @@ describe("TWAMM", function () {
         const transaction = await twammInstantSwap.instantSwapTokenToETH(
           token.address,
           amountTokenIn,
+          expectedOutput,
           timeStamp + 100000
         );
         const receipt = await transaction.wait();
@@ -378,6 +380,7 @@ describe("TWAMM", function () {
         await twammInstantSwap.instantSwapETHToToken(
           token.address,
           amountETHIn,
+          expectedOutput,
           timeStamp + 100000,
           { value: amountETHIn }
         );
