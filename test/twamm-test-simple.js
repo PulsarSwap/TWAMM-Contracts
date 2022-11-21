@@ -112,6 +112,7 @@ describe("TWAMM", function () {
       initialLiquidityProvided,
       timeStamp + 100000
     );
+
     let pairContract = await ethers.getContractAt("Pair", pair);
     const checkFutureList = await pairContract.getExpiriesSinceLastExecuted();
     console.log("future list", checkFutureList);
@@ -795,17 +796,21 @@ describe("TWAMM", function () {
         const token0Reserve = token0ReserveBeforeConvert.toNumber();
         const token1Reserve = token1ReserveBeforeConvert.toNumber();
         const k = token0Reserve * token1Reserve;
-        const c =
-          (Math.sqrt(token0Reserve * token1In) -
-            Math.sqrt(token1Reserve * token0In)) /
-          (Math.sqrt(token0Reserve * token1In) +
-            Math.sqrt(token1Reserve * token0In));
+        // const c =
+        //   (Math.sqrt(token0Reserve * token1In) -
+        //     Math.sqrt(token1Reserve * token0In)) /
+        //   (Math.sqrt(token0Reserve * token1In) +
+        //     Math.sqrt(token1Reserve * token0In));
 
-        const exponent = 2 * Math.sqrt((token0In * token1In) / k);
+        // const exponent = 2 * Math.sqrt((token0In * token1In) / k);
+
+        // const final0ReserveExpectedBeforeFees =
+        //   (Math.sqrt((k * token0In) / token1In) * (Math.exp(exponent) + c)) /
+        //   (Math.exp(exponent) - c);
 
         const final0ReserveExpectedBeforeFees =
-          (Math.sqrt((k * token0In) / token1In) * (Math.exp(exponent) + c)) /
-          (Math.exp(exponent) - c);
+          ((token0Reserve + token0In) * token1Reserve) /
+          (token1Reserve + token1In);
 
         const final1ReserveExpectedBeforeFees =
           k / final0ReserveExpectedBeforeFees;
@@ -908,15 +913,18 @@ describe("TWAMM", function () {
         const tokenReserve = tokenReserveBeforeConvert.toNumber();
         const ethReserve = ethReserveBeforeConvert.toNumber();
         const k = tokenReserve * ethReserve;
-        const c =
-          (Math.sqrt(tokenReserve * ethIn) - Math.sqrt(ethReserve * tokenIn)) /
-          (Math.sqrt(tokenReserve * ethIn) + Math.sqrt(ethReserve * tokenIn));
+        // const c =
+        //   (Math.sqrt(tokenReserve * ethIn) - Math.sqrt(ethReserve * tokenIn)) /
+        //   (Math.sqrt(tokenReserve * ethIn) + Math.sqrt(ethReserve * tokenIn));
 
-        const exponent = 2 * Math.sqrt((tokenIn * ethIn) / k);
+        // const exponent = 2 * Math.sqrt((tokenIn * ethIn) / k);
+
+        // const finalTokenReserveExpectedBeforeFees =
+        //   (Math.sqrt((k * tokenIn) / ethIn) * (Math.exp(exponent) + c)) /
+        //   (Math.exp(exponent) - c);
 
         const finalTokenReserveExpectedBeforeFees =
-          (Math.sqrt((k * tokenIn) / ethIn) * (Math.exp(exponent) + c)) /
-          (Math.exp(exponent) - c);
+          ((tokenReserve + tokenIn) * ethReserve) / (ethReserve + ethIn);
 
         const finalETHReserveExpectedBeforeFees =
           k / finalTokenReserveExpectedBeforeFees;

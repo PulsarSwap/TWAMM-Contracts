@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+
 pragma solidity ^0.8.9;
 
 import "prb-math/contracts/PRBMathUD60x18.sol";
@@ -30,14 +31,13 @@ library OrderPoolLib {
     }
 
     ///@notice distribute payment amount to pool (in the case of TWAMM, proceeds from trades against amm)
-    function distributePayment(OrderPool storage self, uint256 amount)
-        internal
-    {
+    function distributePayment(OrderPool storage self, uint256 amount) public {
         if (self.currentSalesRate != 0) {
             //floating point arithmetic
-            self.rewardFactor += amount.fromUint().div(
-                self.currentSalesRate.fromUint()
-            );
+            self.rewardFactor += amount
+                .fromUint()
+                .mul(PRBMathUD60x18.fromUint(10000))
+                .div(self.currentSalesRate.fromUint());
         }
     }
 
@@ -47,7 +47,7 @@ library OrderPoolLib {
         uint256 orderId,
         uint256 amountPerBlock,
         uint256 orderExpiry
-    ) internal {
+    ) public {
         self.currentSalesRate += amountPerBlock;
         self.rewardFactorAtSubmission[orderId] = self.rewardFactor;
         self.orderExpiry[orderId] = orderExpiry;
@@ -59,24 +59,24 @@ library OrderPoolLib {
     function updateStateFromBlockExpiry(
         OrderPool storage self,
         uint256 blockNumber
-    ) internal {
+    ) public {
         uint256 ordersExpiring = self.salesRateEndingPerBlock[blockNumber];
         self.currentSalesRate -= ordersExpiring;
         self.rewardFactorAtBlock[blockNumber] = self.rewardFactor;
     }
 
     ///@notice cancel order and remove from the order pool
-    function cancelOrder(OrderPool storage self, uint256 orderId)
-        internal
-        returns (uint256 unsoldAmount, uint256 purchasedAmount)
-    {
+    function cancelOrder(
+        OrderPool storage self,
+        uint256 orderId
+    ) public returns (uint256 unsoldAmount, uint256 purchasedAmount) {
         uint256 expiry = self.orderExpiry[orderId];
         require(expiry > block.number, "Order Already Finished");
 
         //calculate amount that wasn't sold, and needs to be returned
         uint256 salesRate = self.salesRate[orderId];
         uint256 blocksRemaining = expiry - block.number;
-        unsoldAmount = blocksRemaining * salesRate;
+        unsoldAmount = (blocksRemaining * salesRate) / 10000;
 
         //calculate amount of other token that was purchased
         uint256 rewardFactorAtSubmission = self.rewardFactorAtSubmission[
@@ -84,6 +84,7 @@ library OrderPoolLib {
         ];
         purchasedAmount = (self.rewardFactor - rewardFactorAtSubmission)
             .mul(salesRate.fromUint())
+            .div(PRBMathUD60x18.fromUint(10000))
             .toUint();
 
         //update state
@@ -96,10 +97,10 @@ library OrderPoolLib {
     ///@notice withdraw proceeds from pool for a given order. This can be done before or after the order has expired.
     //If the order has expired, we calculate the reward factor at time of expiry. If order has not yet expired, we
     //use current reward factor, and update the reward factor at time of staking (effectively creating a new order)
-    function withdrawProceeds(OrderPool storage self, uint256 orderId)
-        internal
-        returns (uint256 totalReward)
-    {
+    function withdrawProceeds(
+        OrderPool storage self,
+        uint256 orderId
+    ) public returns (uint256 totalReward) {
         uint256 stakedAmount = self.salesRate[orderId];
         require(stakedAmount > 0, "Sales Rate Amount Must Be Positive");
         uint256 orderExpiry = self.orderExpiry[orderId];
@@ -114,6 +115,7 @@ library OrderPoolLib {
             ];
             totalReward = (rewardFactorAtExpiry - rewardFactorAtSubmission)
                 .mul(stakedAmount.fromUint())
+                .div(PRBMathUD60x18.fromUint(10000))
                 .toUint();
             //remove stake
             self.salesRate[orderId] = 0;
@@ -122,6 +124,7 @@ library OrderPoolLib {
         else {
             totalReward = (self.rewardFactor - rewardFactorAtSubmission)
                 .mul(stakedAmount.fromUint())
+                .div(PRBMathUD60x18.fromUint(10000))
                 .toUint();
             self.rewardFactorAtSubmission[orderId] = self.rewardFactor;
         }

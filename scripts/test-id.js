@@ -16,32 +16,14 @@ async function main() {
   const instantSwapAmount = ethers.utils.parseUnits("1");
   const termSwapAmount = ethers.utils.parseUnits("1");
   const numIntervalUnits = 10;
-  const token0Addr = "0xb0751fACbCcF598787c351Ce9541a4b203504c41";
+  const token0Addr = "0x0F0a8A04100c73C3c443f9a2F09Cf5c464d00c9f";
   const token0 = await ethers.getContractAt("ERC20Mock", token0Addr);
-  const token1Addr = "0x419E14a156daA5159ad73D36313E3520ff2a3F57";
+  const token1Addr = "0x2340fC6b74d5B44248698C04C8EaaeB6549B7Edb";
   const token1 = await ethers.getContractAt("ERC20Mock", token1Addr);
 
   // loading necessary contracts
-  const TWAMMAddr = "0xFe2E5fCe86495560574270f1F97a5ce9f534Cf94";
+  const TWAMMAddr = "";
   const twamm = await ethers.getContractAt("TWAMM", TWAMMAddr);
-
-  const TWAMMLiquidityAddr = "0x470C1F6F472f4ec19de25A467327188b5de96308";
-  const twammLiquidity = await ethers.getContractAt(
-    "TWAMMLiquidity",
-    TWAMMLiquidityAddr
-  );
-
-  const TWAMMInstantSwapAddr = "0xf382E6ff0cE929FA5F10DBBD006213e7E1D14F53";
-  const twammInstantSwap = await ethers.getContractAt(
-    "TWAMMInstantSwap",
-    TWAMMInstantSwapAddr
-  );
-
-  const TWAMMTermSwapAddr = "0x6c859b445695E216e348A75287B453A2329F391F";
-  const twammTermSwap = await ethers.getContractAt(
-    "TWAMMTermSwap",
-    TWAMMTermSwapAddr
-  );
 
   const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
@@ -49,7 +31,7 @@ async function main() {
   let currentBlockNumber = await ethers.provider.getBlockNumber();
   let timeStamp = (await ethers.provider.getBlock(currentBlockNumber))
     .timestamp;
-  console.log("current block number", timeStamp);
+  console.log("current block number", currentBlockNumber);
   try {
     await twamm.createPairWrapper(token0Addr, token1Addr, timeStamp + 100);
   } catch (error) {
@@ -68,8 +50,8 @@ async function main() {
   console.log("ids before order submission", orderIds);
   /////////////////first part: for cancel order //////////////////
   console.log("term swap");
-  await token0.approve(pairAddr, termSwapAmount);
-  await twammTermSwap.longTermSwapTokenToToken(
+  await token0.approve(twamm.address, termSwapAmount);
+  await twamm.longTermSwapTokenToToken(
     token0.address,
     token1.address,
     termSwapAmount,
@@ -85,7 +67,7 @@ async function main() {
   // console.log('cancel order');
   // currentBlockNumber = await ethers.provider.getBlockNumber();
   // timeStamp = (await ethers.provider.getBlock(currentBlockNumber)).timestamp;
-  // await twammTermSwap.cancelTermSwapTokenToToken(
+  // await twamm.cancelTermSwapTokenToToken(
   //             token0.address,
   //             token1.address,
   //             Object.values(Object.keys(orderIds))[Object.keys(orderIds).length-2],
@@ -94,8 +76,8 @@ async function main() {
 
   // /////////////////second part: for order withdrawal//////////////////
   // console.log('term swap');
-  // await token0.approve(pairAddr, termSwapAmount);
-  // await twammTermSwap.longTermSwapTokenToToken(
+  // await token0.approve(twamm.address, termSwapAmount);
+  // await twamm.longTermSwapTokenToToken(
   //               token0.address,
   //               token1.address,
   //               termSwapAmount,
@@ -105,7 +87,7 @@ async function main() {
   // await sleep(10000);
   // orderIds = await pair.userIdsCheck(account.getAddress());
   // console.log("withdraw order");
-  // let orderId = await twammTermSwap.withdrawProceedsFromTermSwapTokenToToken(
+  // let orderId = await twamm.withdrawProceedsFromTermSwapTokenToToken(
   //   token0.address,
   //   token1.address,
   //   Object.values(Object.keys(orderIds))[Object.keys(orderIds).length - 1],

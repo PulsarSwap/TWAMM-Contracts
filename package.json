@@ -25,7 +25,7 @@
     "type": "git",
     "url": "git+https://github.com/PulsarSwap/TWAMM-Contracts.git"
   },
-  "author": "pulsar",
+  "author": "Pulsar Protocol",
   "license": "GPL-3.0-or-later",
   "bugs": {
     "url": "https://github.com/PulsarSwap/TWAMM-Contracts/issues"
@@ -65,6 +65,7 @@
   "dependencies": {
     "@ethersproject/bignumber": "^5.6.2",
     "@rari-capital/solmate": "^6.2.0",
+    "abdk-libraries-solidity": "^3.1.0",
     "bignumber.js": "^9.0.2",
     "dotenv": "^10.0.0",
     "hardhat-contract-sizer": "^2.5.1",

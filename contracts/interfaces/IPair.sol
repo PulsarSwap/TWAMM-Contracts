@@ -11,7 +11,7 @@ interface IPair {
 
     function tokenB() external view returns (address);
 
-    function kLast() external view returns (uint256);
+    function rootKLast() external view returns (uint256);
 
     function LP_FEE() external pure returns (uint256);
 
@@ -19,23 +19,30 @@ interface IPair {
 
     function reserveMap(address) external view returns (uint256);
 
-    function tmpMapWETH(address) external view returns (uint256);
-
     function tokenAReserves() external view returns (uint256);
 
     function tokenBReserves() external view returns (uint256);
 
     function getTotalSupply() external view returns (uint256);
 
-    function resetMapWETH(address) external;
-
     event InitialLiquidityProvided(
         address indexed addr,
+        uint256 lpTokenAmount,
         uint256 amountA,
         uint256 amountB
     );
-    event LiquidityProvided(address indexed addr, uint256 lpTokenAmount);
-    event LiquidityRemoved(address indexed addr, uint256 lpTokenAmount);
+    event LiquidityProvided(
+        address indexed addr,
+        uint256 lpTokenAmount,
+        uint256 amountAIn,
+        uint256 amountBIn
+    );
+    event LiquidityRemoved(
+        address indexed addr,
+        uint256 lpTokenAmount,
+        uint256 amountAOut,
+        uint256 amountBOut
+    );
     event InstantSwapAToB(
         address indexed addr,
         uint256 amountAIn,
@@ -56,31 +63,38 @@ interface IPair {
         uint256 amountBIn,
         uint256 orderId
     );
-    event CancelLongTermOrder(address indexed addr, uint256 orderId);
+    event CancelLongTermOrder(
+        address indexed addr,
+        uint256 orderId,
+        uint256 unsoldAmount,
+        uint256 purchasedAmount
+    );
     event WithdrawProceedsFromLongTermOrder(
         address indexed addr,
-        uint256 orderId
+        uint256 orderId,
+        uint256 proceeds
     );
 
     function provideInitialLiquidity(
         address to,
         uint256 amountA,
         uint256 amountB
-    ) external;
+    ) external returns (uint256 lpTokenAmount);
 
-    function provideLiquidity(address to, uint256 lpTokenAmount) external;
+    function provideLiquidity(
+        address to,
+        uint256 lpTokenAmount
+    ) external returns (uint256 amountAIn, uint256 amountBIn);
 
     function removeLiquidity(
         address to,
-        uint256 lpTokenAmount,
-        bool proceedETH
-    ) external;
+        uint256 lpTokenAmount
+    ) external returns (uint256 amountAOut, uint256 amountBOut);
 
     function instantSwapFromAToB(
         address sender,
-        uint256 amountAIn,
-        bool proceedETH
-    ) external;
+        uint256 amountAIn
+    ) external returns (uint256 amountBOut);
 
     function longTermSwapFromAToB(
         address sender,
@@ -90,9 +104,8 @@ interface IPair {
 
     function instantSwapFromBToA(
         address sender,
-        uint256 amountBIn,
-        bool proceedETH
-    ) external;
+        uint256 amountBIn
+    ) external returns (uint256 amountAOut);
 
     function longTermSwapFromBToA(
         address sender,
@@ -102,25 +115,29 @@ interface IPair {
 
     function cancelLongTermSwap(
         address sender,
-        uint256 orderId,
-        bool proceedETH
-    ) external;
+        uint256 orderId
+    ) external returns (uint256 unsoldAmount, uint256 purchasedAmount);
 
     function withdrawProceedsFromLongTermSwap(
         address sender,
-        uint256 orderId,
-        bool proceedETH
-    ) external;
+        uint256 orderId
+    ) external returns (uint256 proceeds);
 
-    function getOrderDetails(uint256 orderId)
+    function getPairOrdersAmount() external view returns (uint256);
+
+    function getOrderDetails(
+        uint256 orderId
+    ) external view returns (LongTermOrdersLib.Order memory);
+
+    function getOrderRewardFactor(
+        uint256 orderId
+    )
         external
         view
-        returns (LongTermOrdersLib.Order memory);
-
-    function getOrderRewardFactorAtSubmission(uint256 orderId)
-        external
-        view
-        returns (uint256 orderRewardFactorAtSubmission);
+        returns (
+            uint256 orderRewardFactorAtSubmission,
+            uint256 orderRewardFactorAtExpiring
+        );
 
     function getTWAMMState()
         external
@@ -133,7 +150,9 @@ interface IPair {
             uint256 orderPoolBRewardFactor
         );
 
-    function getTWAMMSalesRateEnding(uint256 blockNumber)
+    function getTWAMMSalesRateEnding(
+        uint256 blockNumber
+    )
         external
         view
         returns (
@@ -141,10 +160,14 @@ interface IPair {
             uint256 orderPoolBSalesRateEnding
         );
 
-    function userIdsCheck(address userAddress)
+    function getExpiriesSinceLastExecuted()
         external
         view
         returns (uint256[] memory);
+
+    function userIdsCheck(
+        address userAddress
+    ) external view returns (uint256[] memory);
 
     function orderIdStatusCheck(uint256 orderId) external view returns (bool);
 

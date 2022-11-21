@@ -3,7 +3,7 @@ require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-solhint");
 require("@nomiclabs/hardhat-etherscan");
 require("hardhat-gas-reporter");
-require("hardhat-contract-sizer");
+// require("hardhat-contract-sizer");
 require("hardhat-deploy");
 require("dotenv").config();
 
@@ -35,33 +35,45 @@ const localArgs = {
 
 const mainnetArgs = {
   FeeToSetter: "0x57802b223F76Afd6E51Bb2AF578E72B07066a069",
-  Factory: "",
+  Factory: "0x408f66057163d829a30D4d466092c6B0eebb692f",
   WETH: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
 };
 
-const ropstenArgs = {
-  FeeToSetter: "0x9be86E75E67f2ef9a44730C60cF04Ef9F944CCee",
-  Factory: "",
-  WETH: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
-};
-
-const kovanArgs = {
-  FeeToSetter: "0x9be86E75E67f2ef9a44730C60cF04Ef9F944CCee",
-  Factory: "",
-  WETH: "0xd0A1E359811322d97991E03f863a0C30C2cF029C",
-};
-
-const rinkebyArgs = {
-  FeeToSetter: "0x9be86E75E67f2ef9a44730C60cF04Ef9F944CCee",
-  Factory: "0x0AB84D85D31B2E8fb5e1e4856214A1f8781f6Bd9",
-  WETH: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
-};
-
 const goerliArgs = {
-  FeeToSetter: "0x9be86E75E67f2ef9a44730C60cF04Ef9F944CCee",
-  Factory: "0x352cC87c7e7F929CdaB776AAcb272954C4B187C5",
+  FeeToSetter: "0xC007C409E8366C68285292FB2833Fde4e85f2778",
+  Factory: "0x7cA0aFB49064822072E8BA2b0eaC6890495Bc309",
   WETH: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
 };
+
+const arbitrumArgs = {
+  FeeToSetter: "",
+  Factory: "",
+  WETH: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
+};
+
+const goerliArbitrumArgs = {
+  FeeToSetter: "0xC007C409E8366C68285292FB2833Fde4e85f2778",
+  Factory: "0x8B6412217B66d299Ae12885F9Aae0d4D3049f53B",
+  WETH: "0x6d44BB7122C831A749Cc0006Cd371c123bc2acA4",
+};
+
+// const ropstenArgs = {
+//   FeeToSetter: "0xC007C409E8366C68285292FB2833Fde4e85f2778",
+//   Factory: "",
+//   WETH: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
+// };
+
+// const kovanArgs = {
+//   FeeToSetter: "0xC007C409E8366C68285292FB2833Fde4e85f2778",
+//   Factory: "",
+//   WETH: "0xd0A1E359811322d97991E03f863a0C30C2cF029C",
+// };
+
+// const rinkebyArgs = {
+//   FeeToSetter: "0xC007C409E8366C68285292FB2833Fde4e85f2778",
+//   Factory: "",
+//   WETH: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
+// };
 
 module.exports = {
   gasReporter: {
@@ -93,33 +105,47 @@ module.exports = {
       ...mainnetArgs,
     },
 
-    ropsten: {
-      allowUnlimitedContractSize: true,
-      url: `https://ropsten.infura.io/v3/${INFURA_API_KEY}`,
-      accounts: [PRIVATE_KEY_TEST],
-      ...ropstenArgs,
-    },
-
-    kovan: {
-      allowUnlimitedContractSize: true,
-      url: `https://kovan.infura.io/v3/${INFURA_API_KEY}`,
-      accounts: [PRIVATE_KEY_TEST],
-      ...kovanArgs,
-    },
-
-    rinkeby: {
-      allowUnlimitedContractSize: true,
-      url: `https://rinkeby.infura.io/v3/${INFURA_API_KEY}`,
-      accounts: [PRIVATE_KEY_TEST],
-      ...rinkebyArgs,
-    },
-
     goerli: {
       allowUnlimitedContractSize: true,
       url: `https://goerli.infura.io/v3/${INFURA_API_KEY}`,
       accounts: [PRIVATE_KEY_TEST],
       ...goerliArgs,
     },
+
+    arbitrum: {
+      allowUnlimitedContractSize: true,
+      url: `https://arb1.arbitrum.io/rpc`,
+      accounts: [PRIVATE_KEY_MAINNET],
+      ...arbitrumArgs,
+    },
+
+    goerliArbitrum: {
+      allowUnlimitedContractSize: true,
+      url: `https://goerli-rollup.arbitrum.io/rpc`,
+      accounts: [PRIVATE_KEY_TEST],
+      ...goerliArbitrumArgs,
+    },
+
+    // ropsten: {
+    //   allowUnlimitedContractSize: true,
+    //   url: `https://ropsten.infura.io/v3/${INFURA_API_KEY}`,
+    //   accounts: [PRIVATE_KEY_TEST],
+    //   ...ropstenArgs,
+    // },
+
+    // kovan: {
+    //   allowUnlimitedContractSize: true,
+    //   url: `https://kovan.infura.io/v3/${INFURA_API_KEY}`,
+    //   accounts: [PRIVATE_KEY_TEST],
+    //   ...kovanArgs,
+    // },
+
+    // rinkeby: {
+    //   allowUnlimitedContractSize: true,
+    //   url: `https://rinkeby.infura.io/v3/${INFURA_API_KEY}`,
+    //   accounts: [PRIVATE_KEY_TEST],
+    //   ...rinkebyArgs,
+    // },
   },
 
   etherscan: {
@@ -133,7 +159,16 @@ module.exports = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 10,
+            runs: 200,
+          },
+        },
+      },
+      {
+        version: "0.4.18",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
           },
         },
       },

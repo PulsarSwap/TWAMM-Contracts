@@ -1,15 +1,18 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "prb-math/contracts/PRBMathSD59x18.sol";
+// import "prb-math/contracts/PRBMathSD59x18.sol";
 import "./OrderPool.sol";
+import "./BinarySearchTree.sol";
 
 ///@notice This library handles the state and execution of long term orders.
 library LongTermOrdersLib {
-    using PRBMathSD59x18 for int256;
+    //using PRBMathSD59x18 for int256;
     using OrderPoolLib for OrderPoolLib.OrderPool;
+    using BinarySearchTreeLib for BinarySearchTreeLib.Tree;
     using SafeERC20 for IERC20;
 
     ///@notice fee for LP providers, 4 decimal places, i.e. 30 = 0.3%
@@ -18,8 +21,11 @@ library LongTermOrdersLib {
     ///@notice information associated with a long term order
     struct Order {
         uint256 id;
+        uint256 submitBlock;
         uint256 expirationBlock;
         uint256 saleRate;
+        uint256 sellAmount;
+        uint256 buyAmount;
         address owner;
         address sellTokenId;
         address buyTokenId;
@@ -34,9 +40,8 @@ library LongTermOrdersLib {
         ///@notice token pair being traded in embedded amm
         address tokenA;
         address tokenB;
-        ///@notice useful addresses for WETH transactions
+        ///@notice useful addresses for TWAMM transactions
         address refTWAMM;
-        address refWETH;
         ///@notice mapping from token address to pool that is selling that token
         ///we maintain two order pools, one for each token that is tradable in the AMM
         mapping(address => OrderPoolLib.OrderPool) OrderPoolMap;
@@ -48,6 +53,8 @@ library LongTermOrdersLib {
         mapping(address => uint256[]) orderIdMap;
         ///@notice mapping from order id to its status (false for nonactive true for active)
         mapping(uint256 => bool) orderIdStatusMap;
+        ///@notice record all expiry blocks since the latest executed block
+        BinarySearchTreeLib.Tree expiryBlockTreeSinceLastExecution;
     }
 
     ///@notice initialize state
@@ -56,16 +63,17 @@ library LongTermOrdersLib {
         address tokenA,
         address tokenB,
         address refTWAMM,
-        address refWETH,
         uint256 lastVirtualOrderBlock,
         uint256 orderBlockInterval
-    ) internal {
+    ) public {
         self.tokenA = tokenA;
         self.tokenB = tokenB;
         self.refTWAMM = refTWAMM;
-        self.refWETH = refWETH;
         self.lastVirtualOrderBlock = lastVirtualOrderBlock;
         self.orderBlockInterval = orderBlockInterval;
+        self.expiryBlockTreeSinceLastExecution.insert(
+            lastVirtualOrderBlock - (lastVirtualOrderBlock % orderBlockInterval)
+        );
     }
 
     ///@notice long term swap token A for token B. Amount represents total amount being sold, numberOfBlockIntervals determines when order expires
@@ -75,7 +83,7 @@ library LongTermOrdersLib {
         uint256 amountA,
         uint256 numberOfBlockIntervals,
         mapping(address => uint256) storage reserveMap
-    ) internal returns (uint256) {
+    ) public returns (uint256) {
         return
             performLongTermSwap(
                 self,
@@ -95,7 +103,7 @@ library LongTermOrdersLib {
         uint256 amountB,
         uint256 numberOfBlockIntervals,
         mapping(address => uint256) storage reserveMap
-    ) internal returns (uint256) {
+    ) public returns (uint256) {
         return
             performLongTermSwap(
                 self,
@@ -118,12 +126,6 @@ library LongTermOrdersLib {
         uint256 numberOfBlockIntervals,
         mapping(address => uint256) storage reserveMap
     ) private returns (uint256) {
-        //update virtual order state
-        executeVirtualOrdersUntilSpecifiedBlock(self, reserveMap, block.number);
-
-        // transfer sale amount to contract
-        IERC20(from).safeTransferFrom(sender, address(this), amount);
-
         //determine the selling rate based on number of blocks to expiry and total amount
         uint256 currentBlock = block.number;
         uint256 lastExpiryBlock = currentBlock -
@@ -131,7 +133,11 @@ library LongTermOrdersLib {
         uint256 orderExpiry = self.orderBlockInterval *
             (numberOfBlockIntervals + 1) +
             lastExpiryBlock;
-        uint256 sellingRate = amount / (orderExpiry - currentBlock);
+        uint256 sellingRate = (amount * 10000) / (orderExpiry - currentBlock); //multiply by 10000 to reduce precision loss
+
+        //insert order expiry and update virtual order state
+        self.expiryBlockTreeSinceLastExecution.insert(orderExpiry);
+        executeVirtualOrdersUntilSpecifiedBlock(self, reserveMap, block.number);
 
         //add order to correct pool
         OrderPoolLib.OrderPool storage OrderPool = self.OrderPoolMap[from];
@@ -140,8 +146,11 @@ library LongTermOrdersLib {
         //add to order map
         self.orderMap[self.orderId] = Order(
             self.orderId,
+            currentBlock,
             orderExpiry,
             sellingRate,
+            0,
+            0,
             sender,
             from,
             to
@@ -160,63 +169,52 @@ library LongTermOrdersLib {
         LongTermOrders storage self,
         address sender,
         uint256 orderId,
-        bool proceedETH,
         mapping(address => uint256) storage reserveMap
-    ) internal returns (uint256) {
+    ) public returns (uint256, uint256) {
         //update virtual order state
         executeVirtualOrdersUntilSpecifiedBlock(self, reserveMap, block.number);
 
         Order storage order = self.orderMap[orderId];
 
+        require(self.orderIdStatusMap[orderId] == true, "Order Invalid");
         require(order.owner == sender, "Sender Must Be Order Owner");
 
-        OrderPoolLib.OrderPool storage OrderPool = self.OrderPoolMap[
+        OrderPoolLib.OrderPool storage OrderPoolSell = self.OrderPoolMap[
             order.sellTokenId
         ];
-        (uint256 unsoldAmount, uint256 purchasedAmount) = OrderPool.cancelOrder(
-            orderId
-        );
+        OrderPoolLib.OrderPool storage OrderPoolBuy = self.OrderPoolMap[
+            order.buyTokenId
+        ];
 
-        //charge LP fee
-        uint256 purchasedAmountMinusFee = (purchasedAmount * (10000 - LP_FEE)) /
-            10000;
-
+        (uint256 unsoldAmount, uint256 purchasedAmount) = OrderPoolSell
+            .cancelOrder(orderId);
         require(
-            unsoldAmount > 0 || purchasedAmountMinusFee > 0,
+            unsoldAmount > 0 || purchasedAmount > 0,
             "No Proceeds To Withdraw"
         );
+
+        order.sellAmount =
+            ((block.number - order.submitBlock) * order.saleRate) /
+            10000;
+        order.buyAmount += purchasedAmount;
+
+        if (
+            OrderPoolSell.salesRateEndingPerBlock[order.expirationBlock] == 0 &&
+            OrderPoolBuy.salesRateEndingPerBlock[order.expirationBlock] == 0
+        ) {
+            self.expiryBlockTreeSinceLastExecution.deleteNode(
+                order.expirationBlock
+            );
+        }
 
         // delete orderId from account list
         self.orderIdStatusMap[orderId] = false;
 
         //transfer to owner
-        if (proceedETH) {
-            if (order.buyTokenId == self.refWETH) {
-                IERC20(order.buyTokenId).safeTransfer(
-                    self.refTWAMM,
-                    purchasedAmountMinusFee
-                );
-                IERC20(order.sellTokenId).safeTransfer(sender, unsoldAmount);
-                return purchasedAmountMinusFee;
-            } else {
-                IERC20(order.sellTokenId).safeTransfer(
-                    self.refTWAMM,
-                    unsoldAmount
-                );
-                IERC20(order.buyTokenId).safeTransfer(
-                    sender,
-                    purchasedAmountMinusFee
-                );
-                return unsoldAmount;
-            }
-        } else {
-            IERC20(order.buyTokenId).safeTransfer(
-                sender,
-                purchasedAmountMinusFee
-            );
-            IERC20(order.sellTokenId).safeTransfer(sender, unsoldAmount);
-            return 0;
-        }
+        IERC20(order.buyTokenId).safeTransfer(self.refTWAMM, purchasedAmount);
+        IERC20(order.sellTokenId).safeTransfer(self.refTWAMM, unsoldAmount);
+
+        return (unsoldAmount, purchasedAmount);
     }
 
     ///@notice withdraw proceeds from a long term swap (can be expired or ongoing)
@@ -224,41 +222,40 @@ library LongTermOrdersLib {
         LongTermOrders storage self,
         address sender,
         uint256 orderId,
-        bool proceedETH,
         mapping(address => uint256) storage reserveMap
-    ) internal returns (uint256) {
+    ) public returns (uint256) {
         //update virtual order state
         executeVirtualOrdersUntilSpecifiedBlock(self, reserveMap, block.number);
 
         Order storage order = self.orderMap[orderId];
+
+        require(self.orderIdStatusMap[orderId] == true, "Order Invalid");
         require(order.owner == sender, "Sender Must Be Order Owner");
 
         OrderPoolLib.OrderPool storage OrderPool = self.OrderPoolMap[
             order.sellTokenId
         ];
         uint256 proceeds = OrderPool.withdrawProceeds(orderId);
+        require(proceeds > 0, "No Proceeds To Withdraw");
 
-        //charge LP fee
-        uint256 proceedsMinusFee = (proceeds * (10000 - LP_FEE)) / 10000;
+        order.buyAmount += proceeds;
 
-        require(proceedsMinusFee > 0, "No Proceeds To Withdraw");
-
-        // delete orderId from account list
         if (order.expirationBlock <= block.number) {
+            // delete orderId from account list
             self.orderIdStatusMap[orderId] = false;
+            order.sellAmount =
+                ((order.expirationBlock - order.submitBlock) * order.saleRate) /
+                10000;
+        } else {
+            order.sellAmount =
+                ((block.number - order.submitBlock) * order.saleRate) /
+                10000;
         }
 
         //transfer to owner
-        if (proceedETH && order.buyTokenId == self.refWETH) {
-            IERC20(order.buyTokenId).safeTransfer(
-                self.refTWAMM,
-                proceedsMinusFee
-            );
-            return proceedsMinusFee;
-        } else {
-            IERC20(order.buyTokenId).safeTransfer(sender, proceedsMinusFee);
-            return 0;
-        }
+        IERC20(order.buyTokenId).safeTransfer(self.refTWAMM, proceeds);
+
+        return proceeds;
     }
 
     ///@notice executes all virtual orders between current lastVirtualOrderBlock and blockNumber
@@ -270,12 +267,12 @@ library LongTermOrdersLib {
     ) private {
         //amount sold from virtual trades
         uint256 blockNumberIncrement = blockNumber - self.lastVirtualOrderBlock;
-        uint256 tokenASellAmount = self
+        uint256 tokenASellAmount = (self
             .OrderPoolMap[self.tokenA]
-            .currentSalesRate * blockNumberIncrement;
-        uint256 tokenBSellAmount = self
+            .currentSalesRate * blockNumberIncrement) / 10000;
+        uint256 tokenBSellAmount = (self
             .OrderPoolMap[self.tokenB]
-            .currentSalesRate * blockNumberIncrement;
+            .currentSalesRate * blockNumberIncrement) / 10000;
 
         //initial amm balance
         uint256 tokenAStart = reserveMap[self.tokenA];
@@ -293,6 +290,13 @@ library LongTermOrdersLib {
                 tokenASellAmount,
                 tokenBSellAmount
             );
+
+        //charge LP fee
+        ammEndTokenA += (tokenAOut * LP_FEE) / 10000;
+        ammEndTokenB += (tokenBOut * LP_FEE) / 10000;
+
+        tokenAOut = (tokenAOut * (10000 - LP_FEE)) / 10000;
+        tokenBOut = (tokenBOut * (10000 - LP_FEE)) / 10000;
 
         //update balances reserves
         reserveMap[self.tokenA] = ammEndTokenA;
@@ -322,14 +326,12 @@ library LongTermOrdersLib {
         LongTermOrders storage self,
         mapping(address => uint256) storage reserveMap,
         uint256 blockNumber
-    ) internal {
+    ) public {
         require(
-            blockNumber <= block.number,
-            "Specified Block Number Cannot Be Greater Than The Current Block Number!"
+            blockNumber <= block.number &&
+                blockNumber >= self.lastVirtualOrderBlock,
+            "Specified Block Number Invalid!"
         );
-        uint256 nextExpiryBlock = self.lastVirtualOrderBlock -
-            (self.lastVirtualOrderBlock % self.orderBlockInterval) +
-            self.orderBlockInterval;
 
         OrderPoolLib.OrderPool storage OrderPoolA = self.OrderPoolMap[
             self.tokenA
@@ -338,25 +340,33 @@ library LongTermOrdersLib {
             self.tokenB
         ];
 
-        //iterate through blocks eligible for order expiries, moving state forward
-        while (nextExpiryBlock < blockNumber) {
-            // optimization for skipping blocks with no expiry
+        // get list of expiryBlocks given points that are divisible by int blockInterval
+        // then trim the tree to have root tree to be node correponding to the last argument (%5=0)
+        self.expiryBlockTreeSinceLastExecution.processExpiriesListNTrimTree(
+            self.lastVirtualOrderBlock -
+                (self.lastVirtualOrderBlock % self.orderBlockInterval),
+            blockNumber - (blockNumber % self.orderBlockInterval)
+        );
+        uint256[] storage expiriesList = self
+            .expiryBlockTreeSinceLastExecution
+            .getExpiriesList();
+
+        for (uint256 i = 0; i < expiriesList.length; i++) {
             if (
-                OrderPoolA.salesRateEndingPerBlock[nextExpiryBlock] > 0 ||
-                OrderPoolB.salesRateEndingPerBlock[nextExpiryBlock] > 0
+                (OrderPoolA.salesRateEndingPerBlock[expiriesList[i]] > 0 ||
+                    OrderPoolB.salesRateEndingPerBlock[expiriesList[i]] > 0) &&
+                (expiriesList[i] > self.lastVirtualOrderBlock &&
+                    expiriesList[i] < blockNumber)
             ) {
                 executeVirtualTradesAndOrderExpiries(
                     self,
                     reserveMap,
-                    nextExpiryBlock
+                    expiriesList[i]
                 );
             }
-            nextExpiryBlock += self.orderBlockInterval;
         }
-        //finally, move state to current block if necessary
-        if (self.lastVirtualOrderBlock < blockNumber) {
-            executeVirtualTradesAndOrderExpiries(self, reserveMap, blockNumber);
-        }
+
+        executeVirtualTradesAndOrderExpiries(self, reserveMap, blockNumber);
     }
 
     ///@notice computes the result of virtual trades by the token pools
@@ -375,85 +385,81 @@ library LongTermOrdersLib {
             uint256 ammEndTokenB
         )
     {
-        //if no tokens are sold to the pool, we don't need to execute any orders
-        if (tokenAIn == 0 && tokenBIn == 0) {
-            tokenAOut = 0;
-            tokenBOut = 0;
-            ammEndTokenA = tokenAStart;
-            ammEndTokenB = tokenBStart;
-        }
-        //in the case where only one pool is selling, we just perform a normal swap
-        else if (tokenAIn == 0) {
-            //constant product formula
-            tokenAOut = (tokenAStart * tokenBIn) / (tokenBStart + tokenBIn);
-            tokenBOut = 0;
-            ammEndTokenA = tokenAStart - tokenAOut;
-            ammEndTokenB = tokenBStart + tokenBIn;
-        } else if (tokenBIn == 0) {
-            tokenAOut = 0;
-            //constant product formula
-            tokenBOut = (tokenBStart * tokenAIn) / (tokenAStart + tokenAIn);
-            ammEndTokenA = tokenAStart + tokenAIn;
-            ammEndTokenB = tokenBStart - tokenBOut;
-        }
-        //when both pools sell, we use the TWAMM formula
-        else {
-            //signed, fixed point arithmetic
-            int256 aIn = int256(tokenAIn).fromInt();
-            int256 bIn = int256(tokenBIn).fromInt();
-            int256 aStart = int256(tokenAStart).fromInt();
-            int256 bStart = int256(tokenBStart).fromInt();
-            int256 k = aStart.mul(bStart);
-
-            int256 c = computeC(aStart, bStart, aIn, bIn);
-            int256 endA = computeAmmEndTokenA(aIn, bIn, c, k, aStart, bStart);
-            int256 endB = aStart.div(endA).mul(bStart);
-
-            int256 outA = aStart + aIn - endA;
-            int256 outB = bStart + bIn - endB;
-            require(outA >= 0 && outB >= 0, "Invalid Amount");
-
-            return (
-                uint256(outA.toInt()),
-                uint256(outB.toInt()),
-                uint256(endA.toInt()),
-                uint256(endB.toInt())
-            );
-        }
+        // if (
+        //     tokenAStart == 0 ||
+        //     tokenBStart == 0 ||
+        //     tokenAIn == 0 ||
+        //     tokenBIn == 0
+        // ) {
+        //     //in the case where only one pool is selling, we just perform a normal swap
+        //constant product formula
+        tokenAOut =
+            ((tokenAStart + tokenAIn) * tokenBIn) /
+            (tokenBStart + tokenBIn);
+        tokenBOut =
+            ((tokenBStart + tokenBIn) * tokenAIn) /
+            (tokenAStart + tokenAIn);
+        ammEndTokenA = tokenAStart + tokenAIn - tokenAOut;
+        ammEndTokenB = tokenBStart + tokenBIn - tokenBOut;
     }
+    //     //when both pools sell, we use the TWAMM formula
+    //     else {
+    //         //signed, fixed point arithmetic
+    //         int256 aIn = int256(tokenAIn).fromInt();
+    //         int256 bIn = int256(tokenBIn).fromInt();
+    //         int256 aStart = int256(tokenAStart).fromInt();
+    //         int256 bStart = int256(tokenBStart).fromInt();
+    //         int256 k = aStart.mul(bStart);
 
-    //helper function for TWAMM formula computation, helps avoid stack depth errors
-    function computeC(
-        int256 tokenAStart,
-        int256 tokenBStart,
-        int256 tokenAIn,
-        int256 tokenBIn
-    ) private pure returns (int256 c) {
-        int256 c1 = tokenAStart.sqrt().mul(tokenBIn.sqrt());
-        int256 c2 = tokenBStart.sqrt().mul(tokenAIn.sqrt());
-        int256 cNumerator = c1 - c2;
-        int256 cDenominator = c1 + c2;
-        c = cNumerator.div(cDenominator);
-    }
+    //         int256 c = computeC(aStart, bStart, aIn, bIn);
+    //         int256 endA = computeAmmEndTokenA(aIn, bIn, c, k, aStart, bStart);
+    //         int256 endB = aStart.div(endA).mul(bStart);
 
-    //helper function for TWAMM formula computation, helps avoid stack depth errors
-    function computeAmmEndTokenA(
-        int256 tokenAIn,
-        int256 tokenBIn,
-        int256 c,
-        int256 k,
-        int256 aStart,
-        int256 bStart
-    ) private pure returns (int256 ammEndTokenA) {
-        //rearranged for numerical stability
-        int256 eNumerator = PRBMathSD59x18.fromInt(4).mul(tokenAIn).sqrt().mul(
-            tokenBIn.sqrt()
-        );
-        int256 eDenominator = aStart.sqrt().mul(bStart.sqrt()).inv();
-        int256 exponent = eNumerator.mul(eDenominator).exp();
-        require(exponent > PRBMathSD59x18.abs(c), "Invalid Amount");
-        int256 fraction = (exponent + c).div(exponent - c);
-        int256 scaling = k.div(tokenBIn).sqrt().mul(tokenAIn.sqrt());
-        ammEndTokenA = fraction.mul(scaling);
-    }
+    //         int256 outA = aStart + aIn - endA;
+    //         int256 outB = bStart + bIn - endB;
+    //         require(outA >= 0 && outB >= 0, "Invalid Amount");
+
+    //         return (
+    //             uint256(outA.toInt()),
+    //             uint256(outB.toInt()),
+    //             uint256(endA.toInt()),
+    //             uint256(endB.toInt())
+    //         );
+    //     }
+    // }
+
+    // //helper function for TWAMM formula computation, helps avoid stack depth errors
+    // function computeC(
+    //     int256 tokenAStart,
+    //     int256 tokenBStart,
+    //     int256 tokenAIn,
+    //     int256 tokenBIn
+    // ) private pure returns (int256 c) {
+    //     int256 c1 = tokenAStart.sqrt().mul(tokenBIn.sqrt());
+    //     int256 c2 = tokenBStart.sqrt().mul(tokenAIn.sqrt());
+    //     int256 cNumerator = c1 - c2;
+    //     int256 cDenominator = c1 + c2;
+    //     c = cNumerator.div(cDenominator);
+    // }
+
+    // //helper function for TWAMM formula computation, helps avoid stack depth errors
+    // function computeAmmEndTokenA(
+    //     int256 tokenAIn,
+    //     int256 tokenBIn,
+    //     int256 c,
+    //     int256 k,
+    //     int256 aStart,
+    //     int256 bStart
+    // ) private pure returns (int256 ammEndTokenA) {
+    //     //rearranged for numerical stability
+    //     int256 eNumerator = PRBMathSD59x18.fromInt(4).mul(tokenAIn).sqrt().mul(
+    //         tokenBIn.sqrt()
+    //     );
+    //     int256 eDenominator = aStart.sqrt().mul(bStart.sqrt()).inv();
+    //     int256 exponent = eNumerator.mul(eDenominator).exp();
+    //     require(exponent > PRBMathSD59x18.abs(c), "Invalid Amount");
+    //     int256 fraction = (exponent + c).div(exponent - c);
+    //     int256 scaling = k.div(tokenBIn).sqrt().mul(tokenAIn.sqrt());
+    //     ammEndTokenA = fraction.mul(scaling);
+    // }
 }

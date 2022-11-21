@@ -14,17 +14,11 @@ describe("TWAMM", function () {
   let factory;
   let WETH;
   let pair;
-  let pairETH;
   let blockNumber;
   let timeStamp;
 
-  const testDAOAmount = ethers.utils.parseUnits("1000000000000000");
-  const totalNBlockIntervals = 10000;
-
-  const blockInterval = 5;
-
-  const initialLiquidityProvided = ethers.utils.parseUnits("10");
-  const ERC20Supply = ethers.utils.parseUnits("100000000000000000000000");
+  const initialLiquidityProvided = 10000000000;
+  const ERC20Supply = ethers.utils.parseUnits("10000");
 
   beforeEach(async function () {
     // network basics
@@ -78,7 +72,7 @@ describe("TWAMM", function () {
 
     //deploy three tokens and WETH for pair creation
     const ERC20Factory = await ethers.getContractFactory("ERC20Mock");
-    token = await ERC20Factory.deploy("Token", "Token", ERC20Supply);
+    // token = await ERC20Factory.deploy("Token", "Token", ERC20Supply);
     token0 = await ERC20Factory.deploy("Token0", "Token0", ERC20Supply);
     token1 = await ERC20Factory.deploy("Token1", "Token1", ERC20Supply);
 
@@ -94,6 +88,7 @@ describe("TWAMM", function () {
       },
     });
     twamm = await TWAMM.deploy(factory.address, WETH.address);
+
     // create pair and initialize liquidity for the pair
     blockNumber = await ethers.provider.getBlockNumber();
     timeStamp = (await ethers.provider.getBlock(blockNumber)).timestamp;
@@ -103,7 +98,11 @@ describe("TWAMM", function () {
       token1.address,
       timeStamp + 50000
     );
-    pair = await twamm.obtainPairAddress(token0.address, token1.address);
+
+    pairAddr = await twamm.obtainPairAddress(token0.address, token1.address);
+    pair = await ethers.getContractAt("Pair", pairAddr);
+    console.log("check pair address", pairAddr);
+
     await token0.approve(twamm.address, initialLiquidityProvided); //owner calls it
     await token1.approve(twamm.address, initialLiquidityProvided);
     await twamm.addInitialLiquidity(
@@ -113,69 +112,101 @@ describe("TWAMM", function () {
       initialLiquidityProvided,
       timeStamp + 100000
     );
-
-    await twamm.createPairWrapper(
-      token.address,
-      WETH.address,
-      timeStamp + 50000
-    );
-    pairETH = await twamm.obtainPairAddress(token.address, WETH.address);
-    await WETH.approve(twamm.address, initialLiquidityProvided);
-    await token.approve(twamm.address, initialLiquidityProvided);
-    await twamm.addInitialLiquidityETH(
-      token.address,
-      initialLiquidityProvided,
-      initialLiquidityProvided,
-      timeStamp + 100000,
-      { value: initialLiquidityProvided }
-    );
     console.log("Initial Setup Finished");
+
+    console.log("Providing Liquidity Start");
+    const newLPTokens = 1000000;
+    await token0.approve(twamm.address, ERC20Supply); //owner calls it
+    await token1.approve(twamm.address, ERC20Supply);
+
+    await twamm.addLiquidity(
+      token0.address,
+      token1.address,
+      newLPTokens,
+      ERC20Supply,
+      ERC20Supply,
+      timeStamp + 100000
+    );
+
+    const liquidityBalance = await pair.balanceOf(addr0.address);
+    console.log("fee to liquidity balance:", liquidityBalance.toString());
+
+    console.log("Instant Swap A");
+    const amountIn0 = 1000000;
+    await token0.approve(twamm.address, amountIn0); //owner calls it
+    await twamm.instantSwapTokenToToken(
+      token0.address,
+      token1.address,
+      amountIn0,
+      0,
+      timeStamp + 100000
+    );
+
+    console.log("Instant Swap B");
+    const amountIn1 = 1000000;
+    await token1.approve(twamm.address, amountIn1); //owner calls it
+    await twamm.instantSwapTokenToToken(
+      token1.address,
+      token0.address,
+      amountIn1,
+      0,
+      timeStamp + 100000
+    );
+
+    console.log("Instant Swap C");
+    const amountIn2 = 1000000;
+    await token0.approve(twamm.address, amountIn2); //owner calls it
+    await twamm.instantSwapTokenToToken(
+      token0.address,
+      token1.address,
+      amountIn2,
+      0,
+      timeStamp + 100000
+    );
+
+    console.log("Instant Swap D");
+    const amountIn3 = 1000000;
+    await token1.approve(twamm.address, amountIn3); //owner calls it
+    await twamm.instantSwapTokenToToken(
+      token1.address,
+      token0.address,
+      amountIn3,
+      0,
+      timeStamp + 100000
+    );
   });
 
-  describe("DAO Order Submit", function () {
-    it("", async function () {
-      await token0.connect(owner).approve(twamm.address, testDAOAmount);
-      await token1.connect(owner).approve(twamm.address, testDAOAmount);
-      blockNumber = await ethers.provider.getBlockNumber();
-      timeStamp = (await ethers.provider.getBlock(blockNumber)).timestamp;
-      await twamm.longTermSwapTokenToToken(
+  describe("Mint Fee Check", function () {
+    it("Mint Fee Check", async function () {
+      console.log("Providing Liquidity End");
+      const newLPTokens = 1000000;
+      await token0.approve(twamm.address, ERC20Supply); //owner calls it
+      await token1.approve(twamm.address, ERC20Supply);
+
+      await twamm.addLiquidity(
         token0.address,
         token1.address,
-        testDAOAmount,
-        totalNBlockIntervals,
+        newLPTokens,
+        ERC20Supply,
+        ERC20Supply,
         timeStamp + 100000
       );
 
-      for (let idx = 0; idx < addrs.length; idx++) {
-        // Runs 5 times, with values of step 0 through 4.
-        await mineBlocks(1);
-        console.log(`current for user ${idx}`);
-        console.log(
-          (await token1.balanceOf(owner.address)).gt(testDAOAmount.div(10))
-        );
-        await token1
-          .connect(owner)
-          .approve(addrs[idx].address, testDAOAmount.div(10));
-        await token1
-          .connect(owner)
-          .transfer(addrs[idx].address, testDAOAmount.div(10));
-        console.log(await token1.balanceOf(addrs[idx].address));
-        await token1
-          .connect(addrs[idx])
-          .approve(twamm.address, testDAOAmount.div(10));
-        blockNumber = await ethers.provider.getBlockNumber();
-        timeStamp = (await ethers.provider.getBlock(blockNumber)).timestamp;
-        await twamm
-          .connect(addrs[idx])
-          .longTermSwapTokenToToken(
-            token1.address,
-            token0.address,
-            testDAOAmount.div(10),
-            totalNBlockIntervals / 10,
-            timeStamp + 100
-          );
-      }
+      const liquidityBalance = await pair.balanceOf(addr0.address);
+      console.log("fee to liquidity balance:", liquidityBalance.toString());
     });
+
+    // it("Mint Fee Check", async function () {
+    //   const liquidityToRemove = initialLiquidityProvided / 2;
+    //   await twamm.withdrawLiquidity(
+    //     token0.address,
+    //     token1.address,
+    //     liquidityToRemove,
+    //     0,
+    //     0,
+    //     timeStamp + 100000
+    //   );
+    // });
   });
 });
 

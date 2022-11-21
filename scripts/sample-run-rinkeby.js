@@ -16,28 +16,12 @@ async function main() {
   const token0 = await ethers.getContractAt("ERC20Mock", token0Addr);
   const token1Addr = "0x0EE834CBBAC3Ad3FB3Ecc6A1B6B130DaAb9adC7B";
   const token1 = await ethers.getContractAt("ERC20Mock", token1Addr);
+  // const token0Balance = await token0.balanceOf(owner.address);
+  // const token1Balance = await token1.balanceOf(owner.address);
 
   // loading necessary contracts
-  const TWAMMAddr = "0xE4e55FE1e3D5A716C3d7036a56F270Df66Eb178E";
+  const TWAMMAddr = "";
   const twamm = await ethers.getContractAt("TWAMM", TWAMMAddr);
-
-  const TWAMMLiquidityAddr = "0x50f3eA4f7324dE8EAD0ed1Ff0d177EE4a5817c48";
-  const twammLiquidity = await ethers.getContractAt(
-    "TWAMMLiquidity",
-    TWAMMLiquidityAddr
-  );
-
-  const TWAMMInstantSwapAddr = "0x54f8980EC9E09eE4A2FA68A6E7B0149e2de9e509";
-  const twammInstantSwap = await ethers.getContractAt(
-    "TWAMMInstantSwap",
-    TWAMMInstantSwapAddr
-  );
-
-  const TWAMMTermSwapAddr = "0xb2b99DC2775b675bb7acaCECd561C11D1ef7d32B";
-  const twammTermSwap = await ethers.getContractAt(
-    "TWAMMTermSwap",
-    TWAMMTermSwapAddr
-  );
 
   const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
@@ -45,7 +29,7 @@ async function main() {
   let currentBlockNumber = await ethers.provider.getBlockNumber();
   let timeStamp = (await ethers.provider.getBlock(currentBlockNumber))
     .timestamp;
-  console.log("current block number", timeStamp);
+  console.log("current block number", currentBlockNumber);
   try {
     let tx = await twamm.createPairWrapper(
       token0Addr,
@@ -66,7 +50,7 @@ async function main() {
 
   try {
     console.log("add initial liquidity");
-    let pairContract = await ethers.getContractAt("IPair", pairAddr);
+    let pairContract = await ethers.getContractAt("Pair", pairAddr);
     let lpAmount = await pairContract.getTotalSupply();
     console.log("lpAmount", lpAmount);
 
@@ -75,9 +59,9 @@ async function main() {
     let tokenBReserve = await pairContract.tokenBReserves();
     console.log("tokenBReserve", tokenBReserve);
 
-    let tx1 = await token0.approve(pairAddr, initialLPSupply); //owner calls it
+    let tx1 = await token0.approve(twamm.address, initialLPSupply); //owner calls it
     await tx1.wait();
-    tx1 = await token1.approve(pairAddr, initialLPSupply);
+    tx1 = await token1.approve(twamm.address, initialLPSupply);
     await tx1.wait();
     tx1 = await twamm.addInitialLiquidity(
       token0Addr,
@@ -87,6 +71,7 @@ async function main() {
       timeStamp + 300
     );
     await tx1.wait();
+    console.log("initial provide liquidity completed");
   } catch (error) {
     console.log(
       "initial liquidity might be provided, add more liquidity instead."
@@ -94,15 +79,17 @@ async function main() {
     // uncomment below to enable add liquidity
     const newLPTokens = continualLPSupply;
     const allowance = ethers.utils.parseUnits("100");
-    tx1 = await token0.approve(pairAddr, allowance);
+    tx1 = await token0.approve(twamm.address, allowance);
     await tx1.wait();
-    tx1 = await token1.approve(pairAddr, allowance);
+    tx1 = await token1.approve(twamm.address, allowance);
     await tx1.wait();
 
-    await twammLiquidity.addLiquidity(
+    await twamm.addLiquidity(
       token0Addr,
       token1Addr,
       newLPTokens,
+      allowance,
+      allowance,
       timeStamp + 500
     );
   }
@@ -117,8 +104,8 @@ async function main() {
 
   // perform instant swap
   // console.log('instant swap');
-  // await token0.approve(pairAddr, instantSwapAmount);
-  // await twammInstantSwap.instantSwapTokenToToken(
+  // await token0.approve(twamm.address, instantSwapAmount);
+  // await twamm.instantSwapTokenToToken(
   //     token0.address,
   //     token1.address,
   //     instantSwapAmount,
@@ -126,11 +113,11 @@ async function main() {
   // );
 
   // perform term swap
-  let pairContract = await ethers.getContractAt("IPair", pairAddr);
+  let pairContract = await ethers.getContractAt("Pair", pairAddr);
   console.log("term swap");
-  let tx = await token0.approve(pairAddr, termSwapAmount);
+  let tx = await token0.approve(twamm.address, termSwapAmount);
   await tx.wait();
-  let orderId = await twammTermSwap.longTermSwapTokenToToken(
+  let orderId = await twamm.longTermSwapTokenToToken(
     token0.address,
     token1.address,
     termSwapAmount,
@@ -148,7 +135,7 @@ async function main() {
   // console.log('cancel order ', orderIds);
   // currentBlockNumber = await ethers.provider.getBlockNumber();
   // timeStamp = (await ethers.provider.getBlock(currentBlockNumber)).timestamp;
-  // await twammTermSwap.cancelTermSwapTokenToToken(
+  // await twamm.cancelTermSwapTokenToToken(
   //             token0.address,
   //             token1.address,
   //             Object.values(Object.keys(orderIds))[Object.keys(orderIds).length-1],
@@ -161,7 +148,7 @@ async function main() {
   let orderIds = await pairContract.userIdsCheck(account.getAddress());
   console.log("get orderIds", orderIds);
   console.log("withdraw order");
-  tx1 = await twammTermSwap.withdrawProceedsFromTermSwapTokenToToken(
+  tx1 = await twamm.withdrawProceedsFromTermSwapTokenToToken(
     token0.address,
     token1.address,
     Object.values(Object.keys(orderIds))[Object.keys(orderIds).length - 1],

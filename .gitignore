@@ -15,3 +15,10 @@ node_modules
 #Hardhat files
 cache
 artifacts
+
+# private
+scripts/bignumberLIB.js
+scripts/twamm-execute-details.ts
+scripts/twamm-execute.ts
+scripts/state-update.ts
+scripts/order-update.ts
