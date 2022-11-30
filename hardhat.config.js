@@ -41,7 +41,7 @@ const mainnetArgs = {
 
 const goerliArgs = {
   FeeToSetter: "0xC007C409E8366C68285292FB2833Fde4e85f2778",
-  Factory: "0x7cA0aFB49064822072E8BA2b0eaC6890495Bc309",
+  Factory: "0x8E257bA064C371EC05Ca7500362278B8098D13Ac",
   WETH: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
 };
 
@@ -149,7 +149,10 @@ module.exports = {
   },
 
   etherscan: {
-    apiKey: ETHERSCAN_API_KEY,
+    apiKey: {
+      mainnet: ETHERSCAN_API_KEY,
+      goerli: ETHERSCAN_API_KEY,
+    },
   },
 
   solidity: {
