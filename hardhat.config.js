@@ -19,6 +19,7 @@ const INFURA_API_KEY = process.env.INFURA_API_KEY;
 const PRIVATE_KEY_TEST = process.env.PRIVATE_KEY_TEST;
 const PRIVATE_KEY_MAINNET = process.env.PRIVATE_KEY_MAINNET;
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
+const ARBITRUM_API_KEY = process.env.ARBITRUM_API_KEY;
 
 if (!INFURA_API_KEY) {
   console.log(
@@ -45,9 +46,9 @@ const goerliArgs = {
   WETH: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
 };
 
-const arbitrumArgs = {
-  FeeToSetter: "",
-  Factory: "",
+const arbitrumOneArgs = {
+  FeeToSetter: "0xC5273E939e2bFd2B55e5EeeA20ddbFA714b4B78A",
+  Factory: "0x336a2f76d2BE24E7cB6F468665a4277D4d617D00",
   WETH: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
 };
 
@@ -112,11 +113,11 @@ module.exports = {
       ...goerliArgs,
     },
 
-    arbitrum: {
+    arbitrumOne: {
       allowUnlimitedContractSize: true,
       url: `https://arb1.arbitrum.io/rpc`,
       accounts: [PRIVATE_KEY_MAINNET],
-      ...arbitrumArgs,
+      ...arbitrumOneArgs,
     },
 
     goerliArbitrum: {
@@ -152,6 +153,7 @@ module.exports = {
     apiKey: {
       mainnet: ETHERSCAN_API_KEY,
       goerli: ETHERSCAN_API_KEY,
+      arbitrumOne: ARBITRUM_API_KEY,
     },
   },
 

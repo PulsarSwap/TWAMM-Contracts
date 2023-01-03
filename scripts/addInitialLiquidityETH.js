@@ -20,7 +20,8 @@ async function main() {
   const tokenAddr = token.address;
   console.log("token address", tokenAddr);
 
-  const WETHAddr = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6";
+  const WETHAddr = "0x6d44BB7122C831A749Cc0006Cd371c123bc2acA4"; //arbitrum goerli
+  //const WETHAddr = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6"; //goerli
   const WETH = await ethers.getContractAt("WETH9", WETHAddr);
 
   // create pair and initialize liquidity for the pair

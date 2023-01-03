@@ -12,9 +12,9 @@ async function main() {
   const instantSwapAmount = ethers.utils.parseUnits("1");
   const termSwapAmount = ethers.utils.parseUnits("1");
   const numIntervalUnits = 100;
-  const token0Addr = "0xA21bBa2Dcf4DcA321D13337e6b33A1D780B1dFAA";
+  const token0Addr = "0xA21bBa2Dcf4DcA321D13337e6b33A1D780B1dFAA"; //rinkeby
   const token0 = await ethers.getContractAt("ERC20Mock", token0Addr);
-  const token1Addr = "0x0EE834CBBAC3Ad3FB3Ecc6A1B6B130DaAb9adC7B";
+  const token1Addr = "0x0EE834CBBAC3Ad3FB3Ecc6A1B6B130DaAb9adC7B"; //rinkeby
   const token1 = await ethers.getContractAt("ERC20Mock", token1Addr);
   // const token0Balance = await token0.balanceOf(owner.address);
   // const token1Balance = await token1.balanceOf(owner.address);

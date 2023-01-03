@@ -13,7 +13,8 @@ async function main() {
   let feeToSetter = await factory.feeToSetter();
   console.log("fee to setter address old:", feeToSetter);
 
-  // const feeToSetterAddr = "0x57802b223F76Afd6E51Bb2AF578E72B07066a069";
+  // const feeToSetterAddr = "0x57802b223F76Afd6E51Bb2AF578E72B07066a069"; //ethereum
+  // const feeToSetterAddr = "0xC5273E939e2bFd2B55e5EeeA20ddbFA714b4B78A"; //arbitrumOne
 
   // let tx0 = await factory.setFeeToSetter(feeToSetterAddr);
   // await tx0.wait();

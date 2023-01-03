@@ -13,7 +13,7 @@ async function main() {
   let feeArg = await factory.feeArg();
   console.log("fee arg old:", feeArg);
 
-  // const feeArgInt = 100;
+  // const feeArgInt = 1000;
 
   // let tx0 = await factory.setFeeArg(feeArgInt);
   // await tx0.wait();

@@ -17,14 +17,14 @@ module.exports = {
     longTermOrdersLib: "0xC0b62021c67647e45B8a06Fb00938e2D0607cFA0",
     libraryLib: "0x08C2E97b9e18B442192516d500df712e39912B4f",
   },
-  arbitrum: {
-    Factory: "",
-    TWAMM: "",
-    transferHelperLib: "",
-    orderPoolLib: "",
-    BinarySearchTreeLib: "",
-    longTermOrdersLib: "",
-    libraryLib: "",
+  arbitrumOne: {
+    Factory: "0x336a2f76d2BE24E7cB6F468665a4277D4d617D00",
+    TWAMM: "0x04538B69f9a637500ECf2b705e05AB38Bab27B7E",
+    transferHelperLib: "0xcAB1fB7607Ab900d9595ab0ab94a1070F6B50Bdb",
+    orderPoolLib: "0x8eF713b1c1CD01Ee90D1D5163087bb3DFe847180",
+    BinarySearchTreeLib: "0xE550967eaC8Ccd1C2D5Fbf8fd6265B091e39FF3D",
+    longTermOrdersLib: "0xB7f6625385425D034eF5930e034F2b79F7e002C7",
+    libraryLib: "0x63da8cC8cd603613196FE2B8f09C76AD834f1672",
   },
   goerliArbitrum: {
     Factory: "0x8B6412217B66d299Ae12885F9Aae0d4D3049f53B",

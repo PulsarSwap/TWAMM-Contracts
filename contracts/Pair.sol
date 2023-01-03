@@ -202,7 +202,7 @@ contract Pair is IPair, ERC20, ReentrancyGuard {
 
         require(lpTokenAmount > 0, "Invalid Amount");
         require(
-            lpTokenAmount <= totalSupply(),
+            lpTokenAmount < totalSupply(),
             "Not Enough Lp Tokens Available"
         );
 
