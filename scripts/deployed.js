@@ -17,6 +17,24 @@ module.exports = {
     longTermOrdersLib: "0xC0b62021c67647e45B8a06Fb00938e2D0607cFA0",
     libraryLib: "0x08C2E97b9e18B442192516d500df712e39912B4f",
   },
+  mantle: {
+    Factory: "",
+    TWAMM: "",
+    transferHelperLib: "",
+    orderPoolLib: "",
+    BinarySearchTreeLib: "",
+    longTermOrdersLib: "",
+    libraryLib: "",
+  },
+  goerliMantle: {
+    Factory: "0x792C2A733A5a576DA1E0077B71c13ACacC1153B9",
+    TWAMM: "0x7D789b94FD6821f2dDA5958094E86E2D23CdBb75",
+    transferHelperLib: "0x032A6D211118ba4a3B9FF4829065cc58658c27ec",
+    orderPoolLib: "0xCdF384744491A1919689b80184e7ff0e0D42a5CE",
+    BinarySearchTreeLib: "0x55B7723EFF8030ee3640C553D5e2A787beC9cDA9",
+    longTermOrdersLib: "0x67e2BCAf40d109a136295977fe93e46Fc0bFd4BE",
+    libraryLib: "0x88c0e958d7C847536b68188792b7502C01728779",
+  },
   arbitrumOne: {
     Factory: "0x336a2f76d2BE24E7cB6F468665a4277D4d617D00",
     TWAMM: "0x04538B69f9a637500ECf2b705e05AB38Bab27B7E",
@@ -42,7 +60,7 @@ module.exports = {
   //   transferHelperLib: "",
   //   orderPoolLib: "",
   //   longTermOrdersLib: "",
-  //   libraryLib: " ",
+  //   libraryLib: "",
   // },
   // kovan: {
   //   Factory: "",
@@ -51,7 +69,7 @@ module.exports = {
   //   transferHelperLib: "",
   //   orderPoolLib: "",
   //   longTermOrdersLib: "",
-  //   libraryLib: " ",
+  //   libraryLib: "",
   // },
   // rinkeby: {
   //   Factory: "",
@@ -60,6 +78,6 @@ module.exports = {
   //   transferHelperLib: "",
   //   orderPoolLib: "",
   //   longTermOrdersLib: "",
-  //   libraryLib: " ",
+  //   libraryLib: "",
   // },
 };

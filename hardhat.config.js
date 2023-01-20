@@ -19,7 +19,7 @@ const INFURA_API_KEY = process.env.INFURA_API_KEY;
 const PRIVATE_KEY_TEST = process.env.PRIVATE_KEY_TEST;
 const PRIVATE_KEY_MAINNET = process.env.PRIVATE_KEY_MAINNET;
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
-const ARBITRUM_API_KEY = process.env.ARBITRUM_API_KEY;
+const ARBISCAN_API_KEY = process.env.ARBISCAN_API_KEY;
 
 if (!INFURA_API_KEY) {
   console.log(
@@ -41,9 +41,21 @@ const mainnetArgs = {
 };
 
 const goerliArgs = {
-  FeeToSetter: "0xC007C409E8366C68285292FB2833Fde4e85f2778",
+  FeeToSetter: "0x04d6C327A94B17E913818c02f42eB5e1b3acf7b0",
   Factory: "0x8E257bA064C371EC05Ca7500362278B8098D13Ac",
   WETH: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
+};
+
+const mantleArgs = {
+  FeeToSetter: "",
+  Factory: "",
+  WETH: "", //WBIT
+};
+
+const goerliMantleArgs = {
+  FeeToSetter: "0x04d6C327A94B17E913818c02f42eB5e1b3acf7b0",
+  Factory: "0x792C2A733A5a576DA1E0077B71c13ACacC1153B9",
+  WETH: "0x69ac69b272f96f5f17ddd9da3832ad9dc86d1d8a", //WBIT
 };
 
 const arbitrumOneArgs = {
@@ -53,25 +65,25 @@ const arbitrumOneArgs = {
 };
 
 const goerliArbitrumArgs = {
-  FeeToSetter: "0xC007C409E8366C68285292FB2833Fde4e85f2778",
+  FeeToSetter: "0x04d6C327A94B17E913818c02f42eB5e1b3acf7b0",
   Factory: "0x8B6412217B66d299Ae12885F9Aae0d4D3049f53B",
   WETH: "0x6d44BB7122C831A749Cc0006Cd371c123bc2acA4",
 };
 
 // const ropstenArgs = {
-//   FeeToSetter: "0xC007C409E8366C68285292FB2833Fde4e85f2778",
+//   FeeToSetter: "0x04d6C327A94B17E913818c02f42eB5e1b3acf7b0",
 //   Factory: "",
 //   WETH: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
 // };
 
 // const kovanArgs = {
-//   FeeToSetter: "0xC007C409E8366C68285292FB2833Fde4e85f2778",
+//   FeeToSetter: "0x04d6C327A94B17E913818c02f42eB5e1b3acf7b0",
 //   Factory: "",
 //   WETH: "0xd0A1E359811322d97991E03f863a0C30C2cF029C",
 // };
 
 // const rinkebyArgs = {
-//   FeeToSetter: "0xC007C409E8366C68285292FB2833Fde4e85f2778",
+//   FeeToSetter: "0x04d6C327A94B17E913818c02f42eB5e1b3acf7b0",
 //   Factory: "",
 //   WETH: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
 // };
@@ -111,6 +123,20 @@ module.exports = {
       url: `https://goerli.infura.io/v3/${INFURA_API_KEY}`,
       accounts: [PRIVATE_KEY_TEST],
       ...goerliArgs,
+    },
+
+    mantle: {
+      allowUnlimitedContractSize: true,
+      url: `https://rpc.mantle.xyz`,
+      accounts: [PRIVATE_KEY_MAINNET],
+      ...mantleArgs,
+    },
+
+    goerliMantle: {
+      allowUnlimitedContractSize: true,
+      url: `https://rpc.testnet.mantle.xyz`,
+      accounts: [PRIVATE_KEY_TEST],
+      ...goerliMantleArgs,
     },
 
     arbitrumOne: {
@@ -153,7 +179,7 @@ module.exports = {
     apiKey: {
       mainnet: ETHERSCAN_API_KEY,
       goerli: ETHERSCAN_API_KEY,
-      arbitrumOne: ARBITRUM_API_KEY,
+      arbitrumOne: ARBISCAN_API_KEY,
     },
   },
 
