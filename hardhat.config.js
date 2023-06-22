@@ -19,7 +19,10 @@ const INFURA_API_KEY = process.env.INFURA_API_KEY;
 const PRIVATE_KEY_TEST = process.env.PRIVATE_KEY_TEST;
 const PRIVATE_KEY_MAINNET = process.env.PRIVATE_KEY_MAINNET;
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
+const MANTLESCAN_API_KEY = process.env.MANTLESCAN_API_KEY;
 const ARBISCAN_API_KEY = process.env.ARBISCAN_API_KEY;
+const BASESCAN_API_KEY = process.env.BASESCAN_API_KEY;
+const ZKSYNCSCAN_API_KEY = process.env.ZKSYNCSCAN_API_KEY;
 
 if (!INFURA_API_KEY) {
   console.log(
@@ -49,13 +52,13 @@ const goerliArgs = {
 const mantleArgs = {
   FeeToSetter: "",
   Factory: "",
-  WETH: "", //WBIT
+  WETH: "", //WMNT
 };
 
 const goerliMantleArgs = {
   FeeToSetter: "0x04d6C327A94B17E913818c02f42eB5e1b3acf7b0",
   Factory: "0x792C2A733A5a576DA1E0077B71c13ACacC1153B9",
-  WETH: "0x69ac69b272f96f5f17ddd9da3832ad9dc86d1d8a", //WBIT
+  WETH: "0x8734110e5e1dcF439c7F549db740E546fea82d66", //WMNT
 };
 
 const arbitrumOneArgs = {
@@ -68,6 +71,30 @@ const goerliArbitrumArgs = {
   FeeToSetter: "0x04d6C327A94B17E913818c02f42eB5e1b3acf7b0",
   Factory: "0x8B6412217B66d299Ae12885F9Aae0d4D3049f53B",
   WETH: "0x6d44BB7122C831A749Cc0006Cd371c123bc2acA4",
+};
+
+const baseArgs = {
+  FeeToSetter: "",
+  Factory: "",
+  WETH: "",
+};
+
+const goerliBaseArgs = {
+  FeeToSetter: "0x04d6C327A94B17E913818c02f42eB5e1b3acf7b0",
+  Factory: "",
+  WETH: "0x4200000000000000000000000000000000000006",
+};
+
+const zksyncArgs = {
+  FeeToSetter: "",
+  Factory: "",
+  WETH: "",
+};
+
+const goerliZksyncArgs = {
+  FeeToSetter: "0x04d6C327A94B17E913818c02f42eB5e1b3acf7b0",
+  Factory: "",
+  WETH: "",
 };
 
 // const ropstenArgs = {
@@ -153,6 +180,38 @@ module.exports = {
       ...goerliArbitrumArgs,
     },
 
+    base: {
+      allowUnlimitedContractSize: true,
+      url: `https://rpc.base.org`,
+      accounts: [PRIVATE_KEY_MAINNET],
+      ...baseArgs,
+    },
+
+    goerliBase: {
+      allowUnlimitedContractSize: true,
+      url: `https://goerli.base.org`,
+      accounts: [PRIVATE_KEY_TEST],
+      ...goerliBaseArgs,
+    },
+
+    zksync: {
+      allowUnlimitedContractSize: true,
+      url: `https://rpc.zksync.dev`,
+      accounts: [PRIVATE_KEY_MAINNET],
+      ...zksyncArgs,
+      ethNetwork: "mainnet", // URL of the Ethereum Web3 RPC, or the identifier of the network (e.g. `mainnet` or `goerli`)
+      zksync: true,
+    },
+
+    goerliZksync: {
+      allowUnlimitedContractSize: true,
+      url: `https://zksync2-testnet.zksync.dev`,
+      accounts: [PRIVATE_KEY_TEST],
+      ...goerliZksyncArgs,
+      ethNetwork: "goerli", // URL of the Ethereum Web3 RPC, or the identifier of the network (e.g. `mainnet` or `goerli`)
+      zksync: true,
+    },
+
     // ropsten: {
     //   allowUnlimitedContractSize: true,
     //   url: `https://ropsten.infura.io/v3/${INFURA_API_KEY}`,
@@ -179,7 +238,10 @@ module.exports = {
     apiKey: {
       mainnet: ETHERSCAN_API_KEY,
       goerli: ETHERSCAN_API_KEY,
+      //mantle: MANTLESCAN_API_KEY,
       arbitrumOne: ARBISCAN_API_KEY,
+      //base: BASESCAN_API_KEY,
+      //zksync: ZKSYNCSCAN_API_KEY,
     },
   },
 
