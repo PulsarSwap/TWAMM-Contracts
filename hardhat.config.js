@@ -19,6 +19,7 @@ const INFURA_API_KEY = process.env.INFURA_API_KEY;
 const PRIVATE_KEY_TEST = process.env.PRIVATE_KEY_TEST;
 const PRIVATE_KEY_MAINNET = process.env.PRIVATE_KEY_MAINNET;
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
+const MANTLESCAN_API_KEY = process.env.MANTLESCAN_API_KEY;
 const ARBISCAN_API_KEY = process.env.ARBISCAN_API_KEY;
 
 if (!INFURA_API_KEY) {
@@ -49,13 +50,13 @@ const goerliArgs = {
 const mantleArgs = {
   FeeToSetter: "",
   Factory: "",
-  WETH: "", //WBIT
+  WETH: "", //WMNT
 };
 
 const goerliMantleArgs = {
   FeeToSetter: "0x04d6C327A94B17E913818c02f42eB5e1b3acf7b0",
-  Factory: "0x792C2A733A5a576DA1E0077B71c13ACacC1153B9",
-  WETH: "0x69ac69b272f96f5f17ddd9da3832ad9dc86d1d8a", //WBIT
+  Factory: "0x3A9D418E8D54dF96FAADE229dd18128aCd0D77F6",
+  WETH: "0x8734110e5e1dcF439c7F549db740E546fea82d66", //WMNT
 };
 
 const arbitrumOneArgs = {
@@ -179,6 +180,7 @@ module.exports = {
     apiKey: {
       mainnet: ETHERSCAN_API_KEY,
       goerli: ETHERSCAN_API_KEY,
+      // mantle: MANTLESCAN_API_KEY,
       arbitrumOne: ARBISCAN_API_KEY,
     },
   },
