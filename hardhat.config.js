@@ -48,9 +48,9 @@ const goerliArgs = {
 };
 
 const mantleArgs = {
-  FeeToSetter: "",
-  Factory: "",
-  WETH: "", //WMNT
+  FeeToSetter: "0x84Fd859088dB1E5a6DFcc75988A85dD3EBd378b9",
+  Factory: "0xB5B03706C24c79D3F7a368b30562a1711d74F688",
+  WETH: "0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8", //WMNT
 };
 
 const goerliMantleArgs = {
@@ -179,10 +179,29 @@ module.exports = {
   etherscan: {
     apiKey: {
       mainnet: ETHERSCAN_API_KEY,
-      goerli: ETHERSCAN_API_KEY,
-      // mantle: MANTLESCAN_API_KEY,
       arbitrumOne: ARBISCAN_API_KEY,
+      //"mantle": "xyz",
+      goerli: ETHERSCAN_API_KEY,
+      //"goerliMantle": "xyz",
     },
+    // customChains: [
+    //   {
+    //     network: "mantle",
+    //     chainId: 5000,
+    //     urls: {
+    //       apiURL: "https://explorer.mantle.xyz/api",
+    //       browserURL: "https://explorer.mantle.xyz",
+    //     },
+    //   },
+    //   {
+    //     network: "goerliMantle",
+    //     chainId: 5001,
+    //     urls: {
+    //       apiURL: "https://explorer.testnet.mantle.xyz/api",
+    //       browserURL: "https://explorer.testnet.mantle.xyz",
+    //     },
+    //   },
+    // ],
   },
 
   solidity: {
