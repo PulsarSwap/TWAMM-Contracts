@@ -48,7 +48,7 @@ const goerliArgs = {
 };
 
 const mantleArgs = {
-  FeeToSetter: "0x84Fd859088dB1E5a6DFcc75988A85dD3EBd378b9",
+  FeeToSetter: "0x987cD7D8ac6E124bacd76B6242be89D366c75846",
   Factory: "0xB5B03706C24c79D3F7a368b30562a1711d74F688",
   WETH: "0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8", //WMNT
 };
