@@ -180,32 +180,41 @@ module.exports = {
     apiKey: {
       mainnet: ETHERSCAN_API_KEY,
       arbitrumOne: ARBISCAN_API_KEY,
-      //"mantle": "xyz",
+      mantle: "xyz",
       goerli: ETHERSCAN_API_KEY,
-      //"goerliMantle": "xyz",
+      goerliMantle: "xyz",
     },
-    // customChains: [
-    //   {
-    //     network: "mantle",
-    //     chainId: 5000,
-    //     urls: {
-    //       apiURL: "https://explorer.mantle.xyz/api",
-    //       browserURL: "https://explorer.mantle.xyz",
-    //     },
-    //   },
-    //   {
-    //     network: "goerliMantle",
-    //     chainId: 5001,
-    //     urls: {
-    //       apiURL: "https://explorer.testnet.mantle.xyz/api",
-    //       browserURL: "https://explorer.testnet.mantle.xyz",
-    //     },
-    //   },
-    // ],
+    customChains: [
+      {
+        network: "mantle",
+        chainId: 5000,
+        urls: {
+          apiURL: "https://explorer.mantle.xyz/api",
+          browserURL: "https://explorer.mantle.xyz",
+        },
+      },
+      {
+        network: "goerliMantle",
+        chainId: 5001,
+        urls: {
+          apiURL: "https://explorer.testnet.mantle.xyz/api",
+          browserURL: "https://explorer.testnet.mantle.xyz",
+        },
+      },
+    ],
   },
 
   solidity: {
     compilers: [
+      // {
+      //   version: "0.8.18",
+      //   settings: {
+      //     optimizer: {
+      //       enabled: true,
+      //       runs: 200,
+      //     },
+      //   },
+      // },
       {
         version: "0.8.9",
         settings: {
