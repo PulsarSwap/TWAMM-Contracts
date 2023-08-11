@@ -2,6 +2,7 @@ require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-solhint");
 require("@nomiclabs/hardhat-etherscan");
+require("@truffle/dashboard-hardhat-plugin");
 require("hardhat-gas-reporter");
 // require("hardhat-contract-sizer");
 require("hardhat-deploy");
@@ -101,6 +102,10 @@ module.exports = {
   networks: {
     localhost: {
       url: "http://127.0.0.1:8545",
+    },
+
+    "truffle-dashboard": {
+      url: "http://localhost:24012/rpc",
     },
 
     hardhat: {

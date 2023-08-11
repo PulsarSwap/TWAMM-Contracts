@@ -14,7 +14,7 @@ contract PulsarToken is ERC20 {
     // for PulsarDAO.
     uint256 public constant MAX_SUPPLY = uint248(1e9 ether);
     address public constant ADDR_DAO =
-        0x7DaCf644e4995eD8CdE9447085fbaFcA1Df642bb;
+        0x54D56f7070dd1fEf1ac17eB3b4913d4cc2a66708;
 
     constructor() ERC20("Pulsar Token", "PUL") {
         _mint(ADDR_DAO, MAX_SUPPLY);

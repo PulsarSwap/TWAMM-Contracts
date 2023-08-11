@@ -65,6 +65,7 @@
   "dependencies": {
     "@ethersproject/bignumber": "^5.6.2",
     "@rari-capital/solmate": "^6.2.0",
+    "@truffle/dashboard-hardhat-plugin": "0.2.12",
     "abdk-libraries-solidity": "^3.1.0",
     "bignumber.js": "^9.0.2",
     "dotenv": "^10.0.0",
