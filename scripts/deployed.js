@@ -26,7 +26,7 @@ module.exports = {
     longTermOrdersLib: "0x3a162202B95e11169e0e0ebfA3e9050B4516C9f4",
     libraryLib: "0xd262dE5a35Df8Bf1562Db347a3dB27B6a8bbA831",
   },
-  goerliMantle: {
+  mantleGoerli: {
     Factory: "0x3A9D418E8D54dF96FAADE229dd18128aCd0D77F6",
     TWAMM: "0xd84c54a3Cf231eA5bBBaaAb1C549b87b396e4aC3",
     transferHelperLib: "0xC7064BC6e47d9Dd82D59663DB79C63B906Eda2c4",
@@ -44,7 +44,7 @@ module.exports = {
     longTermOrdersLib: "0xB7f6625385425D034eF5930e034F2b79F7e002C7",
     libraryLib: "0x63da8cC8cd603613196FE2B8f09C76AD834f1672",
   },
-  goerliArbitrum: {
+  arbitrumGoerli: {
     Factory: "0x8B6412217B66d299Ae12885F9Aae0d4D3049f53B",
     TWAMM: "0xdF9E82787Baf7D5A4DE8059d98F0eBeb18c8cf92",
     transferHelperLib: "0x164354de108D7b6c1965B52aeb68e9eA0C366e61",

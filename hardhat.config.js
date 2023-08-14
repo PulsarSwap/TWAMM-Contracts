@@ -54,7 +54,7 @@ const mantleArgs = {
   WETH: "0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8", //WMNT
 };
 
-const goerliMantleArgs = {
+const mantleGoerliArgs = {
   FeeToSetter: "0x04d6C327A94B17E913818c02f42eB5e1b3acf7b0",
   Factory: "0x3A9D418E8D54dF96FAADE229dd18128aCd0D77F6",
   WETH: "0x8734110e5e1dcF439c7F549db740E546fea82d66", //WMNT
@@ -66,7 +66,7 @@ const arbitrumOneArgs = {
   WETH: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
 };
 
-const goerliArbitrumArgs = {
+const arbitrumGoerliArgs = {
   FeeToSetter: "0x04d6C327A94B17E913818c02f42eB5e1b3acf7b0",
   Factory: "0x8B6412217B66d299Ae12885F9Aae0d4D3049f53B",
   WETH: "0x6d44BB7122C831A749Cc0006Cd371c123bc2acA4",
@@ -138,11 +138,11 @@ module.exports = {
       ...mantleArgs,
     },
 
-    goerliMantle: {
+    mantleGoerli: {
       allowUnlimitedContractSize: true,
       url: `https://rpc.testnet.mantle.xyz`,
       accounts: [PRIVATE_KEY_TEST],
-      ...goerliMantleArgs,
+      ...mantleGoerliArgs,
     },
 
     arbitrumOne: {
@@ -152,11 +152,11 @@ module.exports = {
       ...arbitrumOneArgs,
     },
 
-    goerliArbitrum: {
+    arbitrumGoerli: {
       allowUnlimitedContractSize: true,
       url: `https://goerli-rollup.arbitrum.io/rpc`,
       accounts: [PRIVATE_KEY_TEST],
-      ...goerliArbitrumArgs,
+      ...arbitrumGoerliArgs,
     },
 
     // ropsten: {
@@ -187,7 +187,8 @@ module.exports = {
       arbitrumOne: ARBISCAN_API_KEY,
       mantle: "xyz",
       goerli: ETHERSCAN_API_KEY,
-      goerliMantle: "xyz",
+      arbitrumGoerli: ARBISCAN_API_KEY,
+      mantleGoerli: "xyz",
     },
     customChains: [
       {
@@ -199,7 +200,7 @@ module.exports = {
         },
       },
       {
-        network: "goerliMantle",
+        network: "mantleGoerli",
         chainId: 5001,
         urls: {
           apiURL: "https://explorer.testnet.mantle.xyz/api",
